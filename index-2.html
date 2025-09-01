@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek Chat | OpenRouter API</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f3f4f6;
+            --dark: #1f2937;
+            --light: #ffffff;
+            --gray: #9ca3af;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--light);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .api-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray);
+            margin-right: 6px;
+        }
+        
+        .status-dot.connected {
+            background: var(--success);
+        }
+        
+        .status-dot.error {
+            background: var(--error);
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background: var(--secondary);
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-info {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .input-container {
+            padding: 16px;
+            background: var(--light);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid var(--gray);
+            border-radius: 24px;
+            outline: none;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        #user-input:focus {
+            border-color: var(--primary);
+        }
+        
+        #send-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 0 24px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        #send-button:hover {
+            background: var(--primary-dark);
+        }
+        
+        #send-button:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .typing-indicator.active {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--dark);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .dot:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .dot:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+        
+        .info-panel {
+            background: var(--secondary);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
+        .info-panel h3 {
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-text {
+            line-height: 1.5;
+        }
+        
+        .config-panel {
+            background: #fffbeb;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .config-panel h3 {
+            margin-bottom: 10px;
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                height: 95vh;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .api-status {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            
+            header {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-robot logo"></i> DeepSeek Chat</h1>
+            <div class="subtitle">Powered by OpenRouter API</div>
+            <div class="api-status">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Checking API</span>
+            </div>
+        </header>
+        
+        <div class="chat-container" id="chat-container">
+            <div class="message ai-message">
+                <i class="fas fa-robot"></i> Hello! I'm DeepSeek, an AI assistant powered by OpenRouter. How can I help you today?
+                <span class="message-info">Model: deepseek/deepseek-chat-v3.1:free</span>
+            </div>
+            
+            <div class="config-panel">
+                <h3><i class="fas fa-cog"></i> Configuration</h3>
+                <p class="info-text" id="config-status">Checking API key configuration...</p>
+            </div>
+            
+            <div class="info-panel">
+                <h3><i class="fas fa-info-circle"></i> Information</h3>
+                <p class="info-text">This chat interface uses the OpenRouter API to connect to the DeepSeek model. Make sure you have set your <code>API_KEY</code> environment variable in Cloudflare Pages.</p>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <span>DeepSeek is typing...</span>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+            <button id="send-button">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chat-container');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const configStatus = document.getElementById('config-status');
+            
+            // API configuration
+            const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+            
+            // Cloudflare Pages environment variable handling
+            // In Cloudflare Pages, environment variables are injected at build time
+            // We need to use a global variable that will be replaced during deployment
+            let API_KEY = '';
+            
+            // Check if we're running on Cloudflare Pages
+            function initializeApiKey() {
+                // Method 1: Check for global variable (set by Cloudflare Pages)
+                if (typeof API_KEY !== 'undefined' && API_KEY) {
+                    configStatus.innerHTML = `API key found: <code>${API_KEY.substring(0, 10)}...</code>`;
+                    return API_KEY;
+                }
+                
+                // Method 2: Check for environment variable (for local testing)
+                if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+                    configStatus.innerHTML = `API key found: <code>${process.env.API_KEY.substring(0, 10)}...</code>`;
+                    return process.env.API_KEY;
+                }
+                
+                // Method 3: Check for query parameter (for easy testing without redeploying)
+                const urlParams = new URLSearchParams(window.location.search);
+                const keyFromUrl = urlParams.get('api_key');
+                if (keyFromUrl) {
+                    configStatus.innerHTML = `API key loaded from URL parameter: <code>${keyFromUrl.substring(0, 10)}...</code>`;
+                    return keyFromUrl;
+                }
+                
+                // No API key found
+                configStatus.innerHTML = 'No API key found. Please set the <code>API_KEY</code> environment variable in Cloudflare Pages, or provide it via <code>?api_key=YOUR_KEY</code> URL parameter.';
+                return null;
+            }
+            
+            // Initialize the API key
+            API_KEY = initializeApiKey();
+            
+            // Check if API key is available
+            function checkApiKey() {
+                if (!API_KEY) {
+                    updateStatus('API key missing', false);
+                    addMessage('System: API key not configured. Please set the API_KEY environment variable in Cloudflare Pages, or provide it via URL parameter.', 'ai');
+                    return false;
+                }
+                
+                updateStatus('API key loaded', true);
+                return true;
+            }
+            
+            // Update connection status UI
+            function updateStatus(text, connected) {
+                statusText.textContent = text;
+                if (connected) {
+                    statusDot.classList.add('connected');
+                    statusDot.classList.remove('error');
+                } else {
+                    statusDot.classList.add('error');
+                    statusDot.classList.remove('connected');
+                }
+            }
+            
+            // Add message to chat
+            function addMessage(text, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.classList.add(sender + '-message');
+                
+                if (sender === 'ai') {
+                    messageElement.innerHTML = `<i class="fas fa-robot"></i> ${text}`;
+                } else {
+                    messageElement.innerHTML = `<i class="fas fa-user"></i> ${text}`;
+                }
+                
+                chatContainer.appendChild(messageElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            // Show/hide typing indicator
+            function setTyping(visible) {
+                typingIndicator.classList.toggle('active', visible);
+                if (visible) {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            }
+            
+            // Send message to API
+            async function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addMessage(message, 'user');
+                userInput.value = '';
+                sendButton.disabled = true;
+                setTyping(true);
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${API_KEY}`,
+                            'HTTP-Referer': window.location.href,
+                            'X-Title': 'DeepSeek Chat Interface'
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek/deepseek-chat-v3.1:free',
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: 'You are a helpful AI assistant powered by DeepSeek model through OpenRouter.'
+                                },
+                                {
+                                    role: 'user', 
+                                    content: message
+                                }
+                            ]
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const aiResponse = data.choices[0].message.content;
+                    
+                    setTyping(false);
+                    addMessage(aiResponse, 'ai');
+                    updateStatus('Response received', true);
+                } catch (error) {
+                    setTyping(false);
+                    addMessage(`Error: ${error.message}. Please check your API key and try again.`, 'ai');
+                    updateStatus('API error', false);
+                    console.error('Error:', error);
+                }
+                
+                sendButton.disabled = false;
+                userInput.focus();
+            }
+            
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Initialize the app
+            if (checkApiKey()) {
+                // If API key is available, focus the input
+                userInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
