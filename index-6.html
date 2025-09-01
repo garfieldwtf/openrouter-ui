@@ -115,8 +115,6 @@
         .panels-container {
             padding: 20px;
             flex-shrink: 0;
-            background: var(--light);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .chat-container {
@@ -320,42 +318,14 @@
             border-radius: 12px;
             margin-bottom: 15px;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
         }
         
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .info-panel h3 {
             margin-bottom: 10px;
-            cursor: pointer;
-        }
-        
-        .panel-header h3 {
             color: var(--primary-dark);
             display: flex;
             align-items: center;
             gap: 8px;
-            margin: 0;
-        }
-        
-        .toggle-icon {
-            transition: transform 0.3s ease;
-        }
-        
-        .panel-content {
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-        }
-        
-        .panel-content.collapsed {
-            max-height: 0;
-            opacity: 0;
-        }
-        
-        .panel-content.expanded {
-            max-height: 1000px;
-            opacity: 1;
         }
         
         .info-text {
@@ -369,11 +339,14 @@
             margin-bottom: 15px;
             font-size: 0.9rem;
             border-left: 4px solid var(--warning);
-            transition: all 0.3s ease;
         }
         
-        .config-panel .panel-header h3 {
+        .config-panel h3 {
+            margin-bottom: 10px;
             color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .api-config-form {
@@ -445,13 +418,13 @@
         
         .controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             gap: 10px;
             margin-top: 10px;
             padding: 0 20px 15px 20px;
         }
         
-        #clear-chat, #toggle-panels {
+        #clear-chat {
             background: var(--gray);
             color: white;
             border: none;
@@ -460,17 +433,10 @@
             cursor: pointer;
             font-weight: 600;
             transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         
         #clear-chat:hover {
             background: var(--error);
-        }
-        
-        #toggle-panels:hover {
-            background: var(--primary);
         }
         
         code {
@@ -525,10 +491,6 @@
             #save-config {
                 grid-column: span 1;
             }
-            
-            .controls {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
@@ -546,47 +508,37 @@
         <div class="main-content">
             <div class="panels-container">
                 <div class="config-panel">
-                    <div class="panel-header" id="config-panel-header">
-                        <h3><i class="fas fa-cog"></i> Configuration</h3>
-                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    <h3><i class="fas fa-cog"></i> Configuration</h3>
+                    <p class="info-text" id="config-status">Checking configuration...</p>
+                    <div id="cloudflare-status" class="cf-status">
+                        <i class="fas fa-cloud"></i>
+                        <span>Checking Cloudflare environment variable...</span>
                     </div>
-                    <div class="panel-content expanded" id="config-panel-content">
-                        <p class="info-text" id="config-status">Checking configuration...</p>
-                        <div id="cloudflare-status" class="cf-status">
-                            <i class="fas fa-cloud"></i>
-                            <span>Checking Cloudflare environment variable...</span>
+                    <div class="api-config-form">
+                        <div class="form-group">
+                            <label for="api-key-input">OpenRouter API Key</label>
+                            <input type="password" id="api-key-input" placeholder="Enter your API key">
                         </div>
-                        <div class="api-config-form">
-                            <div class="form-group">
-                                <label for="api-key-input">OpenRouter API Key</label>
-                                <input type="password" id="api-key-input" placeholder="Enter your API key">
-                            </div>
-                            <div class="form-group">
-                                <label for="model-input">Model Name</label>
-                                <input type="text" id="model-input" value="deepseek/deepseek-chat-v3.1:free" placeholder="Enter model name">
-                            </div>
-                            <button id="save-config">Save Configuration</button>
+                        <div class="form-group">
+                            <label for="model-input">Model Name</label>
+                            <input type="text" id="model-input" value="deepseek/deepseek-chat-v3.1:free" placeholder="Enter model name">
                         </div>
+                        <button id="save-config">Save Configuration</button>
                     </div>
                 </div>
                 
                 <div class="info-panel">
-                    <div class="panel-header" id="info-panel-header">
-                        <h3><i class="fas fa-info-circle"></i> Information</h3>
-                        <i class="fas fa-chevron-down toggle-icon"></i>
-                    </div>
-                    <div class="panel-content expanded" id="info-panel-content">
-                        <div class="info-text">
-                            <p>This chat interface uses the OpenRouter API to connect to AI models. It will first try to use the API key from Cloudflare Pages environment variables, but you can also manually provide one.</p>
-                            <p>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
-                            <p>Some popular models you can try:</p>
-                            <ul>
-                                <li><code>deepseek/deepseek-chat-v3.1:free</code> - Free DeepSeek model</li>
-                                <li><code>openai/gpt-3.5-turbo</code> - OpenAI's GPT-3.5 Turbo</li>
-                                <li><code>anthropic/claude-3-haiku</code> - Anthropic's Claude 3 Haiku</li>
-                                <li><code>google/gemini-pro</code> - Google's Gemini Pro</li>
-                            </ul>
-                        </div>
+                    <h3><i class="fas fa-info-circle"></i> Information</h3>
+                    <div class="info-text">
+                        <p>This chat interface uses the OpenRouter API to connect to AI models. It will first try to use the API key from Cloudflare Pages environment variables, but you can also manually provide one.</p>
+                        <p>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
+                        <p>Some popular models you can try:</p>
+                        <ul>
+                            <li><code>deepseek/deepseek-chat-v3.1:free</code> - Free DeepSeek model</li>
+                            <li><code>openai/gpt-3.5-turbo</code> - OpenAI's GPT-3.5 Turbo</li>
+                            <li><code>anthropic/claude-3-haiku</code> - Anthropic's Claude 3 Haiku</li>
+                            <li><code>google/gemini-pro</code> - Google's Gemini Pro</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -616,9 +568,6 @@
         </div>
         
         <div class="controls">
-            <button id="toggle-panels">
-                <i class="fas fa-bars"></i> Toggle Panels
-            </button>
             <button id="clear-chat">
                 <i class="fas fa-trash"></i> Clear Chat
             </button>
@@ -641,22 +590,11 @@
             const typingModelElement = document.getElementById('typing-model');
             const cloudflareStatus = document.getElementById('cloudflare-status');
             const clearChatButton = document.getElementById('clear-chat');
-            const togglePanelsButton = document.getElementById('toggle-panels');
-            
-            // Panel elements
-            const configPanelHeader = document.getElementById('config-panel-header');
-            const configPanelContent = document.getElementById('config-panel-content');
-            const infoPanelHeader = document.getElementById('info-panel-header');
-            const infoPanelContent = document.getElementById('info-panel-content');
-            const panelsContainer = document.querySelector('.panels-container');
             
             // API configuration
             const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
             let API_KEY = '';
             let MODEL_NAME = 'deepseek/deepseek-chat-v3.1:free';
-            
-            // Panel state
-            let panelsExpanded = true;
             
             // Conversation history
             let conversationHistory = [
@@ -675,45 +613,6 @@
                     return hljs.highlightAuto(code).value;
                 }
             });
-            
-            // Toggle panel visibility
-            function togglePanels() {
-                panelsExpanded = !panelsExpanded;
-                
-                if (panelsExpanded) {
-                    configPanelContent.classList.remove('collapsed');
-                    configPanelContent.classList.add('expanded');
-                    infoPanelContent.classList.remove('collapsed');
-                    infoPanelContent.classList.add('expanded');
-                    panelsContainer.style.display = 'block';
-                    togglePanelsButton.innerHTML = '<i class="fas fa-bars"></i> Hide Panels';
-                } else {
-                    configPanelContent.classList.remove('expanded');
-                    configPanelContent.classList.add('collapsed');
-                    infoPanelContent.classList.remove('expanded');
-                    infoPanelContent.classList.add('collapsed');
-                    // Don't hide the container completely, just minimize the content
-                    togglePanelsButton.innerHTML = '<i class="fas fa-bars"></i> Show Panels';
-                }
-                
-                // Save panel state to localStorage
-                localStorage.setItem('panelsExpanded', panelsExpanded);
-            }
-            
-            // Toggle individual panel
-            function togglePanel(header, content) {
-                const isExpanded = content.classList.contains('expanded');
-                
-                if (isExpanded) {
-                    content.classList.remove('expanded');
-                    content.classList.add('collapsed');
-                    header.querySelector('.toggle-icon').style.transform = 'rotate(0deg)';
-                } else {
-                    content.classList.remove('collapsed');
-                    content.classList.add('expanded');
-                    header.querySelector('.toggle-icon').style.transform = 'rotate(180deg)';
-                }
-            }
             
             // Check for Cloudflare Pages environment variable
             function checkCloudflareEnv() {
@@ -737,15 +636,6 @@
             
             // Check for saved configuration
             function initializeConfig() {
-                // Load panel state from localStorage
-                const savedPanelState = localStorage.getItem('panelsExpanded');
-                if (savedPanelState !== null) {
-                    panelsExpanded = savedPanelState === 'true';
-                    if (!panelsExpanded) {
-                        togglePanels();
-                    }
-                }
-                
                 const cloudflareResult = checkCloudflareEnv();
                 
                 // Check localStorage for model name
@@ -993,10 +883,6 @@
             sendButton.addEventListener('click', sendMessage);
             saveConfigButton.addEventListener('click', saveConfig);
             clearChatButton.addEventListener('click', clearChat);
-            togglePanelsButton.addEventListener('click', togglePanels);
-            
-            configPanelHeader.addEventListener('click', () => togglePanel(configPanelHeader, configPanelContent));
-            infoPanelHeader.addEventListener('click', () => togglePanel(infoPanelHeader, infoPanelContent));
             
             userInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
