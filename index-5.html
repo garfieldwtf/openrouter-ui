@@ -105,22 +105,10 @@
             background: var(--error);
         }
         
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow: hidden;
-        }
-        
-        .panels-container {
-            padding: 20px;
-            flex-shrink: 0;
-        }
-        
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 0 20px 20px 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -232,7 +220,6 @@
             border-top: 1px solid rgba(0, 0, 0, 0.1);
             display: flex;
             gap: 10px;
-            flex-shrink: 0;
         }
         
         #user-input {
@@ -316,7 +303,7 @@
             background: var(--secondary);
             padding: 15px;
             border-radius: 12px;
-            margin-bottom: 15px;
+            margin: 15px 0;
             font-size: 0.9rem;
         }
         
@@ -336,7 +323,7 @@
             background: #fffbeb;
             padding: 15px;
             border-radius: 12px;
-            margin-bottom: 15px;
+            margin: 15px 0;
             font-size: 0.9rem;
             border-left: 4px solid var(--warning);
         }
@@ -421,7 +408,6 @@
             justify-content: flex-end;
             gap: 10px;
             margin-top: 10px;
-            padding: 0 20px 15px 20px;
         }
         
         #clear-chat {
@@ -505,50 +491,46 @@
             </div>
         </header>
         
-        <div class="main-content">
-            <div class="panels-container">
-                <div class="config-panel">
-                    <h3><i class="fas fa-cog"></i> Configuration</h3>
-                    <p class="info-text" id="config-status">Checking configuration...</p>
-                    <div id="cloudflare-status" class="cf-status">
-                        <i class="fas fa-cloud"></i>
-                        <span>Checking Cloudflare environment variable...</span>
-                    </div>
-                    <div class="api-config-form">
-                        <div class="form-group">
-                            <label for="api-key-input">OpenRouter API Key</label>
-                            <input type="password" id="api-key-input" placeholder="Enter your API key">
-                        </div>
-                        <div class="form-group">
-                            <label for="model-input">Model Name</label>
-                            <input type="text" id="model-input" value="deepseek/deepseek-chat-v3.1:free" placeholder="Enter model name">
-                        </div>
-                        <button id="save-config">Save Configuration</button>
-                    </div>
+        <div class="chat-container" id="chat-container">
+            <div class="message ai-message">
+                <div class="message-content">
+                    <i class="fas fa-robot"></i> Hello! I'm DeepSeek, an AI assistant powered by OpenRouter. How can I help you today?
                 </div>
-                
-                <div class="info-panel">
-                    <h3><i class="fas fa-info-circle"></i> Information</h3>
-                    <div class="info-text">
-                        <p>This chat interface uses the OpenRouter API to connect to AI models. It will first try to use the API key from Cloudflare Pages environment variables, but you can also manually provide one.</p>
-                        <p>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
-                        <p>Some popular models you can try:</p>
-                        <ul>
-                            <li><code>deepseek/deepseek-chat-v3.1:free</code> - Free DeepSeek model</li>
-                            <li><code>openai/gpt-3.5-turbo</code> - OpenAI's GPT-3.5 Turbo</li>
-                            <li><code>anthropic/claude-3-haiku</code> - Anthropic's Claude 3 Haiku</li>
-                            <li><code>google/gemini-pro</code> - Google's Gemini Pro</li>
-                        </ul>
+                <span class="message-info">Model: <span id="current-model">deepseek/deepseek-chat-v3.1:free</span></span>
+            </div>
+            
+            <div class="config-panel">
+                <h3><i class="fas fa-cog"></i> Configuration</h3>
+                <p class="info-text" id="config-status">Checking configuration...</p>
+                <div id="cloudflare-status" class="cf-status">
+                    <i class="fas fa-cloud"></i>
+                    <span>Checking Cloudflare environment variable...</span>
+                </div>
+                <div class="api-config-form">
+                    <div class="form-group">
+                        <label for="api-key-input">OpenRouter API Key</label>
+                        <input type="password" id="api-key-input" placeholder="Enter your API key">
                     </div>
+                    <div class="form-group">
+                        <label for="model-input">Model Name</label>
+                        <input type="text" id="model-input" value="deepseek/deepseek-chat-v3.1:free" placeholder="Enter model name">
+                    </div>
+                    <button id="save-config">Save Configuration</button>
                 </div>
             </div>
             
-            <div class="chat-container" id="chat-container">
-                <div class="message ai-message">
-                    <div class="message-content">
-                        <i class="fas fa-robot"></i> Hello! I'm DeepSeek, an AI assistant powered by OpenRouter. How can I help you today?
-                    </div>
-                    <span class="message-info">Model: <span id="current-model">deepseek/deepseek-chat-v3.1:free</span></span>
+            <div class="info-panel">
+                <h3><i class="fas fa-info-circle"></i> Information</h3>
+                <div class="info-text">
+                    <p>This chat interface uses the OpenRouter API to connect to AI models. It will first try to use the API key from Cloudflare Pages environment variables, but you can also manually provide one.</p>
+                    <p>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
+                    <p>Some popular models you can try:</p>
+                    <ul>
+                        <li><code>deepseek/deepseek-chat-v3.1:free</code> - Free DeepSeek model</li>
+                        <li><code>openai/gpt-3.5-turbo</code> - OpenAI's GPT-3.5 Turbo</li>
+                        <li><code>anthropic/claude-3-haiku</code> - Anthropic's Claude 3 Haiku</li>
+                        <li><code>google/gemini-pro</code> - Google's Gemini Pro</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -685,8 +667,11 @@
             
             // Render conversation history
             function renderConversationHistory() {
-                // Clear the chat container except for the first message
-                while (chatContainer.children.length > 1) {
+                // Clear the chat container except for the first message and config panels
+                const children = chatContainer.children;
+                const elementsToKeep = [children[0], children[1], children[2]]; // Keep initial messages and config
+                
+                while (chatContainer.children.length > 3) {
                     chatContainer.removeChild(chatContainer.lastChild);
                 }
                 
@@ -752,8 +737,9 @@
                 messageElement.appendChild(icon);
                 messageElement.appendChild(messageContent);
                 
-                // Add to chat container
-                chatContainer.appendChild(messageElement);
+                // Insert before the config panel
+                const configPanel = document.querySelector('.config-panel');
+                chatContainer.insertBefore(messageElement, configPanel);
                 
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 
@@ -870,8 +856,11 @@
                     
                     localStorage.removeItem('conversation_history');
                     
-                    // Clear the chat container except for the first message
-                    while (chatContainer.children.length > 1) {
+                    // Clear the chat container except for the first message and config panels
+                    const children = chatContainer.children;
+                    const elementsToKeep = [children[0], children[1], children[2]]; // Keep initial messages and config
+                    
+                    while (chatContainer.children.length > 3) {
                         chatContainer.removeChild(chatContainer.lastChild);
                     }
                     
