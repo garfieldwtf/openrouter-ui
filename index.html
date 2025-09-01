@@ -403,6 +403,28 @@
             background: rgba(239, 68, 68, 0.1);
         }
         
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        #clear-chat {
+            background: var(--gray);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        #clear-chat:hover {
+            background: var(--error);
+        }
+        
         code {
             background: rgba(0, 0, 0, 0.05);
             padding: 2px 6px;
@@ -526,6 +548,12 @@
                 <i class="fas fa-paper-plane"></i> Send
             </button>
         </div>
+        
+        <div class="controls">
+            <button id="clear-chat">
+                <i class="fas fa-trash"></i> Clear Chat
+            </button>
+        </div>
     </div>
 
     <script>
@@ -543,11 +571,20 @@
             const currentModelElement = document.getElementById('current-model');
             const typingModelElement = document.getElementById('typing-model');
             const cloudflareStatus = document.getElementById('cloudflare-status');
+            const clearChatButton = document.getElementById('clear-chat');
             
             // API configuration
             const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
             let API_KEY = '';
             let MODEL_NAME = 'deepseek/deepseek-chat-v3.1:free';
+            
+            // Conversation history
+            let conversationHistory = [
+                {
+                    role: 'system',
+                    content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                }
+            ];
             
             // Configure marked to render code blocks with syntax highlighting
             marked.setOptions({
@@ -592,6 +629,24 @@
                     typingModelElement.textContent = `${savedModel.split('/').pop()} is typing...`;
                 }
                 
+                // Load conversation history from localStorage if available
+                const savedHistory = localStorage.getItem('conversation_history');
+                if (savedHistory) {
+                    try {
+                        conversationHistory = JSON.parse(savedHistory);
+                        // Re-render the conversation from history
+                        renderConversationHistory();
+                    } catch (e) {
+                        console.error('Error loading conversation history:', e);
+                        conversationHistory = [
+                            {
+                                role: 'system',
+                                content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                            }
+                        ];
+                    }
+                }
+                
                 if (cloudflareResult) {
                     configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>`;
                     return true;
@@ -608,6 +663,26 @@
                 
                 configStatus.innerHTML = 'Please configure your API settings above';
                 return false;
+            }
+            
+            // Render conversation history
+            function renderConversationHistory() {
+                // Clear the chat container except for the first message and config panels
+                const children = chatContainer.children;
+                const elementsToKeep = [children[0], children[1], children[2]]; // Keep initial messages and config
+                
+                while (chatContainer.children.length > 3) {
+                    chatContainer.removeChild(chatContainer.lastChild);
+                }
+                
+                // Add messages from history (skip system message)
+                for (const message of conversationHistory) {
+                    if (message.role === 'user') {
+                        addMessage(message.content, 'user', false);
+                    } else if (message.role === 'assistant') {
+                        addMessage(message.content, 'ai', false);
+                    }
+                }
             }
             
             // Check if API key is available
@@ -640,7 +715,7 @@
             }
             
             // Add message to chat with markdown support
-            function addMessage(text, sender) {
+            function addMessage(text, sender, addToHistory = true) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message');
                 messageElement.classList.add(sender + '-message');
@@ -662,13 +737,28 @@
                 messageElement.appendChild(icon);
                 messageElement.appendChild(messageContent);
                 
-                chatContainer.appendChild(messageElement);
+                // Insert before the config panel
+                const configPanel = document.querySelector('.config-panel');
+                chatContainer.insertBefore(messageElement, configPanel);
+                
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 
                 // Highlight any code blocks in the message
                 messageContent.querySelectorAll('pre code').forEach((block) => {
                     hljs.highlightElement(block);
                 });
+                
+                // Add to conversation history
+                if (addToHistory) {
+                    if (sender === 'user') {
+                        conversationHistory.push({ role: 'user', content: text });
+                    } else if (sender === 'ai') {
+                        conversationHistory.push({ role: 'assistant', content: text });
+                    }
+                    
+                    // Save conversation history to localStorage
+                    localStorage.setItem('conversation_history', JSON.stringify(conversationHistory));
+                }
             }
             
             // Show/hide typing indicator
@@ -701,16 +791,7 @@
                         },
                         body: JSON.stringify({
                             model: MODEL_NAME,
-                            messages: [
-                                {
-                                    role: 'system',
-                                    content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
-                                },
-                                {
-                                    role: 'user', 
-                                    content: message
-                                }
-                            ]
+                            messages: conversationHistory
                         })
                     });
                     
@@ -763,9 +844,34 @@
                 checkApiKey();
             }
             
+            // Clear chat history
+            function clearChat() {
+                if (confirm('Are you sure you want to clear the conversation history?')) {
+                    conversationHistory = [
+                        {
+                            role: 'system',
+                            content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                        }
+                    ];
+                    
+                    localStorage.removeItem('conversation_history');
+                    
+                    // Clear the chat container except for the first message and config panels
+                    const children = chatContainer.children;
+                    const elementsToKeep = [children[0], children[1], children[2]]; // Keep initial messages and config
+                    
+                    while (chatContainer.children.length > 3) {
+                        chatContainer.removeChild(chatContainer.lastChild);
+                    }
+                    
+                    addMessage('Conversation history has been cleared.', 'ai');
+                }
+            }
+            
             // Event listeners
             sendButton.addEventListener('click', sendMessage);
             saveConfigButton.addEventListener('click', saveConfig);
+            clearChatButton.addEventListener('click', clearChat);
             
             userInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
