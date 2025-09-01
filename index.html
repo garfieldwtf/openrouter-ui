@@ -379,6 +379,30 @@
             background: var(--primary-dark);
         }
         
+        .cf-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .cf-status i {
+            font-size: 1.2rem;
+        }
+        
+        .cf-status.success {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .cf-status.error {
+            color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
         code {
             background: rgba(0, 0, 0, 0.05);
             padding: 2px 6px;
@@ -393,6 +417,10 @@
         
         a:hover {
             text-decoration: underline;
+        }
+        
+        .hidden {
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -451,7 +479,11 @@
             
             <div class="config-panel">
                 <h3><i class="fas fa-cog"></i> Configuration</h3>
-                <p class="info-text" id="config-status">Please configure your API settings to start chatting</p>
+                <p class="info-text" id="config-status">Checking configuration...</p>
+                <div id="cloudflare-status" class="cf-status">
+                    <i class="fas fa-cloud"></i>
+                    <span>Checking Cloudflare environment variable...</span>
+                </div>
                 <div class="api-config-form">
                     <div class="form-group">
                         <label for="api-key-input">OpenRouter API Key</label>
@@ -468,7 +500,7 @@
             <div class="info-panel">
                 <h3><i class="fas fa-info-circle"></i> Information</h3>
                 <div class="info-text">
-                    <p>This chat interface uses the OpenRouter API to connect to AI models. You need to provide your OpenRouter API key to use this service.</p>
+                    <p>This chat interface uses the OpenRouter API to connect to AI models. It will first try to use the API key from Cloudflare Pages environment variables, but you can also manually provide one.</p>
                     <p>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
                     <p>Some popular models you can try:</p>
                     <ul>
@@ -510,6 +542,7 @@
             const saveConfigButton = document.getElementById('save-config');
             const currentModelElement = document.getElementById('current-model');
             const typingModelElement = document.getElementById('typing-model');
+            const cloudflareStatus = document.getElementById('cloudflare-status');
             
             // API configuration
             const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -526,14 +559,29 @@
                 }
             });
             
+            // Check for Cloudflare Pages environment variable
+            function checkCloudflareEnv() {
+                // This will be replaced at build time by Cloudflare Pages
+                // The variable needs to be injected into the HTML during build
+                const cfApiKey = '{{API_KEY}}';
+                
+                if (cfApiKey && cfApiKey !== '{{API_KEY}}' && cfApiKey.length > 10) {
+                    // Valid Cloudflare environment variable found
+                    API_KEY = cfApiKey;
+                    cloudflareStatus.innerHTML = `<i class="fas fa-check-circle"></i> <span>Using API key from Cloudflare environment variable: <code>${cfApiKey.substring(0, 10)}...</code></span>`;
+                    cloudflareStatus.classList.add('success');
+                    return true;
+                } else {
+                    // No valid Cloudflare environment variable found
+                    cloudflareStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> <span>No API key found in Cloudflare environment variables. Please provide one manually.</span>';
+                    cloudflareStatus.classList.add('error');
+                    return false;
+                }
+            }
+            
             // Check for saved configuration
             function initializeConfig() {
-                // Check localStorage for API key
-                const savedApiKey = localStorage.getItem('openrouter_api_key');
-                if (savedApiKey) {
-                    API_KEY = savedApiKey;
-                    apiKeyInput.value = savedApiKey;
-                }
+                const cloudflareResult = checkCloudflareEnv();
                 
                 // Check localStorage for model name
                 const savedModel = localStorage.getItem('openrouter_model');
@@ -544,8 +592,17 @@
                     typingModelElement.textContent = `${savedModel.split('/').pop()} is typing...`;
                 }
                 
+                if (cloudflareResult) {
+                    configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>`;
+                    return true;
+                }
+                
+                // Check localStorage for API key if Cloudflare didn't provide one
+                const savedApiKey = localStorage.getItem('openrouter_api_key');
                 if (savedApiKey) {
-                    configStatus.innerHTML = `Configuration loaded. Using model: <code>${MODEL_NAME}</code>`;
+                    API_KEY = savedApiKey;
+                    apiKeyInput.value = savedApiKey;
+                    configStatus.innerHTML = `Configuration loaded from browser storage. Using model: <code>${MODEL_NAME}</code>`;
                     return true;
                 }
                 
