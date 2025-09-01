@@ -522,7 +522,7 @@
             align-items: center;
             z-index: 1000;
             color: white;
-            display: none;
+            display: none; /* Fixed: Initially hidden */
         }
         
         .pdf-loading .spinner {
@@ -930,16 +930,6 @@
                     typingModelElement.textContent = `${savedModel.split('/').pop()} is typing...`;
                 }
                 
-                // Check localStorage for API key if Cloudflare didn't provide one
-                const savedApiKey = localStorage.getItem('openrouter_api_key');
-                if (savedApiKey) {
-                    API_KEY = savedApiKey;
-                    apiKeyInput.value = savedApiKey;
-                    configStatus.innerHTML = `Configuration loaded from browser storage. Using model: <code>${MODEL_NAME}</code>`;
-                    updateStatus('API key loaded', true);
-                    return true;
-                }
-                
                 // Load conversation history from localStorage if available
                 const savedHistory = localStorage.getItem('conversation_history');
                 if (savedHistory) {
@@ -960,12 +950,19 @@
                 
                 if (cloudflareResult) {
                     configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>`;
-                    updateStatus('API key loaded', true);
+                    return true;
+                }
+                
+                // Check localStorage for API key if Cloudflare didn't provide one
+                const savedApiKey = localStorage.getItem('openrouter_api_key');
+                if (savedApiKey) {
+                    API_KEY = savedApiKey;
+                    apiKeyInput.value = savedApiKey;
+                    configStatus.innerHTML = `Configuration loaded from browser storage. Using model: <code>${MODEL_NAME}</code>`;
                     return true;
                 }
                 
                 configStatus.innerHTML = 'Please configure your API settings above';
-                updateStatus('API key required', false);
                 return false;
             }
             
@@ -1026,7 +1023,7 @@
                 
                 // Add sender icon
                 const icon = document.createElement('i');
-                icon.className = sender === 'ai' ? 'fas fa-robot' : 'fas fa-user';
+                icon.className = sender === 'ai' => 'fas fa-robot' : 'fas fa-user';
                 
                 // Parse markdown if it's an AI message
                 if (sender === 'ai') {
@@ -1141,17 +1138,7 @@
                 currentModelElement.textContent = model;
                 typingModelElement.textContent = `${model.split('/').pop()} is typing...`;
                 configStatus.innerHTML = `Configuration saved. Using model: <code>${model}</code>`;
-                
-                // Update the status to show API key is loaded
-                updateStatus('API key loaded', true);
-                
-                // Enable the chat input
-                userInput.disabled = false;
-                sendButton.disabled = false;
-                userInput.focus();
-                
-                // Add a confirmation message
-                addMessage('Configuration saved successfully. You can now start chatting!', 'ai');
+                checkApiKey();
             }
             
             // Clear chat history
