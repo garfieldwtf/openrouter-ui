@@ -1039,9 +1039,8 @@
                     cloudflareStatus.classList.add('success');
                     return true;
                 } else {
-                    // No valid Cloudflare environment variable found
-                    cloudflareStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> <span>No API key found in Cloudflare environment variables. Please provide one manually.</span>';
-                    cloudflareStatus.classList.add('error');
+                    // No valid Cloudflare environment variable found - hide the status
+                    cloudflareStatus.style.display = 'none';
                     return false;
                 }
             }
