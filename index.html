@@ -1012,7 +1012,8 @@
                 if (savedApiKey) {
                     API_KEY = savedApiKey;
                     apiKeyInput.value = savedApiKey;
-                    configStatus.innerHTML = `Configuration loaded from browser storage. Using model: <code>${MODEL_NAME}</code>`;
+                    configStatus.innerHTML = `Configuration loaded from browser storage. Using model: <code>${MODEL_NAME}</code>` + 
+                                            (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
                     updateStatus('API key loaded', true);
                     return true;
                 }
@@ -1036,7 +1037,8 @@
                 }
                 
                 if (cloudflareResult) {
-                    configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>`;
+                    configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>` + 
+                                            (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
                     updateStatus('API key loaded', true);
                     return true;
                 }
@@ -1066,14 +1068,15 @@
             // Check if API key is available
             function checkApiKey() {
                 if (!API_KEY) {
-                    updateStatus('API key required', false);
-                    addMessage('System: Please enter your OpenRouter API key to start chatting.', 'ai');
-                    userInput.disabled = true;
-                    sendButton.disabled = true;
-                    return false;
+                    updateStatus('No API key (some endpoints may not work)', true);
+                    addMessage('System: No API key configured. Some endpoints may not work without authentication. You can still try to send messages.', 'ai');
+                    userInput.disabled = false;
+                    sendButton.disabled = false;
+                    userInput.focus();
+                    return true;
                 }
                 
-                updateStatus('API key loaded', true);
+                updateStatus('API key loaded' + (API_KEY ? '' : ' (some endpoints may not work)'), true);
                 userInput.disabled = false;
                 sendButton.disabled = false;
                 userInput.focus();
@@ -1271,15 +1274,17 @@
                 const key = apiKeyInput.value.trim();
                 const endpoint = endpointInput.value.trim();
                 const model = modelInput.value.trim();
-                
-                if (!key) {
-                    alert('Please enter a valid API key');
-                    return;
-                }
                           
                 if (!endpoint) {
                     alert('Please enter an API endpoint');
                     return;
+                }
+                
+                // API key is optional, but show warning if empty
+                if (!key) {
+                    if (!confirm('Warning: No API key provided. Some endpoints may not work without authentication. Continue anyway?')) {
+                        return;
+                    }
                 }
                 
                 API_KEY = key;
@@ -1292,7 +1297,8 @@
                 
                 currentModelElement.textContent = model;
                 typingModelElement.textContent = `${model.split('/').pop()} is typing...`;
-                configStatus.innerHTML = `Configuration saved. Using model: <code>${model}</code>`;
+                configStatus.innerHTML = `Configuration saved. Using model: <code>${model}</code>` + 
+                                        (key ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
                 
                 // Update the status to show API key is loaded
                 updateStatus('API key loaded', true);
