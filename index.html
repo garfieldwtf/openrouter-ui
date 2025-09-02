@@ -245,6 +245,23 @@
             padding: 0;
         }
 
+        .final-answer-header {
+            font-weight: bold;
+            color: #10b981;
+            margin: 15px 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .final-answer {
+            background-color: #f0fdf4;
+            border-left: 4px solid #10b981;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -1071,33 +1088,60 @@
                 
                 // Parse markdown if it's an AI message
                 if (sender === 'ai') {
-                    // Check if this is a "thinking" message using more comprehensive detection
-                    const thinkingPatterns = [
-                        /let me think/i,
-                        /let's think/i,
-                        /hmm/i,
-                        /thinking/i,
-                        /first,/i,
-                        /first let me/i,
-                        /step by step/i,
-                        /break this down/i,
-                        /analyze/i,
-                        /reasoning:/i,
-                        /thought process:/i
-                    ];
-                    
-                    const isThinking = thinkingPatterns.some(pattern => pattern.test(text));
-                    
-                    if (isThinking) {
-                        // Format thinking messages differently with a clear header
-                        messageContent.innerHTML = `
-                            <div class="thinking-header">
-                                <i class="fas fa-brain"></i> Thinking Process
-                            </div>
-                            <div class="thinking-message">${marked.parse(text)}</div>
-                        `;
+                    // First, check if this appears to be a combined thinking + response message
+                    if (text.includes("assistantfinal") || text.includes("analysisWe must answer")) {
+                        // This is a special case where the API returned thinking and response combined
+                        // Split the thinking from the final answer
+                        const thinkingMatch = text.match(/analysis(.*?)assistantfinal/s);
+                        const finalMatch = text.match(/assistantfinal(.*)/s);
+                        
+                        if (thinkingMatch && finalMatch) {
+                            const thinkingText = thinkingMatch[1].trim();
+                            const finalText = finalMatch[1].trim();
+                            
+                            messageContent.innerHTML = `
+                                <div class="thinking-header">
+                                    <i class="fas fa-brain"></i> Thinking Process
+                                </div>
+                                <div class="thinking-message">${marked.parse(thinkingText)}</div>
+                                <div class="final-answer-header">
+                                    <i class="fas fa-check-circle"></i> Final Answer
+                                </div>
+                                <div class="final-answer">${marked.parse(finalText)}</div>
+                            `;
+                        } else {
+                            // Fallback if the pattern doesn't match exactly
+                            messageContent.innerHTML = marked.parse(text);
+                        }
                     } else {
-                        messageContent.innerHTML = marked.parse(text);
+                        // Check if this is a "thinking" message using more comprehensive detection
+                        const thinkingPatterns = [
+                            /let me think/i,
+                            /let's think/i,
+                            /hmm/i,
+                            /thinking/i,
+                            /first,/i,
+                            /first let me/i,
+                            /step by step/i,
+                            /break this down/i,
+                            /analyze/i,
+                            /reasoning:/i,
+                            /thought process:/i
+                        ];
+                        
+                        const isThinking = thinkingPatterns.some(pattern => pattern.test(text));
+                        
+                        if (isThinking) {
+                            // Format thinking messages differently with a clear header
+                            messageContent.innerHTML = `
+                                <div class="thinking-header">
+                                    <i class="fas fa-brain"></i> Thinking Process
+                                </div>
+                                <div class="thinking-message">${marked.parse(text)}</div>
+                            `;
+                        } else {
+                            messageContent.innerHTML = marked.parse(text);
+                        }
                     }
                 } else {
                     messageContent.textContent = text;
