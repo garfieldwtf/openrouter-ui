@@ -90,41 +90,7 @@
             padding: 5px 10px;
             border-radius: 20px;
         }
-
-        .status-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
-        .api-status {
-            display: flex;
-            align-items: center;
-            font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-
-        .model-status {
-            display: flex;
-            align-items: center;
-            font-size: 0.7rem;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 4px 8px;
-            border-radius: 16px;
-            gap: 5px;
-        }
-
-        .model-status i {
-            font-size: 0.6rem;
-            opacity: 0.7;
-        }        
-
+        
         .api-status small {
             display: block;
             font-size: 0.7rem;
@@ -687,15 +653,9 @@
         <header>
             <h1><i class="fas fa-robot logo"></i> DeepSeek Chat</h1>
             <div class="subtitle">Powered by OpenRouter API</div>
-            <div class="status-container">
-                <div class="api-status">
-                    <span class="status-dot" id="status-dot"></span>
-                    <span id="status-text">Checking API</span>
-                </div>
-                <div class="model-status" id="model-status">
-                    <i class="fas fa-microchip"></i>
-                    <span id="model-text">No model selected</span>
-                </div>
+            <div class="api-status">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Checking API</span>
             </div>
         </header>
         
@@ -1111,22 +1071,20 @@
             // Update connection status UI
             function updateStatus(text, connected) {
                 statusText.textContent = text;
-                const modelStatus = document.getElementById('model-status');
-                const modelText = document.getElementById('model-text');
-                
                 if (connected) {
                     statusDot.classList.add('connected');
                     statusDot.classList.remove('error');
                     
-                    // Update model status
+                    // Add model info to status when connected
                     if (MODEL_NAME) {
-                        modelText.textContent = MODEL_NAME;
-                        modelStatus.style.display = 'flex';
+                        statusText.innerHTML = `${text}<br><small>Model: ${MODEL_NAME}</small>`;
                     }
                 } else {
                     statusDot.classList.add('error');
                     statusDot.classList.remove('connected');
-                    modelStatus.style.display = 'none';
+                    
+                    // Remove model info from status when not connected
+                    statusText.textContent = text;
                 }
             }
             
