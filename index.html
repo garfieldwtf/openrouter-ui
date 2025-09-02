@@ -668,8 +668,12 @@
                         </div>
                         <div class="api-config-form">
                             <div class="form-group">
-                                <label for="api-key-input">OpenRouter API Key</label>
+                                <label for="api-key-input">API Key</label>
                                 <input type="password" id="api-key-input" placeholder="Enter your API key">
+                            </div>
+                            <div class="form-group">
+                                <label for="endpoint-input">API Endpoint</label>
+                                <input type="text" id="endpoint-input" value="https://openrouter.ai/api/v1/chat/completions" placeholder="Enter API endpoint">
                             </div>
                             <div class="form-group">
                                 <label for="model-input">Model Name</label>
@@ -687,8 +691,14 @@
                     </div>
                     <div class="panel-content expanded" id="info-panel-content">
                         <div class="info-text">
-                            <p>This chat interface uses the OpenRouter API to connect to AI models. It will first try to use the API key from Cloudflare Pages environment variables, but you can also manually provide one.</p>
-                            <p>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
+                            <p>This chat interface can connect to various AI APIs. By default, it uses the OpenRouter API, but you can change the endpoint to use other services.</p>
+                            <p>Get your OpenRouter API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
+                            <p>Popular API endpoints:</p>
+                            <ul>
+                                <li><code>https://openrouter.ai/api/v1/chat/completions</code> - OpenRouter</li>
+                                <li><code>https://api.openai.com/v1/chat/completions</code> - OpenAI</li>
+                                <li><code>https://api.anthropic.com/v1/messages</code> - Anthropic</li>
+                            </ul>
                             <p>Some popular models you can try:</p>
                             <ul>
                                 <li><code>deepseek/deepseek-chat-v3.1:free</code> - Free DeepSeek model</li>
@@ -759,6 +769,7 @@
             const configStatus = document.getElementById('config-status');
             const apiKeyInput = document.getElementById('api-key-input');
             const modelInput = document.getElementById('model-input');
+            const endpointInput = document.getElementById('endpoint-input');
             const saveConfigButton = document.getElementById('save-config');
             const currentModelElement = document.getElementById('current-model');
             const typingModelElement = document.getElementById('typing-model');
@@ -776,7 +787,7 @@
             const panelsContainer = document.querySelector('.panels-container');
             
             // API configuration
-            const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+            let API_URL = 'https://openrouter.ai/api/v1/chat/completions';
             let API_KEY = '';
             let MODEL_NAME = 'deepseek/deepseek-chat-v3.1:free';
             
@@ -982,6 +993,13 @@
                 
                 // Check localStorage for model name
                 const savedModel = localStorage.getItem('openrouter_model');
+                
+                // Check localStorage for endpoint
+                const savedEndpoint = localStorage.getItem('api_endpoint');
+                if (savedEndpoint) {
+                    API_URL = savedEndpoint;
+                    endpointInput.value = savedEndpoint;
+                }
                 if (savedModel) {
                     MODEL_NAME = savedModel;
                     modelInput.value = savedModel;
@@ -1251,22 +1269,25 @@
             // Save configuration
             function saveConfig() {
                 const key = apiKeyInput.value.trim();
+                const endpoint = endpointInput.value.trim();
                 const model = modelInput.value.trim();
                 
                 if (!key) {
                     alert('Please enter a valid API key');
                     return;
                 }
-                
-                if (!model) {
-                    alert('Please enter a model name');
+                          
+                if (!endpoint) {
+                    alert('Please enter an API endpoint');
                     return;
                 }
                 
                 API_KEY = key;
+                API_URL = endpoint;
                 MODEL_NAME = model;
                 
                 localStorage.setItem('openrouter_api_key', key);
+                localStorage.setItem('api_endpoint', endpoint);
                 localStorage.setItem('openrouter_model', model);
                 
                 currentModelElement.textContent = model;
@@ -1329,6 +1350,13 @@
             });
             
             modelInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveConfig();
+                }
+            });
+
+                        
+            endpointInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     saveConfig();
                 }
