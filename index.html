@@ -204,12 +204,23 @@
             background-color: #f5f5f5;
         }
         
+        .thinking-header {
+            font-weight: bold;
+            color: #6366f1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .thinking-message {
-            font-style: italic;
-            color: #666;
-            border-left: 3px solid #6366f1;
-            padding-left: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #6366f1;
+            padding: 12px 15px;
             margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: #495057;
         }
 
         .thinking-message pre {
@@ -1060,11 +1071,31 @@
                 
                 // Parse markdown if it's an AI message
                 if (sender === 'ai') {
-                    // Check if this is a "thinking" message
-                    if (text.includes("Let me think") || text.includes("Let's think") || 
-                        text.includes("Hmm") || text.includes("Thinking") || text.includes("First,")) {
-                        // Format thinking messages differently
-                        messageContent.innerHTML = `<div class="thinking-message">${marked.parse(text)}</div>`;
+                    // Check if this is a "thinking" message using more comprehensive detection
+                    const thinkingPatterns = [
+                        /let me think/i,
+                        /let's think/i,
+                        /hmm/i,
+                        /thinking/i,
+                        /first,/i,
+                        /first let me/i,
+                        /step by step/i,
+                        /break this down/i,
+                        /analyze/i,
+                        /reasoning:/i,
+                        /thought process:/i
+                    ];
+                    
+                    const isThinking = thinkingPatterns.some(pattern => pattern.test(text));
+                    
+                    if (isThinking) {
+                        // Format thinking messages differently with a clear header
+                        messageContent.innerHTML = `
+                            <div class="thinking-header">
+                                <i class="fas fa-brain"></i> Thinking Process
+                            </div>
+                            <div class="thinking-message">${marked.parse(text)}</div>
+                        `;
                     } else {
                         messageContent.innerHTML = marked.parse(text);
                     }
