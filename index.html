@@ -150,6 +150,34 @@
             border-radius: 8px;
             overflow-x: auto;
             margin: 10px 0;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message-content pre:hover .copy-button {
+            opacity: 1;
+        }
+        
+        .copy-button:hover {
+            background: var(--primary-dark);
+        }
+        
+        .copy-button.copied {
+            background: var(--success);
         }
         
         .message-content code {
@@ -811,6 +839,46 @@
                     return hljs.highlightAuto(code).value;
                 }
             });
+
+            
+            // Add copy buttons to code blocks
+            function addCopyButtonsToCodeBlocks() {
+                document.querySelectorAll('.message-content pre').forEach((preElement) => {
+                    // Check if this pre element already has a copy button
+                    if (preElement.querySelector('.copy-button')) {
+                        return;
+                    }
+                    
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-button';
+                    copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    copyButton.title = 'Copy code to clipboard';
+                    
+                    copyButton.addEventListener('click', function() {
+                        const codeElement = preElement.querySelector('code');
+                        const codeToCopy = codeElement ? codeElement.textContent : preElement.textContent;
+                        
+                        navigator.clipboard.writeText(codeToCopy).then(() => {
+                            copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            copyButton.classList.add('copied');
+                            
+                            setTimeout(() => {
+                                copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                                copyButton.classList.remove('copied');
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Failed to copy code: ', err);
+                            copyButton.innerHTML = '<i class="fas fa-times"></i> Failed';
+                            
+                            setTimeout(() => {
+                                copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                            }, 2000);
+                        });
+                    });
+                    
+                    preElement.appendChild(copyButton);
+                });
+            }
             
             // Save conversation as PDF
             async function saveAsPDF() {
@@ -1045,6 +1113,12 @@
                 
                 configStatus.innerHTML = 'Please configure your API settings above';
                 updateStatus('API key required', false);
+                
+                // Add copy buttons to any existing code blocks
+                setTimeout(() => {
+                    addCopyButtonsToCodeBlocks();
+                }, 100);
+                
                 return false;
             }
             
@@ -1062,7 +1136,11 @@
                     } else if (message.role === 'assistant') {
                         addMessage(message.content, 'ai', false);
                     }
-                }
+                }                
+                // Add copy buttons to code blocks in history
+                setTimeout(() => {
+                    addCopyButtonsToCodeBlocks();
+                }, 100);                
             }
             
             // Check if API key is available
@@ -1199,6 +1277,11 @@
                 messageContent.querySelectorAll('pre code').forEach((block) => {
                     hljs.highlightElement(block);
                 });
+                
+                // Add copy buttons to code blocks
+                setTimeout(() => {
+                    addCopyButtonsToCodeBlocks();
+                }, 100);
                 
                 // Add to conversation history
                 if (addToHistory) {
