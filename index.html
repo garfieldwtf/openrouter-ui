@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSeek Chat | OpenRouter API</title>
+    <title>Adam's AI UI | OpenRouter API</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
@@ -644,7 +644,7 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-robot logo"></i> DeepSeek Chat</h1>
+            <h1><i class="fas fa-robot logo"></i> Adam's AI UI</h1>
             <div class="subtitle">Powered by OpenRouter API</div>
             <div class="api-status">
                 <span class="status-dot" id="status-dot"></span>
@@ -703,7 +703,7 @@
             <div class="chat-container" id="chat-container">
                 <div class="message ai-message">
                     <div class="message-content">
-                        <i class="fas fa-robot"></i> Hello! I'm DeepSeek, an AI assistant powered by OpenRouter. How can I help you today?
+                        <i class="fas fa-robot"></i> Hello! I'm an AI assistant powered by OpenRouter. How can I help you today?
                     </div>
                     <span class="message-info">Model: <span id="current-model">deepseek/deepseek-chat-v3.1:free</span></span>
                 </div>
@@ -714,7 +714,7 @@
             <div class="dot"></div>
             <div class="dot"></div>
             <div class="dot"></div>
-            <span id="typing-model">DeepSeek is typing...</span>
+            <span id="typing-model">AI is typing...</span>
         </div>
         
         <div class="input-container">
@@ -817,7 +817,7 @@
                     pdf.setFontSize(20);
                     pdf.setFont(undefined, 'bold');
                     pdf.setTextColor(99, 102, 241); // Primary color
-                    pdf.text('DeepSeek Chat Conversation', pageWidth / 2, yPosition, { align: 'center' });
+                    pdf.text('Adam\'s AI UI Conversation', pageWidth / 2, yPosition, { align: 'center' });
                     yPosition += 15;
                     
                     // Add date and model info
@@ -896,7 +896,7 @@
                     
                     // Save the PDF
                     const dateStr = new Date().toISOString().slice(0, 10);
-                    pdf.save(`DeepSeek-Chat-${dateStr}.pdf`);
+                    pdf.save(`Adams-AI-UI-${dateStr}.pdf`);
                     
                 } catch (error) {
                     console.error('Error generating PDF:', error);
