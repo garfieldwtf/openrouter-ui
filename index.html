@@ -204,6 +204,36 @@
             background-color: #f5f5f5;
         }
         
+        .thinking-message {
+            font-style: italic;
+            color: #666;
+            border-left: 3px solid #6366f1;
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+
+        .thinking-message pre {
+            font-style: normal;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .thinking-message code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .thinking-message pre code {
+            background: none;
+            padding: 0;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -1030,7 +1060,14 @@
                 
                 // Parse markdown if it's an AI message
                 if (sender === 'ai') {
-                    messageContent.innerHTML = marked.parse(text);
+                    // Check if this is a "thinking" message
+                    if (text.includes("Let me think") || text.includes("Let's think") || 
+                        text.includes("Hmm") || text.includes("Thinking") || text.includes("First,")) {
+                        // Format thinking messages differently
+                        messageContent.innerHTML = `<div class="thinking-message">${marked.parse(text)}</div>`;
+                    } else {
+                        messageContent.innerHTML = marked.parse(text);
+                    }
                 } else {
                     messageContent.textContent = text;
                 }
@@ -1102,7 +1139,7 @@
                     
                     const data = await response.json();
                     const aiResponse = data.choices[0].message.content;
-                    
+
                     setTyping(false);
                     addMessage(aiResponse, 'ai');
                     updateStatus('Response received', true);
