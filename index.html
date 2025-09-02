@@ -1114,7 +1114,7 @@
                             messageContent.innerHTML = marked.parse(text);
                         }
                     } else {
-                        // Check if this is a "thinking" message using more comprehensive detection
+                        // More precise detection of thinking vs final answer
                         const thinkingPatterns = [
                             /let me think/i,
                             /let's think/i,
@@ -1126,10 +1126,24 @@
                             /break this down/i,
                             /analyze/i,
                             /reasoning:/i,
-                            /thought process:/i
+                            /thought process:/i,
+                            /so, to answer your question/i,  // Added pattern
+                            /in conclusion/i,                // Added pattern
+                            /therefore/i,                    // Added pattern
+                            /thus/i,                         // Added pattern
+                            /the answer is/i,                // Added pattern
+                            /the solution is/i               // Added pattern
                         ];
                         
-                        const isThinking = thinkingPatterns.some(pattern => pattern.test(text));
+                        // Check if this is likely a final answer (not thinking)
+                        const isFinalAnswer = text.includes("the answer is") || 
+                                             text.includes("therefore") ||
+                                             text.includes("in conclusion") ||
+                                             text.includes("thus") ||
+                                             text.includes("the solution is") ||
+                                             text.length < 100; // Short responses are usually final answers
+                        
+                        const isThinking = !isFinalAnswer && thinkingPatterns.some(pattern => pattern.test(text));
                         
                         if (isThinking) {
                             // Format thinking messages differently with a clear header
@@ -1140,10 +1154,14 @@
                                 <div class="thinking-message">${marked.parse(text)}</div>
                             `;
                         } else {
+                            // This is a final answer, format normally
                             messageContent.innerHTML = marked.parse(text);
                         }
                     }
                 } else {
+
+
+
                     messageContent.textContent = text;
                 }
                 
