@@ -91,13 +91,6 @@
             border-radius: 20px;
         }
         
-        .api-status small {
-            display: block;
-            font-size: 0.7rem;
-            opacity: 0.8;
-            margin-top: 2px;
-        }
-
         .status-dot {
             width: 8px;
             height: 8px;
@@ -1074,17 +1067,9 @@
                 if (connected) {
                     statusDot.classList.add('connected');
                     statusDot.classList.remove('error');
-                    
-                    // Add model info to status when connected
-                    if (MODEL_NAME) {
-                        statusText.innerHTML = `${text}<br><small>Model: ${MODEL_NAME}</small>`;
-                    }
                 } else {
                     statusDot.classList.add('error');
                     statusDot.classList.remove('connected');
-                    
-                    // Remove model info from status when not connected
-                    statusText.textContent = text;
                 }
             }
             
