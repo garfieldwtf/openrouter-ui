@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenRouter Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* General Styles */
         body {
@@ -43,10 +44,27 @@
         }
 
         .config-area {
-            padding: 15px;
+            padding: 20px;
             background: #f9f9f9;
             border-bottom: 1px solid #ddd;
             display: none; /* Hidden by default */
+        }
+
+        .config-area label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .config-area input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box; /* Ensure padding doesn't affect width */
         }
 
         .toggle-config {
@@ -83,11 +101,20 @@
             background: #4CAF50;
             color: #fff;
             margin-left: auto;
+            display: flex;
+            align-items: center;
         }
 
         .bot-message {
             background: #e0e0e0;
             margin-right: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .message .icon {
+            margin-right: 10px;
+            font-size: 20px;
         }
 
         .bot-message pre {
@@ -189,6 +216,7 @@
         const queryInput = document.getElementById('query');
         const errorDiv = document.getElementById('error-message');
         const configArea = document.querySelector('.config-area');
+        const llmModelInput = document.getElementById('llm-model');
         let isProcessing = false;
 
         // Toggle config area visibility
@@ -200,7 +228,20 @@
         function addMessage(sender, message) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
-            messageDiv.innerHTML = `${sender === 'user' ? 'You' : 'Bot'}: ${formatMessage(message)}`;
+
+            // Icons
+            const icon = document.createElement('i');
+            icon.className = `icon ${sender === 'user' ? 'fas fa-user' : 'fas fa-robot'}`;
+
+            // Sender name (You or LLM model name)
+            const senderName = sender === 'user' ? 'You' : llmModelInput.value || 'LLM';
+
+            // Message content
+            const messageContent = document.createElement('span');
+            messageContent.innerHTML = `${senderName}: ${formatMessage(message)}`;
+
+            messageDiv.appendChild(icon);
+            messageDiv.appendChild(messageContent);
             chatDiv.appendChild(messageDiv);
             chatDiv.scrollTop = chatDiv.scrollHeight; // Auto-scroll to the latest message
         }
@@ -254,7 +295,7 @@
 
             const apiKey = document.getElementById('api-key').value.trim();
             const apiEndpoint = document.getElementById('api-endpoint').value.trim();
-            const llmModel = document.getElementById('llm-model').value.trim();
+            const llmModel = llmModelInput.value.trim();
 
             if (!apiKey || !apiEndpoint || !llmModel) {
                 showError('Please fill in the API key, endpoint, and model.');
