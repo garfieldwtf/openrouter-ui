@@ -133,18 +133,6 @@
             border-radius: 3px;
         }
 
-        .bot-message strong {
-            font-weight: bold;
-        }
-
-        .bot-message em {
-            font-style: italic;
-        }
-
-        .bot-message u {
-            text-decoration: underline;
-        }
-
         .input-area {
             display: flex;
             padding: 10px;
@@ -169,6 +157,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            margin-right: 10px;
         }
 
         button:hover {
@@ -186,6 +175,15 @@
             text-align: center;
             font-style: italic;
             color: #666;
+        }
+
+        .clear-chat-button {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .clear-chat-button:hover {
+            background: #cc0000;
         }
     </style>
 </head>
@@ -207,6 +205,7 @@
         <div class="input-area">
             <input type="text" id="query" placeholder="Type your message...">
             <button onclick="sendMessage()">Send</button>
+            <button class="clear-chat-button" onclick="clearChat()">Clear Chat</button>
         </div>
         <div id="error-message" class="error-message"></div>
     </div>
@@ -216,8 +215,8 @@
         const queryInput = document.getElementById('query');
         const errorDiv = document.getElementById('error-message');
         const configArea = document.querySelector('.config-area');
-        const llmModelInput = document.getElementById('llm-model');
         let isProcessing = false;
+        let chatHistory = [];
 
         // Toggle config area visibility
         function toggleConfigArea() {
@@ -233,12 +232,9 @@
             const icon = document.createElement('i');
             icon.className = `icon ${sender === 'user' ? 'fas fa-user' : 'fas fa-robot'}`;
 
-            // Sender name (You or LLM model name)
-            const senderName = sender === 'user' ? 'You' : llmModelInput.value || 'LLM';
-
             // Message content
             const messageContent = document.createElement('span');
-            messageContent.innerHTML = `${senderName}: ${formatMessage(message)}`;
+            messageContent.innerHTML = formatMessage(message);
 
             messageDiv.appendChild(icon);
             messageDiv.appendChild(messageContent);
@@ -283,6 +279,12 @@
             }
         }
 
+        // Function to clear the chat
+        function clearChat() {
+            chatDiv.innerHTML = '';
+            chatHistory = [];
+        }
+
         // Function to send a message to the API
         async function sendMessage() {
             if (isProcessing) return;
@@ -295,7 +297,7 @@
 
             const apiKey = document.getElementById('api-key').value.trim();
             const apiEndpoint = document.getElementById('api-endpoint').value.trim();
-            const llmModel = llmModelInput.value.trim();
+            const llmModel = document.getElementById('llm-model').value.trim();
 
             if (!apiKey || !apiEndpoint || !llmModel) {
                 showError('Please fill in the API key, endpoint, and model.');
@@ -305,6 +307,8 @@
             addMessage('user', query); // Add user message to chat
             queryInput.value = '';
             errorDiv.innerText = '';
+
+            chatHistory.push({ role: 'user', content: query });
 
             isProcessing = true;
             showThinking();
@@ -318,7 +322,7 @@
                     },
                     body: JSON.stringify({
                         model: llmModel,
-                        messages: [{ role: 'user', content: query }],
+                        messages: chatHistory,
                     }),
                 });
 
@@ -334,6 +338,7 @@
 
                 const botResponse = data.choices[0].message.content;
                 addMessage('bot', botResponse); // Add bot response to chat
+                chatHistory.push({ role: 'assistant', content: botResponse });
             } catch (error) {
                 showError(`Error: ${error.message}`);
             } finally {
