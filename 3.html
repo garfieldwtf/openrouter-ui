@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRouter API Query</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            height: 40px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        select {
+            width: 100%;
+            height: 40px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            height: 40px;
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>OpenRouter API Query</h2>
+        <form id="query-form">
+            <label for="api-key">API Key:</label>
+            <input type="password" id="api-key" placeholder="Enter your API key">
+
+            <label for="api-endpoint">API Endpoint:</label>
+            <input type="text" id="api-endpoint" placeholder="Enter the API endpoint (e.g., https://api.openrouter.info/v1/chat/completions">
+
+            <label for="llm-model">LLM Model:</label>
+            <select id="llm-model">
+                <option value="llama3">Llama 3</option>
+                <option value="gpt-4">GPT-4</option>
+                <!-- Add more models as needed -->
+            </select>
+
+            <label for="query">Query:</label>
+            <textarea id="query" rows="5" placeholder="Enter your query"></textarea>
+
+            <button type="submit">Query Model</button>
+        </form>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('query-form');
+        const responseDiv = document.getElementById('response');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const apiKey = document.getElementById('api-key').value;
+            const apiEndpoint = document.getElementById('api-endpoint').value;
+            const llmModel = document.getElementById('llm-model').value;
+            const query = document.getElementById('query').value;
+
+            if (!apiKey || !apiEndpoint || !query) {
+                responseDiv.innerText = 'Please fill in all fields.';
+                return;
+            }
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: llmModel,
+                        prompt: query,
+                    }),
+                });
+
+                const data = await response.json();
+                responseDiv.innerText = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
