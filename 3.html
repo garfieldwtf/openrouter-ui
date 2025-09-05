@@ -42,6 +42,27 @@
             font-size: 24px;
         }
 
+        .config-area {
+            padding: 15px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .config-area label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .config-area input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
         #chat {
             flex: 1;
             padding: 20px;
@@ -105,34 +126,20 @@
             margin: 10px;
             font-size: 14px;
         }
-
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            .container {
-                width: 100%;
-                height: 100vh;
-                border-radius: 0;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            #query {
-                font-size: 14px;
-            }
-
-            button {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>OpenRouter Chat</h1>
+        </div>
+        <div class="config-area">
+            <label for="api-key">API Key:</label>
+            <input type="text" id="api-key" placeholder="Enter your OpenRouter API key">
+            <label for="api-endpoint">API Endpoint:</label>
+            <input type="text" id="api-endpoint" placeholder="Enter the API endpoint">
+            <label for="llm-model">LLM Model:</label>
+            <input type="text" id="llm-model" placeholder="Enter the LLM model (e.g., meta-llama/Llama-2-70b-chat)">
         </div>
         <div id="chat"></div>
         <div class="input-area">
@@ -169,13 +176,18 @@
                 return;
             }
 
+            const apiKey = document.getElementById('api-key').value.trim();
+            const apiEndpoint = document.getElementById('api-endpoint').value.trim();
+            const llmModel = document.getElementById('llm-model').value.trim();
+
+            if (!apiKey || !apiEndpoint || !llmModel) {
+                showError('Please fill in the API key, endpoint, and model.');
+                return;
+            }
+
             addMessage('user', query); // Add user message to chat
             queryInput.value = ''; // Clear the input
             errorDiv.innerText = ''; // Clear any previous error
-
-            const apiKey = 'YOUR_API_KEY'; // Replace with your OpenRouter API key
-            const apiEndpoint = 'https://api.openrouter.ai/api/v1/chat/completions'; // Replace with the correct endpoint
-            const llmModel = 'meta-llama/Llama-2-70b-chat'; // Replace with your desired model
 
             try {
                 const response = await fetch(apiEndpoint, {
