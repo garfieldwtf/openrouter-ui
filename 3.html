@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenRouter API Query</title>
+    <title>OpenRouter API Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -50,14 +50,28 @@
         button[type="submit"]:hover {
             background-color: #3e8e41;
         }
-        #response {
+        #chat {
             margin-top: 20px;
-            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: #f9f9f9;
-            white-space: pre-wrap;
-            font-family: monospace;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #4CAF50;
+            color: #fff;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #e0e0e0;
+            align-self: flex-start;
         }
         .footer {
             text-align: center;
@@ -68,24 +82,24 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>OpenRouter API Query</h2>
+            <h2>OpenRouter Chat</h2>
         </div>
         <form id="query-form">
             <label for="api-key">API Key:</label>
             <input type="password" id="api-key" placeholder="Enter your API key">
 
             <label for="api-endpoint">API Endpoint:</label>
-            <input type="text" id="api-endpoint" placeholder="Enter the API endpoint (e.g., https://api.openrouter.info/v1/chat/completions">
+            <input type="text" id="api-endpoint" placeholder="Enter the API endpoint">
 
             <label for="llm-model">LLM Model:</label>
-            <input type="text" id="llm-model" placeholder="Enter the LLM model (e.g., llama3, gpt-4, etc.)">
+            <input type="text" id="llm-model" placeholder="Enter the LLM model (e.g., llama3, gpt-4)">
 
-            <label for="query">Query:</label>
-            <textarea id="query" rows="5" placeholder="Enter your query"></textarea>
+            <label for="query">Message:</label>
+            <textarea id="query" rows="3" placeholder="Type your message"></textarea>
 
-            <button type="submit">Query Model</button>
+            <button type="submit">Send</button>
         </form>
-        <div id="response"></div>
+        <div id="chat"></div>
         <div class="footer">
             <p>Powered by OpenRouter API</p>
         </div>
@@ -93,7 +107,7 @@
 
     <script>
         const form = document.getElementById('query-form');
-        const responseDiv = document.getElementById('response');
+        const chatDiv = document.getElementById('chat');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -104,9 +118,18 @@
             const query = document.getElementById('query').value;
 
             if (!apiKey || !apiEndpoint || !llmModel || !query) {
-                responseDiv.innerText = 'Please fill in all fields.';
+                alert('Please fill in all fields.');
                 return;
             }
+
+            // Add user message to chat
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.innerText = `You: ${query}`;
+            chatDiv.appendChild(userMessage);
+
+            // Clear the input
+            document.getElementById('query').value = '';
 
             try {
                 const response = await fetch(apiEndpoint, {
@@ -123,14 +146,24 @@
                 });
 
                 if (!response.ok) {
-                    responseDiv.innerText = `Error: ${response.status} ${response.statusText}`;
-                    return;
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
                 }
 
                 const data = await response.json();
-                responseDiv.innerText = JSON.stringify(data, null, 2);
+
+                // Add bot response to chat
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot-message';
+                botMessage.innerText = `Bot: ${data.choices[0].message.content}`;
+                chatDiv.appendChild(botMessage);
+
+                // Scroll to the latest message
+                chatDiv.scrollTop = chatDiv.scrollHeight;
             } catch (error) {
-                responseDiv.innerText = `Error: ${error.message}`;
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message bot-message';
+                errorMessage.innerText = `Error: ${error.message}`;
+                chatDiv.appendChild(errorMessage);
             }
         });
     </script>
