@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRouter Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* General Styles */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #74ebd5, #acb6e5);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 95vh;
+        }
+
+        .header {
+            background: #4CAF50;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .config-area {
+            padding: 20px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+            display: none;
+            flex-shrink: 0;
+        }
+
+        .config-area label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .config-area input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .toggle-config {
+            background: #4CAF50;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+
+        .toggle-config:hover {
+            background: #3e8e41;
+        }
+
+        #chat {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+            min-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: #4CAF50;
+            color: #fff;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background: #e0e0e0;
+            margin-right: auto;
+        }
+
+        .message .icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .code-container {
+            position: relative;
+            margin: 8px 0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .code-actions {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .code-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .message-text {
+            line-height: 1.5;
+        }
+
+        .message-text code {
+            background: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .message-text pre {
+            margin: 8px 0;
+            white-space: pre-wrap;
+        }
+
+        .message-text strong {
+            font-weight: bold;
+        }
+
+        .message-text em {
+            font-style: italic;
+        }
+
+        .message-text u {
+            text-decoration: underline;
+        }
+
+        .message-text h1, .message-text h2, .message-text h3 {
+            margin: 16px 0 8px 0;
+            font-weight: bold;
+        }
+
+        .message-text h1 { font-size: 1.5em; }
+        .message-text h2 { font-size: 1.3em; }
+        .message-text h3 { font-size: 1.1em; }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            background: #fff;
+            border-top: 1px solid #ddd;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        #query {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #3e8e41;
+        }
+
+        .error-message {
+            color: #ff4444;
+            text-align: center;
+            margin: 10px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .thinking-indicator {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            padding: 10px;
+        }
+
+        .clear-chat-button {
+            background: #ff4444;
+        }
+
+        .clear-chat-button:hover {
+            background: #cc0000;
+        }
+
+        /* Fix for asterisks in crontab */
+        .crontab-asterisk {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 0 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>OpenRouter Chat</h1>
+        </div>
+        <div class="toggle-config" onclick="toggleConfigArea()">⚙️ Show/Hide Config</div>
+        <div class="config-area">
+            <label for="api-key">API Key:</label>
+            <input type="text" id="api-key" placeholder="Enter your OpenRouter API key">
+            <label for="api-endpoint">API Endpoint:</label>
+            <input type="text" id="api-endpoint" placeholder="Enter the API endpoint">
+            <label for="llm-model">LLM Model:</label>
+            <input type="text" id="llm-model" placeholder="Enter the LLM model">
+        </div>
+        <div id="chat"></div>
+        <div class="input-area">
+            <input type="text" id="query" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+            <button class="clear-chat-button" onclick="clearChat()">Clear Chat</button>
+        </div>
+        <div id="error-message" class="error-message"></div>
+    </div>
+
+    <script>
+        const chatDiv = document.getElementById('chat');
+        const queryInput = document.getElementById('query');
+        const errorDiv = document.getElementById('error-message');
+        const configArea = document.querySelector('.config-area');
+        let isProcessing = false;
+        let chatHistory = [];
+
+        // Toggle config area visibility
+        function toggleConfigArea() {
+            configArea.style.display = configArea.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Function to add messages to the chat
+        function addMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
+
+            // Icons
+            const icon = document.createElement('i');
+            icon.className = `icon ${sender === 'user' ? 'fas fa-user' : 'fas fa-robot'}`;
+
+            // Message content
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-text';
+            messageContent.innerHTML = formatMessage(message);
+
+            messageDiv.appendChild(icon);
+            messageDiv.appendChild(messageContent);
+            chatDiv.appendChild(messageDiv);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        // Function to format message output
+        function formatMessage(message) {
+            // Split the message into parts (code blocks and regular text)
+            const parts = [];
+            let lastIndex = 0;
+            const codeBlockRegex = /```(\w+)?\s*\n([\s\S]*?)```/g;
+            let match;
+            
+            // Find all code blocks and the text between them
+            while ((match = codeBlockRegex.exec(message)) !== null) {
+                // Add text before the code block
+                if (match.index > lastIndex) {
+                    parts.push({
+                        type: 'text',
+                        content: message.substring(lastIndex, match.index)
+                    });
+                }
+                
+                // Add the code block
+                parts.push({
+                    type: 'code',
+                    language: match[1] || 'text',
+                    content: match[2]
+                });
+                
+                lastIndex = codeBlockRegex.lastIndex;
+            }
+            
+            // Add any remaining text after the last code block
+            if (lastIndex < message.length) {
+                parts.push({
+                    type: 'text',
+                    content: message.substring(lastIndex)
+                });
+            }
+            
+            // Process each part
+            let result = '';
+            for (const part of parts) {
+                if (part.type === 'code') {
+                    // Format code blocks
+                    result += `
+                    <div class="code-container">
+                        <div class="code-header">
+                            ${part.language}
+                            <div class="code-actions">
+                                <button class="code-button" onclick="copyCode(this)">Copy</button>
+                                ${part.language === 'html' ? '<button class="code-button" onclick="testRunCode(this)">Test Run</button>' : ''}
+                            </div>
+                        </div>
+                        <pre class="code-block">${escapeHtml(part.content.trim())}</pre>
+                    </div>`;
+                } else {
+                    // Format regular text with markdown support
+                    result += formatText(part.content);
+                }
+            }
+            
+            return result;
+        }
+
+        // Format text with markdown
+        function formatText(text) {
+            // Replace headers
+            text = text.replace(/### (.*)/g, '<h3>$1</h3>');
+            text = text.replace(/## (.*)/g, '<h2>$1</h2>');
+            text = text.replace(/# (.*)/g, '<h1>$1</h1>');
+            
+            // Replace bold and italic
+            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*([^*\s][^*]*[^*\s])\*/g, '<em>$1</em>');
+            
+            // Replace inline code
+            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // Handle unordered lists
+            text = text.replace(/^\s*\*\s+(.*)$/gm, '<ul><li>$1</li></ul>');
+            text = text.replace(/<\/ul>\s*<ul>/g, '');
+            
+            // Handle line breaks
+            text = text.replace(/\n/g, '<br>');
+            
+            return text;
+        }
+
+        // Escape HTML for code blocks
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Function to copy code to clipboard
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-container').querySelector('.code-block');
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // Function to test run HTML code
+        function testRunCode(button) {
+            const codeBlock = button.closest('.code-container').querySelector('.code-block');
+            const code = codeBlock.textContent;
+            const newWindow = window.open();
+            newWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Test Run</title>
+                    <style>body { font-family: Arial, sans-serif; padding: 20px; }</style>
+                </head>
+                <body>${code}</body>
+                </html>
+            `);
+            newWindow.document.close();
+        }
+
+        // Function to handle errors
+        function showError(message) {
+            errorDiv.textContent = message;
+            setTimeout(() => {
+                errorDiv.textContent = '';
+            }, 5000);
+        }
+
+        // Function to show thinking indicator
+        function showThinking() {
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'thinking-indicator';
+            thinkingDiv.textContent = 'Thinking...';
+            chatDiv.appendChild(thinkingDiv);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        // Function to remove thinking indicator
+        function removeThinking() {
+            const thinkingDiv = document.querySelector('.thinking-indicator');
+            if (thinkingDiv) {
+                thinkingDiv.remove();
+            }
+        }
+
+        // Function to clear the chat
+        function clearChat() {
+            chatDiv.innerHTML = '';
+            chatHistory = [];
+        }
+
+        // Function to send a message to the API
+        async function sendMessage() {
+            if (isProcessing) return;
+
+            const query = queryInput.value.trim();
+            if (!query) {
+                showError('Please enter a message.');
+                return;
+            }
+
+            const apiKey = document.getElementById('api-key').value.trim();
+            const apiEndpoint = document.getElementById('api-endpoint').value.trim();
+            const llmModel = document.getElementById('llm-model').value.trim();
+
+            if (!apiKey || !apiEndpoint || !llmModel) {
+                showError('Please fill in the API key, endpoint, and model.');
+                return;
+            }
+
+            addMessage('user', query);
+            queryInput.value = '';
+            errorDiv.textContent = '';
+
+            chatHistory.push({ role: 'user', content: query });
+
+            isProcessing = true;
+            showThinking();
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: llmModel,
+                        messages: chatHistory,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.choices || !data.choices[0].message) {
+                    throw new Error('Invalid response from the API.');
+                }
+
+                const botResponse = data.choices[0].message.content;
+                addMessage('bot', botResponse);
+                chatHistory.push({ role: 'assistant', content: botResponse });
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+            } finally {
+                isProcessing = false;
+                removeThinking();
+            }
+        }
+
+        // Allow pressing Enter to send messages
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initialize with config hidden
+        toggleConfigArea();
+    </script>
+</body>
+</html>

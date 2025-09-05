@@ -621,8 +621,8 @@
         }
         
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.5); }
+            from, to { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
         }
         
         .controls {
@@ -812,6 +812,69 @@
         /* PDF-specific styles */
         .pdf-html {
             display: none;
+        }
+        
+        .pdf-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 100%;
+        }
+        
+        .pdf-user-message {
+            background-color: #6366f1;
+            color: white;
+            margin-left: 20%;
+        }
+        
+        .pdf-ai-message {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            margin-right: 20%;
+        }
+        
+        .pdf-message-content {
+            line-height: 1.5;
+        }
+        
+        .pdf-message-content pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .pdf-message-content code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .pdf-message-content h1, 
+        .pdf-message-content h2, 
+        .pdf-message-content h3 {
+            margin-top: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .pdf-message-content p {
+            margin-bottom: 8px;
+        }
+        
+        .pdf-message-content ul, 
+        .pdf-message-content ol {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .pdf-message-sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -1143,52 +1206,68 @@
                         
                         // Create message element for HTML rendering
                         const messageDiv = document.createElement('div');
+                        messageDiv.className = `pdf-message ${message.role === 'user' ? 'pdf-user-message' : 'pdf-ai-message'}`;
                         messageDiv.style.width = contentWidth + 'mm';
-                        messageDiv.style.padding = '10px';
-                        messageDiv.style.marginBottom = '10px';
                         
-                        if (message.role === 'user') {
-                            messageDiv.style.backgroundColor = '#6366f1';
-                            messageDiv.style.color = 'white';
-                            messageDiv.style.borderRadius = '10px';
-                            messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">User:</div>`;
-                        } else {
-                            messageDiv.style.backgroundColor = '#f3f4f6';
-                            messageDiv.style.color = '#1f2937';
-                            messageDiv.style.borderRadius = '10px';
-                            messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">AI Assistant:</div>`;
-                        }
+                        const senderDiv = document.createElement('div');
+                        senderDiv.className = 'pdf-message-sender';
+                        senderDiv.textContent = message.role === 'user' ? 'User:' : 'AI Assistant:';
+                        messageDiv.appendChild(senderDiv);
+                        
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'pdf-message-content';
                         
                         // Parse markdown for the message content
-                        const contentDiv = document.createElement('div');
                         contentDiv.innerHTML = marked.parse(message.content);
                         messageDiv.appendChild(contentDiv);
                         
                         pdfHtmlContainer.appendChild(messageDiv);
                         
                         // Convert HTML to image using html2canvas
-                        const canvas = await html2canvas(messageDiv, {
-                            scale: 2,
-                            backgroundColor: null
-                        });
-                        
-                        const imgData = canvas.toDataURL('image/png');
-                        
-                        // Calculate height based on image aspect ratio
-                        const imgWidth = contentWidth;
-                        const imgHeight = canvas.height * imgWidth / canvas.width;
-                        
-                        // Check if we need a new page for this message
-                        if (yPosition + imgHeight > pdf.internal.pageSize.getHeight() - margin) {
-                            pdf.addPage();
-                            yPosition = margin;
+                        try {
+                            const canvas = await html2canvas(messageDiv, {
+                                scale: 2,
+                                backgroundColor: null,
+                                logging: false,
+                                useCORS: true,
+                                allowTaint: true
+                            });
+                            
+                            const imgData = canvas.toDataURL('image/png');
+                            
+                            // Calculate height based on image aspect ratio
+                            const imgWidth = contentWidth;
+                            const imgHeight = canvas.height * imgWidth / canvas.width;
+                            
+                            // Check if we need a new page for this message
+                            if (yPosition + imgHeight > pdf.internal.pageSize.getHeight() - margin) {
+                                pdf.addPage();
+                                yPosition = margin;
+                            }
+                            
+                            // Add the image to the PDF
+                            pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight);
+                            
+                            // Update Y position for next message
+                            yPosition += imgHeight + 10;
+                        } catch (error) {
+                            console.error('Error converting message to image:', error);
+                            // Fallback: add text directly if image conversion fails
+                            if (yPosition > 250) {
+                                pdf.addPage();
+                                yPosition = margin;
+                            }
+                            
+                            pdf.setFontSize(11);
+                            pdf.setFont(undefined, 'bold');
+                            pdf.text(`${message.role === 'user' ? 'User:' : 'AI Assistant:'}`, margin, yPosition);
+                            yPosition += 5;
+                            
+                            pdf.setFont(undefined, 'normal');
+                            const lines = pdf.splitTextToSize(message.content, contentWidth);
+                            pdf.text(lines, margin, yPosition);
+                            yPosition += (lines.length * 5) + 10;
                         }
-                        
-                        // Add the image to the PDF
-                        pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight);
-                        
-                        // Update Y position for next message
-                        yPosition += imgHeight + 10;
                     }
                     
                     // Add page numbers
@@ -1589,7 +1668,7 @@
                 
                 currentModelElement.textContent = model;
                 typingModelElement.textContent = `${model.split('/').pop()} is typing...`;
-                configStatus.innerHTML = `Configuration saved. Using model: <code>${model}</code>` + 
+                configStatus.innerHTML = `Configuration saved. Using model: <code>${MODEL_NAME}</code>` + 
                                         (key ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
                 
                 // Update the status to show API key is loaded
