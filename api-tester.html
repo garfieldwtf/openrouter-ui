@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple API Tester</title>
+<style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;margin:0;padding:0}
+    .container{max-width:960px;margin:2rem auto;background:#fff;padding:2rem;
+        box-shadow:0 2px 8px rgba(0,0,0,.1);border-radius:6px}
+    h1{margin-top:0;text-align:center}
+    label{display:block;margin-top:1rem;font-weight:bold}
+    input[type=text], textarea, select{
+        width:100%;padding:.5rem;margin-top:.3rem;border:1px solid #ccc;
+        border-radius:4px;font-size:1rem;box-sizing:border-box}
+    textarea{font-family:monospace;min-height:80px}
+    button{
+        margin-top:1.5rem;padding:.7rem 1.5rem;font-size:1rem;
+        background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer}
+    button:hover{background:#0056b3}
+    .response{margin-top:2rem;background:#fafafa;padding:1rem;border:1px solid #e0e0e0;
+        border-radius:4px;overflow:auto;max-height:500px}
+    .response h2{margin-top:0}
+    .status{font-weight:bold;font-size:1.1em}
+    .error{color:#c00;font-weight:bold}
+    table{border-collapse:collapse;width:100%;margin-top:.5rem}
+    th,td{border:1px solid #ddd;padding:.4rem .6rem;text-align:left}
+    th{background:#f0f0f0}
+    pre{background:#fff;padding:.8rem;margin:0;overflow:auto;
+        border:1px solid #e0e0e0;border-radius:4px}
+    .copyBtn{
+        background:#eee;border:none;padding:.2rem .5rem;margin-left:.5rem;
+        cursor:pointer;border-radius:3px;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🛠️ Simple API Tester</h1>
+
+    <label for="url">API Endpoint URL</label>
+    <input type="text" id="url" placeholder="https://api.example.com/v1/resource">
+
+    <label for="method">HTTP Method</label>
+    <select id="method">
+        <option>GET</option>
+        <option>POST</option>
+        <option>PUT</option>
+        <option>PATCH</option>
+        <option>DELETE</option>
+    </select>
+
+    <label for="apikey">API Key (Bearer token)</label>
+    <input type="text" id="apikey" placeholder="your‑api‑key‑here">
+
+    <label for="headers">Additional Headers (one per line: <code>Name: Value</code>)</label>
+    <textarea id="headers" placeholder="X-Custom-Header: Foo&#10;Accept-Language: en-US"></textarea>
+
+    <label for="params">Query Parameters (one per line: <code>name=value</code>)</label>
+    <textarea id="params" placeholder="page=2&#10;limit=20"></textarea>
+
+    <label for="body">Request Body (JSON) – used for POST/PUT/PATCH</label>
+    <textarea id="body" placeholder='{"name":"John","age":30}'></textarea>
+
+    <button id="sendBtn">Send Request 🚀</button>
+
+    <div id="output" class="response" hidden></div>
+</div>
+
+<script>
+/* ---------- Helper to turn headers into a table ---------- */
+function renderHeaders(headers) {
+    let rows = '';
+    headers.forEach((value, name) => {
+        rows += `<tr><td>${name}</td><td>${value}</td></tr>`;
+    });
+    return `<table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- Helper to create a copy‑to‑clipboard button ---------- */
+function copyButton(text) {
+    const btn = document.createElement('button');
+    btn.className = 'copyBtn';
+    btn.textContent = 'Copy';
+    btn.onclick = async () => {
+        try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = 'Copied!';
+            setTimeout(()=>btn.textContent='Copy',1500);
+        } catch (e) {
+            alert('Copy failed: '+e);
+        }
+    };
+    return btn;
+}
+
+/* ---------- Main request handler ---------- */
+document.getElementById('sendBtn').addEventListener('click', async () => {
+    const out = document.getElementById('output');
+    out.hidden = true;
+    out.innerHTML = '';
+
+    const urlInput    = document.getElementById('url').value.trim();
+    const method      = document.getElementById('method').value;
+    const apiKey      = document.getElementById('apikey').value.trim();
+    const headerLines = document.getElementById('headers').value.trim().split('\n');
+    const paramLines  = document.getElementById('params').value.trim().split('\n');
+    const rawBody     = document.getElementById('body').value.trim();
+
+    if (!urlInput) {
+        out.hidden = false;
+        out.innerHTML = '<span class="error">❗ Please provide an endpoint URL.</span>';
+        return;
+    }
+
+    /* ----- Build final URL with query params ----- */
+    let url;
+    try { url = new URL(urlInput); }
+    catch (_) { // fallback for relative URLs (e.g. "/api")
+        const base = location.origin;
+        url = new URL(urlInput, base);
+    }
+
+    if (paramLines[0] !== '') {
+        paramLines.forEach(l => {
+            const [k, ...v] = l.split('=');
+            if (k) url.searchParams.append(k.trim(), v.join('=').trim());
+        });
+    }
+
+    /* ----- Assemble request headers ----- */
+    const headers = new Headers();
+    if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
+
+    headerLines.forEach(l => {
+        if (!l) return;
+        const i = l.indexOf(':');
+        if (i > -1) {
+            const name  = l.slice(0,i).trim();
+            const value = l.slice(i+1).trim();
+            if (name) headers.set(name, value);
+        }
+    });
+
+    /* ----- Build fetch options ----- */
+    const init = { method, headers };
+
+    if (['POST','PUT','PATCH'].includes(method) && rawBody) {
+        try { JSON.parse(rawBody); }   // quick validation
+        catch (e) {
+            out.hidden = false;
+            out.innerHTML = `<span class="error">❗ Invalid JSON body: ${e.message}</span>`;
+            return;
+        }
+        init.body = rawBody;
+        if (!headers.has('Content-Type')) headers.set('Content-Type','application/json');
+    }
+
+    /* ----- Execute request ----- */
+    try {
+        const response = await fetch(url.toString(), init);
+        const ct = response.headers.get('content-type') || '';
+
+        let bodyText = '';
+        if (ct.includes('application/json')) {
+            const json = await response.json();
+            bodyText = JSON.stringify(json, null, 2);
+        } else if (ct.startsWith('text/')) {
+            bodyText = await response.text();
+        } else {
+            // binary data – present a download link
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            bodyText = `Binary data – <a href="${blobUrl}" target="_blank">download</a>`;
+        }
+
+        /* ----- Render nicely ----- */
+        const html = `
+            <h2>Response</h2>
+            <div class="status">HTTP ${response.status} ${response.statusText}</div>
+            <div><strong>Headers</strong> ${copyButton([...response.headers].map(h=>h.join(': ')).join('\n')).outerHTML}
+                ${renderHeaders(response.headers)}
+            </div>
+            <div style="margin-top:.8rem;">
+                <strong>Body</strong> ${copyButton(bodyText).outerHTML}
+                <pre>${bodyText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+            </div>
+        `;
+        out.hidden = false;
+        out.innerHTML = html;
+
+    } catch (err) {
+        out.hidden = false;
+        out.innerHTML = `<span class="error">❗ Request failed: ${err.message}</span>`;
+    }
+});
+</script>
+
+</body>
+</html>
