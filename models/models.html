@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Model Browser – Free OpenRouter + Groq + SambaNova</title>
+<style>
+    body{
+        margin:0;
+        font-family:Arial,Helvetica,sans-serif;
+        background:#f5f5f5;
+        display:flex;
+        justify-content:center;
+        align-items:flex-start;
+        min-height:100vh;
+    }
+    .card{
+        background:#fff;
+        max-width:860px;
+        width:100%;
+        margin:2rem;
+        padding:1.5rem 2rem;
+        border-radius:8px;
+        box-shadow:0 2px 12px rgba(0,0,0,.1);
+    }
+    h1{margin-top:0;text-align:center;font-size:1.9rem;}
+    label{display:block;margin-top:1rem;font-weight:bold;}
+    input[type=text], select{
+        width:100%;padding:.4rem;margin-top:.3rem;
+        border:1px solid #ccc;border-radius:4px;font-size:1rem;box-sizing:border-box;
+    }
+    button{
+        background:#007bff;color:#fff;border:none;border-radius:4px;
+        padding:.6rem 1.2rem;cursor:pointer;font-size:1rem;margin-top:1rem;
+    }
+    button:hover{background:#0056b3;}
+    #result{
+        margin-top:1.5rem;background:#fafafa;
+        border:1px solid #e0e0e0;border-radius:4px;
+        padding:1rem;max-height:400px;overflow:auto;
+        white-space:pre-wrap;font-family:monospace;
+    }
+    .msg{margin-top:.8rem;color:#555;}
+    .error{color:#c00;font-weight:bold;}
+    .copyBtn{
+        background:#eee;border:none;padding:.2rem .5rem;
+        margin-left:.5rem;cursor:pointer;border-radius:3px;font-size:.9rem;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Model Browser</h1>
+
+    <p class="msg">
+        Choose a provider, add an API key when required, and press **Load Models**.
+        <br>
+        For **OpenRouter** the list is filtered to show **only free‑tier** models
+        (prompt = 0 && completion = 0).
+    </p>
+
+    <label for="provider">Provider</label>
+    <select id="provider">
+        <option value="openrouter">OpenRouter</option>
+        <option value="groq">Groq</option>
+        <option value="sambanova">SambaNova</option>
+    </select>
+
+    <label for="apikey">API Key (Bearer token)<br>
+        <small>Optional for OpenRouter, required for Groq &amp; SambaNova</small>
+    </label>
+    <input type="text" id="apikey" placeholder="sk-…">
+
+    <label for="endpoint">Endpoint URL</label>
+    <input type="text" id="endpoint" placeholder="https://…">
+
+    <div style="margin-top:1rem;">
+        <button id="loadBtn">Load Models 🚀</button>
+        <button id="copyAllBtn" class="copyBtn" style="display:none;">Copy All</button>
+    </div>
+
+    <div id="result" hidden></div>
+</div>
+
+<script>
+/* ---------- Default settings per provider ---------- */
+const defaults = {
+    openrouter: {
+        endpoint: 'https://openrouter.ai/api/v1/models',
+        keyOptional: true          // OpenRouter works without a key for public data
+    },
+    groq: {
+        endpoint: 'https://api.groq.com/openai/v1/models',
+        keyOptional: false
+    },
+    sambanova: {
+        endpoint: 'https://api.sambanova.ai/v1/models',
+        keyOptional: false
+    }
+};
+
+/* ---------- UI: fill defaults when provider changes ---------- */
+const providerSelect = document.getElementById('provider');
+const endpointInput   = document.getElementById('endpoint');
+const apiKeyInput     = document.getElementById('apikey');
+
+function applyDefaults(){
+    const p = providerSelect.value;
+    endpointInput.value = defaults[p].endpoint;
+    apiKeyInput.value = '';      // clear any previously‑typed key
+}
+providerSelect.addEventListener('change', applyDefaults);
+applyDefaults();   // initialise on load
+
+/* ---------- Main fetching logic ---------- */
+const loadBtn   = document.getElementById('loadBtn');
+const copyBtn   = document.getElementById('copyAllBtn');
+const resultDiv = document.getElementById('result');
+
+loadBtn.addEventListener('click', async () => {
+    const provider = providerSelect.value;
+    const endpoint = endpointInput.value.trim();
+    const apiKey   = apiKeyInput.value.trim();
+
+    // UI reset
+    resultDiv.hidden = true;
+    resultDiv.textContent = '';
+    copyBtn.style.display = 'none';
+
+    if (!endpoint) {
+        resultDiv.innerHTML = '<span class="error">❗ Endpoint URL is required.</span>';
+        resultDiv.hidden = false;
+        return;
+    }
+
+    if (!defaults[provider].keyOptional && !apiKey) {
+        resultDiv.innerHTML = `<span class="error">❗ ${provider.charAt(0).toUpperCase()+provider.slice(1)} requires an API key.</span>`;
+        resultDiv.hidden = false;
+        return;
+    }
+
+    try {
+        const headers = new Headers();
+        if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
+
+        const resp = await fetch(endpoint, { headers });
+
+        if (!resp.ok) throw new Error(`HTTP ${resp.status} – ${resp.statusText}`);
+
+        const data = await resp.json();
+
+        // ------------------- Normalise model array -------------------
+        let models = [];
+        if (Array.isArray(data?.data)) {
+            models = data.data;
+        } else if (Array.isArray(data?.objects)) {
+            models = data.objects;
+        } else {
+            throw new Error('Unexpected response format – no "data" array found.');
+        }
+
+        // ------------------- Provider‑specific processing -------------------
+        let ids = [];
+
+        if (provider === 'openrouter') {
+            // Keep only models whose pricing.prompt == "0" && pricing.completion == "0"
+            ids = models
+                .filter(m => m.pricing?.prompt === "0" && m.pricing?.completion === "0")
+                .map(m => m.id);
+        } else {
+            // Groq & SambaNova: just list all model IDs
+            ids = models.map(m => m.id);
+        }
+
+        if (ids.length === 0) {
+            resultDiv.textContent = 'No matching model IDs were found.';
+        } else {
+            resultDiv.textContent = ids.join('\n');
+            copyBtn.style.display = 'inline-block';
+        }
+
+        resultDiv.hidden = false;
+    } catch (err) {
+        resultDiv.innerHTML = `<span class="error">❗ Error: ${err.message}</span>`;
+        resultDiv.hidden = false;
+    }
+});
+
+/* ---------- Copy‑All button ---------- */
+copyBtn.addEventListener('click', async () => {
+    const txt = resultDiv.textContent;
+    try {
+        await navigator.clipboard.writeText(txt);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => copyBtn.textContent = 'Copy All', 1500);
+    } catch (e) {
+        alert('Copy failed: ' + e);
+    }
+});
+</script>
+
+</body>
+</html>
