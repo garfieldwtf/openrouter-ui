@@ -90,40 +90,49 @@
 
         .message {
             margin-bottom: 15px;
-            padding: 10px 15px;
+            padding: 15px;
             border-radius: 10px;
             max-width: 70%;
             word-wrap: break-word;
             white-space: pre-wrap; /* Preserve spaces and line breaks */
+            position: relative;
         }
 
         .user-message {
             background: #4CAF50;
             color: #fff;
             margin-left: auto;
-            display: flex;
-            align-items: center;
         }
 
         .bot-message {
             background: #e0e0e0;
             margin-right: auto;
-            display: flex;
-            align-items: center;
         }
 
         .message .icon {
-            margin-right: 10px;
-            font-size: 20px;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
         }
 
         .bot-message pre {
+            position: relative;
             background: #333;
             color: #fff;
             padding: 10px;
             border-radius: 5px;
             overflow-x: auto;
             white-space: pre-wrap; /* Preserve spaces and line breaks in code */
+            margin: 10px 0;
+        }
+
+        .code-header {
+            background: #444;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px 5px 0 0;
+            font-family: monospace;
+            font-size: 14px;
         }
 
         .bot-message code {
@@ -131,6 +140,41 @@
             color: #fff;
             padding: 2px 4px;
             border-radius: 3px;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-button:hover {
+            background: #3e8e41;
+        }
+
+        .bot-message strong {
+            font-weight: bold;
+        }
+
+        .bot-message em {
+            font-style: italic;
+        }
+
+        .bot-message u {
+            text-decoration: underline;
+        }
+
+        .bot-message h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
         }
 
         .input-area {
@@ -244,17 +288,33 @@
 
         // Function to format message output
         function formatMessage(message) {
+            // Replace ### headers with <h3> tags
+            message = message.replace(/###\s*(.*)/g, '<h3>$1</h3>');
             // Replace double asterisks with <strong> tags
             message = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             // Replace single asterisks with <em> tags
             message = message.replace(/\*(.*?)\*/g, '<em>$1</em>');
             // Replace underscores with <u> tags
             message = message.replace(/_(.*?)_/g, '<u>$1</u>');
-            // Replace triple backticks with <pre><code> tags
-            message = message.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+            // Replace triple backticks with <pre><code> tags and add a code header
+            message = message.replace(/```(\w+)?\n*(.*?)```/gs, (match, lang, code) => {
+                const header = lang ? `<div class="code-header">${lang}</div>` : '';
+                return `${header}<pre><code>${code}</code><button class="copy-button" onclick="copyCode(this)">Copy</button></pre>`;
+            });
             // Replace single backticks with <code> tags
             message = message.replace(/`(.*?)`/g, '<code>$1</code>');
             return message;
+        }
+
+        // Function to copy code to clipboard
+        function copyCode(button) {
+            const code = button.previousElementSibling.innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                button.innerText = 'Copied!';
+                setTimeout(() => {
+                    button.innerText = 'Copy';
+                }, 2000);
+            });
         }
 
         // Function to handle errors
