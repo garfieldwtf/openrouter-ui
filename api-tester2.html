@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple API Tester – Left output / Right input</title>
+<style>
+    /* ---------- General page style ---------- */
+    body{
+        margin:0;
+        font-family:Arial,Helvetica,sans-serif;
+        background:#f5f5f5;
+    }
+    h1{
+        margin:0 0 .8rem 0;
+        font-size:1.6rem;
+        text-align:center;
+    }
+    button{
+        padding:.6rem 1.2rem;
+        font-size:1rem;
+        background:#007bff;
+        color:#fff;
+        border:none;
+        border-radius:4px;
+        cursor:pointer;
+    }
+    button:hover{background:#0056b3;}
+
+    /* ---------- Flex layout ---------- */
+    .wrapper{
+        display:flex;
+        min-height:100vh;
+        overflow:hidden;
+    }
+    /* Output (left) */
+    .output{
+        flex:1;
+        background:#fff;
+        padding:1.6rem;
+        overflow:auto;
+        border-right:1px solid #e0e0e0;
+    }
+    /* Input (right) */
+    .input{
+        flex:0 0 340px;
+        background:#fafafa;
+        padding:1.6rem;
+        border-left:1px solid #e0e0e0;
+        overflow:auto;
+    }
+    /* When screen is narrow – stack vertically */
+    @media (max-width:768px){
+        .wrapper{flex-direction:column;}
+        .input{flex:0 0 auto; border-left:none; border-top:1px solid #e0e0e0;}
+    }
+
+    /* ---------- Form controls ---------- */
+    label{
+        display:block;
+        margin-top:1rem;
+        font-weight:bold;
+    }
+    input[type=text],
+    textarea,
+    select{
+        width:100%;
+        padding:.4rem;
+        margin-top:.3rem;
+        border:1px solid #ccc;
+        border-radius:4px;
+        font-size:1rem;
+        box-sizing:border-box;
+    }
+    textarea{
+        font-family:monospace;
+        min-height:80px;
+        resize:vertical;
+    }
+
+    /* ---------- Response rendering ---------- */
+    .response{
+        background:#fafafa;
+        border:1px solid #e0e0e0;
+        border-radius:4px;
+        padding:.8rem;
+        overflow:auto;
+        max-height:80vh;
+    }
+    .status{
+        font-weight:bold;
+        font-size:1.1em;
+    }
+    .error{
+        color:#c00;
+        font-weight:bold;
+    }
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-top:.5rem;
+    }
+    th,td{
+        border:1px solid #ddd;
+        padding:.4rem .6rem;
+        text-align:left;
+        font-size:.9rem;
+    }
+    th{
+        background:#f0f0f0;
+    }
+    pre{
+        background:#fff;
+        padding:.6rem;
+        margin:0;
+        overflow:auto;
+        border:1px solid #e0e0e0;
+        border-radius:4px;
+    }
+    .copyBtn{
+        background:#eee;
+        border:none;
+        padding:.2rem .5rem;
+        margin-left:.5rem;
+        cursor:pointer;
+        border-radius:3px;
+        font-size:.85rem;
+    }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+    <!-- LEFT – output -->
+    <section class="output">
+        <h1>Response</h1>
+        <div id="output" class="response" hidden></div>
+    </section>
+
+    <!-- RIGHT – input form -->
+    <section class="input">
+        <h1>🛠️ API Tester</h1>
+
+        <label for="url">API Endpoint URL</label>
+        <input type="text" id="url" placeholder="https://api.example.com/v1/resource">
+
+        <label for="method">HTTP Method</label>
+        <select id="method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>PATCH</option>
+            <option>DELETE</option>
+        </select>
+
+        <label for="apikey">API Key (Bearer token)</label>
+        <input type="text" id="apikey" placeholder="your‑api‑key‑here">
+
+        <label for="headers">Additional Headers (one per line: <code>Name: Value</code>)</label>
+        <textarea id="headers" placeholder="X-Custom-Header: Foo&#10;Accept-Language: en-US"></textarea>
+
+        <label for="params">Query Parameters (one per line: <code>name=value</code>)</label>
+        <textarea id="params" placeholder="page=2&#10;limit=20"></textarea>
+
+        <label for="body">Request Body (JSON) – used for POST/PUT/PATCH</label>
+        <textarea id="body" placeholder='{"name":"John","age":30}'></textarea>
+
+        <button id="sendBtn">Send Request 🚀</button>
+    </section>
+</div>
+
+<script>
+/* ---------- Helpers ---------- */
+// Render response headers as a table
+function renderHeaders(headers){
+    let rows = '';
+    headers.forEach((v,n)=> rows += `<tr><td>${n}</td><td>${v}</td></tr>`);
+    return `<table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// Small copy‑to‑clipboard button
+function copyButton(text){
+    const btn = document.createElement('button');
+    btn.className = 'copyBtn';
+    btn.textContent = 'Copy';
+    btn.onclick = async () => {
+        try{
+            await navigator.clipboard.writeText(text);
+            btn.textContent = 'Copied!';
+            setTimeout(()=> btn.textContent='Copy',1500);
+        }catch(e){ alert('Copy failed: '+e); }
+    };
+    return btn;
+}
+
+/* ---------- Main routine ---------- */
+document.getElementById('sendBtn').addEventListener('click', async () => {
+    const outDiv = document.getElementById('output');
+    outDiv.hidden = true;
+    outDiv.innerHTML = '';
+
+    // Grab user inputs
+    const urlInput    = document.getElementById('url').value.trim();
+    const method      = document.getElementById('method').value;
+    const apiKey      = document.getElementById('apikey').value.trim();
+    const headerLines = document.getElementById('headers').value.trim().split('\n');
+    const paramLines  = document.getElementById('params').value.trim().split('\n');
+    const rawBody     = document.getElementById('body').value.trim();
+
+    if (!urlInput){
+        outDiv.hidden = false;
+        outDiv.innerHTML = '<span class="error">❗ Please provide an endpoint URL.</span>';
+        return;
+    }
+
+    // ---------- Build URL with query string ----------
+    let url;
+    try{ url = new URL(urlInput); }
+    catch{ // handle relative URLs like "/api"
+        url = new URL(urlInput, location.origin);
+    }
+    if (paramLines[0] !== ''){
+        paramLines.forEach(line=>{
+            const [k, ...v] = line.split('=');
+            if(k) url.searchParams.append(k.trim(), v.join('=').trim());
+        });
+    }
+
+    // ---------- Assemble request headers ----------
+    const headers = new Headers();
+    if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
+
+    headerLines.forEach(line=>{
+        if(!line) return;
+        const i = line.indexOf(':');
+        if(i>-1){
+            const name  = line.slice(0,i).trim();
+            const value = line.slice(i+1).trim();
+            if(name) headers.set(name, value);
+        }
+    });
+
+    // ---------- Request options ----------
+    const init = { method, headers };
+    if(['POST','PUT','PATCH'].includes(method) && rawBody){
+        try{ JSON.parse(rawBody); } // basic validation
+        catch(e){
+            outDiv.hidden = false;
+            outDiv.innerHTML = `<span class="error">❗ Invalid JSON body: ${e.message}</span>`;
+            return;
+        }
+        init.body = rawBody;
+        if (!headers.has('Content-Type')) headers.set('Content-Type','application/json');
+    }
+
+    // ---------- Perform fetch ----------
+    try{
+        const response = await fetch(url.toString(), init);
+        const ct = response.headers.get('content-type') || '';
+
+        let bodyText = '';
+        if (ct.includes('application/json')){
+            const json = await response.json();
+            bodyText = JSON.stringify(json, null, 2);
+        }else if (ct.startsWith('text/')){
+            bodyText = await response.text();
+        }else{
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            bodyText = `Binary data – <a href="${blobUrl}" target="_blank">download</a>`;
+        }
+
+        // ---------- Render readable output ----------
+        outDiv.hidden = false;
+        outDiv.innerHTML = `
+            <div class="status">HTTP ${response.status} ${response.statusText}</div>
+            <div style="margin-top:.8rem;">
+                <strong>Headers</strong> ${copyButton([...response.headers].map(h=>h.join(': ')).join('\n')).outerHTML}
+                ${renderHeaders(response.headers)}
+            </div>
+            <div style="margin-top:.8rem;">
+                <strong>Body</strong> ${copyButton(bodyText).outerHTML}
+                <pre>${bodyText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+            </div>
+        `;
+    }catch(err){
+        outDiv.hidden = false;
+        outDiv.innerHTML = `<span class="error">❗ Request failed: ${err.message}</span>`;
+    }
+});
+</script>
+
+</body>
+</html>
