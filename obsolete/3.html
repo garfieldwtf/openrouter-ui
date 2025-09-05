@@ -263,15 +263,6 @@
         .clear-chat-button:hover {
             background: #cc0000;
         }
-
-        /* Fix for asterisks in crontab */
-        .crontab-asterisk {
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            background: #1a202c;
-            color: #e2e8f0;
-            padding: 0 2px;
-        }
     </style>
 </head>
 <body>
@@ -332,90 +323,57 @@
 
         // Function to format message output
         function formatMessage(message) {
-            // Split the message into parts (code blocks and regular text)
-            const parts = [];
-            let lastIndex = 0;
-            const codeBlockRegex = /```(\w+)?\s*\n([\s\S]*?)```/g;
-            let match;
+            // First extract and preserve code blocks
+            let codeBlocks = [];
+            message = message.replace(/```(\w+)?\s*\n([\s\S]*?)```/gs, (match, lang, code) => {
+                const id = `code-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                codeBlocks.push({id, lang, code});
+                return `{{${id}}}`;
+            });
+
+            // Now escape HTML for the remaining content (but preserve the placeholders)
+            message = escapeHtml(message);
             
-            // Find all code blocks and the text between them
-            while ((match = codeBlockRegex.exec(message)) !== null) {
-                // Add text before the code block
-                if (match.index > lastIndex) {
-                    parts.push({
-                        type: 'text',
-                        content: message.substring(lastIndex, match.index)
-                    });
-                }
-                
-                // Add the code block
-                parts.push({
-                    type: 'code',
-                    language: match[1] || 'text',
-                    content: match[2]
-                });
-                
-                lastIndex = codeBlockRegex.lastIndex;
-            }
-            
-            // Add any remaining text after the last code block
-            if (lastIndex < message.length) {
-                parts.push({
-                    type: 'text',
-                    content: message.substring(lastIndex)
-                });
-            }
-            
-            // Process each part
-            let result = '';
-            for (const part of parts) {
-                if (part.type === 'code') {
-                    // Format code blocks
-                    result += `
-                    <div class="code-container">
-                        <div class="code-header">
-                            ${part.language}
-                            <div class="code-actions">
-                                <button class="code-button" onclick="copyCode(this)">Copy</button>
-                                ${part.language === 'html' ? '<button class="code-button" onclick="testRunCode(this)">Test Run</button>' : ''}
-                            </div>
+            // Restore code blocks with proper HTML
+            codeBlocks.forEach(({id, lang, code}) => {
+                const language = lang || 'text';
+                const escapedCode = escapeHtml(code.trim());
+                const codeBlockHtml = `
+                <div class="code-container">
+                    <div class="code-header">
+                        ${language}
+                        <div class="code-actions">
+                            <button class="code-button" onclick="copyCode(this)">Copy</button>
+                            ${language === 'html' ? '<button class="code-button" onclick="testRunCode(this)">Test Run</button>' : ''}
                         </div>
-                        <pre class="code-block">${escapeHtml(part.content.trim())}</pre>
-                    </div>`;
-                } else {
-                    // Format regular text with markdown support
-                    result += formatText(part.content);
-                }
-            }
+                    </div>
+                    <pre class="code-block">${escapedCode}</pre>
+                </div>`;
+                message = message.replace(`{{${id}}}`, codeBlockHtml);
+            });
+
+            // Now process markdown formatting on the non-code parts
+            // Handle headers
+            message = message.replace(/### (.*)/g, '<h3>$1</h3>');
+            message = message.replace(/## (.*)/g, '<h2>$1</h2>');
+            message = message.replace(/# (.*)/g, '<h1>$1</h1>');
             
-            return result;
+            // Handle bold - only convert **text** patterns
+            message = message.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+            
+            // Handle italic - only convert *text* patterns
+            message = message.replace(/\*([^*\n\s][^*\n]*[^*\n\s])\*/g, '<em>$1</em>');
+            
+            // Handle underline
+            message = message.replace(/_([^_\n]+?)_/g, '<u>$1</u>');
+            
+            // Handle inline code
+            message = message.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            return message;
         }
 
-        // Format text with markdown
-        function formatText(text) {
-            // Replace headers
-            text = text.replace(/### (.*)/g, '<h3>$1</h3>');
-            text = text.replace(/## (.*)/g, '<h2>$1</h2>');
-            text = text.replace(/# (.*)/g, '<h1>$1</h1>');
-            
-            // Replace bold and italic
-            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            text = text.replace(/\*([^*\s][^*]*[^*\s])\*/g, '<em>$1</em>');
-            
-            // Replace inline code
-            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-            // Handle unordered lists
-            text = text.replace(/^\s*\*\s+(.*)$/gm, '<ul><li>$1</li></ul>');
-            text = text.replace(/<\/ul>\s*<ul>/g, '');
-            
-            // Handle line breaks
-            text = text.replace(/\n/g, '<br>');
-            
-            return text;
-        }
-
-        // Escape HTML for code blocks
+        // Escape HTML function
         function escapeHtml(unsafe) {
             return unsafe
                 .replace(/&/g, "&amp;")
