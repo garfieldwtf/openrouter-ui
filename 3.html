@@ -57,6 +57,7 @@
             border-radius: 5px;
             background-color: #f9f9f9;
             white-space: pre-wrap;
+            font-family: monospace;
         }
         .footer {
             text-align: center;
@@ -117,8 +118,14 @@
                     body: JSON.stringify({
                         model: llmModel,
                         prompt: query,
+                        max_tokens: 2048,
                     }),
                 });
+
+                if (!response.ok) {
+                    responseDiv.innerText = `Error: ${response.status} ${response.statusText}`;
+                    return;
+                }
 
                 const data = await response.json();
                 responseDiv.innerText = JSON.stringify(data, null, 2);
