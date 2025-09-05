@@ -6,8 +6,8 @@
     <title>Adam's AI UI | OpenRouter API</title>
     <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.1/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -285,6 +285,7 @@
         
         .logo {
             font-size: 1.5rem;
+            margin-right: 10px;
         }
         
         .subtitle {
@@ -368,12 +369,32 @@
             transition: opacity 0.3s ease;
         }
         
-        .message-content pre:hover .copy-button {
+        .run-button {
+            position: absolute;
+            bottom: 8px;
+            right: 70px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message-content pre:hover .copy-button,
+        .message-content pre:hover .run-button {
             opacity: 1;
         }
         
         .copy-button:hover {
             background: var(--primary-dark);
+        }
+        
+        .run-button:hover {
+            background: #0da271;
         }
         
         .copy-button.copied {
@@ -748,6 +769,45 @@
                 justify-content: space-between;
             }
         }
+        
+        /* Fallback styles for code highlighting if hljs fails */
+        .hljs-fallback {
+            color: #24292e;
+            background: #f6f8fa;
+        }
+        
+        .hljs-fallback .hljs-keyword {
+            color: #d73a49;
+        }
+        
+        .hljs-fallback .hljs-string {
+            color: #032f62;
+        }
+        
+        .hljs-fallback .hljs-function {
+            color: #6f42c1;
+        }
+        
+        .hljs-fallback .hljs-comment {
+            color: #6a737d;
+        }
+        
+        .hljs-fallback .hljs-number {
+            color: #005cc5;
+        }
+        
+        .hljs-fallback .hljs-tag {
+            color: #22863a;
+        }
+        
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #c33;
+        }
     </style>
 </head>
 <body>
@@ -897,6 +957,9 @@
             let API_KEY = '';
             let MODEL_NAME = 'deepseek/deepseek-chat-v3.1:free';
             
+            // Track if Highlight.js is available
+            let hljsAvailable = false;
+            
             // Conversation history
             let conversationHistory = [
                 {
@@ -905,13 +968,39 @@
                 }
             ];
             
+            // Check if Highlight.js is loaded and available
+            function checkHljsAvailability() {
+                if (typeof hljs !== 'undefined' && hljs !== null) {
+                    hljsAvailable = true;
+                    console.log('Highlight.js is available');
+                } else {
+                    hljsAvailable = false;
+                    console.warn('Highlight.js is not available, using fallback styling');
+                    // Add a warning message to the chat
+                    addMessage('Note: Code syntax highlighting is currently unavailable. Code will be displayed with basic formatting.', 'ai');
+                }
+            }
+            
             // Configure marked to render code blocks with syntax highlighting
             marked.setOptions({
                 highlight: function(code, lang) {
-                    if (lang && hljs.getLanguage(lang)) {
-                        return hljs.highlight(code, { language: lang }).value;
+                    if (hljsAvailable && lang && hljs.getLanguage(lang)) {
+                        try {
+                            return hljs.highlight(code, { language: lang }).value;
+                        } catch (e) {
+                            console.error('Error highlighting code:', e);
+                            return hljs.highlightAuto(code).value;
+                        }
+                    } else if (hljsAvailable) {
+                        return hljs.highlightAuto(code).value;
+                    } else {
+                        // Fallback: just escape HTML and return plain code
+                        return code.replace(/&/g, '&amp;')
+                                   .replace(/</g, '&lt;')
+                                   .replace(/>/g, '&gt;')
+                                   .replace(/"/g, '&quot;')
+                                   .replace(/'/g, '&#039;');
                     }
-                    return hljs.highlightAuto(code).value;
                 }
             });
 
@@ -952,7 +1041,42 @@
                     });
                     
                     preElement.appendChild(copyButton);
+                    
+                    // Check if this is HTML code and add a run button
+                    const codeElement = preElement.querySelector('code');
+                    if (codeElement) {
+                        const codeText = codeElement.textContent;
+                        // Check if the code contains HTML tags
+                        if (codeText.match(/<\/?[a-z][\s\S]*>/i)) {
+                            // Add a run button for HTML code
+                            const runButton = document.createElement('button');
+                            runButton.className = 'run-button';
+                            runButton.innerHTML = '<i class="fas fa-play"></i> Run';
+                            runButton.title = 'Run HTML code in new tab';
+                            
+                            runButton.addEventListener('click', function() {
+                                runHtmlCode(codeText);
+                            });
+                            
+                            preElement.appendChild(runButton);
+                        }
+                    }
                 });
+            }
+            
+            // Function to run HTML code in a new tab
+            function runHtmlCode(htmlCode) {
+                // Create a new blob with the HTML content
+                const blob = new Blob([htmlCode], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                // Open the HTML in a new tab
+                window.open(url, '_blank');
+                
+                // Clean up the URL object after a short delay
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
             }
             
             // Save conversation as PDF
@@ -1323,10 +1447,17 @@
                 
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 
-                // Highlight any code blocks in the message
-                messageContent.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightElement(block);
-                });
+                // Apply fallback styling if hljs is not available
+                if (!hljsAvailable) {
+                    messageContent.querySelectorAll('pre code').forEach((block) => {
+                        block.classList.add('hljs-fallback');
+                    });
+                } else {
+                    // Highlight any code blocks in the message
+                    messageContent.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                }
                 
                 // Add copy buttons to code blocks
                 setTimeout(() => {
@@ -1501,6 +1632,7 @@
             // Initialize the app
             initializeConfig();
             checkApiKey();
+            checkHljsAvailability();
         });
     </script>
 </body>

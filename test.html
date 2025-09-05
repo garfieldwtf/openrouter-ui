@@ -808,6 +808,11 @@
             margin: 10px 0;
             border-left: 4px solid #c33;
         }
+        
+        /* PDF-specific styles */
+        .pdf-html {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -927,6 +932,9 @@
         <p>Generating PDF, please wait...</p>
     </div>
 
+    <!-- Hidden container for PDF rendering -->
+    <div id="pdf-html" class="pdf-html"></div>
+
     <script>
         // Initialize jsPDF
         const { jsPDF } = window.jspdf;
@@ -951,6 +959,7 @@
             const pdfLoading = document.getElementById('pdf-loading');
             const sidebar = document.getElementById('sidebar');
             const toggleSidebarButton = document.getElementById('toggle-sidebar');
+            const pdfHtmlContainer = document.getElementById('pdf-html');
             
             // API configuration
             let API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -1119,6 +1128,9 @@
                     // Set font for messages
                     pdf.setFontSize(11);
                     
+                    // Create a temporary container for HTML rendering
+                    pdfHtmlContainer.innerHTML = '';
+                    
                     // Add conversation messages
                     for (const message of conversationHistory) {
                         if (message.role === 'system') continue;
@@ -1129,39 +1141,54 @@
                             yPosition = margin;
                         }
                         
-                        // Set message background color
+                        // Create message element for HTML rendering
+                        const messageDiv = document.createElement('div');
+                        messageDiv.style.width = contentWidth + 'mm';
+                        messageDiv.style.padding = '10px';
+                        messageDiv.style.marginBottom = '10px';
+                        
                         if (message.role === 'user') {
-                            pdf.setFillColor(99, 102, 241); // Primary color
-                            pdf.setTextColor(255, 255, 255);
+                            messageDiv.style.backgroundColor = '#6366f1';
+                            messageDiv.style.color = 'white';
+                            messageDiv.style.borderRadius = '10px';
+                            messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">User:</div>`;
                         } else {
-                            pdf.setFillColor(243, 244, 246); // Secondary color
-                            pdf.setTextColor(0, 0, 0);
+                            messageDiv.style.backgroundColor = '#f3f4f6';
+                            messageDiv.style.color = '#1f2937';
+                            messageDiv.style.borderRadius = '10px';
+                            messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">AI Assistant:</div>`;
                         }
                         
-                        // Split message into lines that fit the page width
-                        const messageLines = pdf.splitTextToSize(message.content, contentWidth - 20);
+                        // Parse markdown for the message content
+                        const contentDiv = document.createElement('div');
+                        contentDiv.innerHTML = marked.parse(message.content);
+                        messageDiv.appendChild(contentDiv);
                         
-                        // Calculate message height
-                        const lineHeight = 7;
-                        const messageHeight = messageLines.length * lineHeight + 10;
+                        pdfHtmlContainer.appendChild(messageDiv);
                         
-                        // Draw message background
-                        pdf.roundedRect(margin, yPosition, contentWidth, messageHeight, 3, 3, 'F');
+                        // Convert HTML to image using html2canvas
+                        const canvas = await html2canvas(messageDiv, {
+                            scale: 2,
+                            backgroundColor: null
+                        });
                         
-                        // Add message text
-                        pdf.text(messageLines, margin + 10, yPosition + 10);
+                        const imgData = canvas.toDataURL('image/png');
                         
-                        // Add sender label
-                        pdf.setFont(undefined, 'bold');
-                        if (message.role === 'user') {
-                            pdf.text('User', margin + 10, yPosition + 5);
-                        } else {
-                            pdf.text('AI Assistant', margin + 10, yPosition + 5);
+                        // Calculate height based on image aspect ratio
+                        const imgWidth = contentWidth;
+                        const imgHeight = canvas.height * imgWidth / canvas.width;
+                        
+                        // Check if we need a new page for this message
+                        if (yPosition + imgHeight > pdf.internal.pageSize.getHeight() - margin) {
+                            pdf.addPage();
+                            yPosition = margin;
                         }
-                        pdf.setFont(undefined, 'normal');
+                        
+                        // Add the image to the PDF
+                        pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight);
                         
                         // Update Y position for next message
-                        yPosition += messageHeight + 10;
+                        yPosition += imgHeight + 10;
                     }
                     
                     // Add page numbers
@@ -1183,6 +1210,7 @@
                 } finally {
                     // Hide loading indicator
                     pdfLoading.style.display = 'none';
+                    pdfHtmlContainer.innerHTML = '';
                 }
             }
             
