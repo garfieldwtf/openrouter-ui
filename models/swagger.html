@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini Swagger — API Explorer</title>
+
+<!-- Embedded minimal reset + fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0f1724;
+  --card:#0b1220;
+  --muted:#9aa4b2;
+  --accent:#6ee7b7;
+  --accent-2:#60a5fa;
+  --danger:#ff7b7b;
+  --glass: rgba(255,255,255,0.025);
+  --glass-2: rgba(255,255,255,0.03);
+  --radius:12px;
+  --sidebar-w:320px;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(96,165,250,0.06), transparent 6%),
+              radial-gradient(1000px 500px at 90% 90%, rgba(110,231,183,0.04), transparent 8%),
+              var(--bg);
+  color:#e6eef6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:28px;
+}
+
+/* Layout */
+.app{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  gap:20px;
+  height:calc(100vh - 56px);
+}
+
+/* Sidebar */
+.sidebar{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border:1px solid rgba(255,255,255,0.03);
+  border-radius:var(--radius);
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-width:var(--sidebar-w);
+}
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.logo{
+  width:46px;height:46px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--accent-2),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:#021028;font-size:18px;
+  box-shadow:0 6px 20px rgba(32, 64, 128, 0.18), inset 0 -6px 12px rgba(255,255,255,0.06);
+}
+.title{
+  font-weight:700;font-size:16px;
+}
+.subtitle{font-size:12px;color:var(--muted)}
+
+/* Endpoints list */
+.eps{
+  overflow:auto;padding-right:6px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.ep{
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center;
+  cursor:pointer;border:1px solid transparent;
+  transition:all .14s;
+}
+.ep:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+.ep .method{font-weight:700;padding:6px 8px;border-radius:8px;font-size:12px}
+.GET{background:#2dd4bf;color:#02221c}
+.POST{background:#60a5fa;color:#021633}
+.PUT{background:#f59e0b;color:#2a1400}
+.DELETE{background:#fb7185;color:#2a0d10}
+.ep .meta{display:flex;flex-direction:column}
+.ep .path{font-weight:600}
+.ep.active{outline:2px solid rgba(96,165,250,0.12);transform:none}
+
+/* Main area */
+.main{
+  display:flex;flex-direction:column;gap:14px;
+}
+.header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.header .left{display:flex;align-items:center;gap:12px}
+.endpoint-card{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
+  display:flex;flex-direction:column;gap:8px;
+}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.input, select, textarea{
+  background:var(--glass);
+  border:1px solid rgba(255,255,255,0.035);
+  padding:8px 10px;border-radius:10px;color:inherit;font-size:13px;
+}
+.method-select{display:flex;gap:8px;align-items:center}
+.url-input{flex:1;min-width:220px}
+.small{font-size:13px;color:var(--muted)}
+
+/* Editor grid */
+.editor{
+  display:grid;
+  grid-template-columns: 1fr 420px;
+  gap:16px;
+  height:calc(100% - 120px);
+}
+.left-editor{
+  display:flex;flex-direction:column;gap:12px;height:100%;
+}
+.section{
+  background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);
+  padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);
+  display:flex;flex-direction:column;gap:8px;
+  max-height:320px;overflow:auto;
+}
+.kv-row{display:flex;gap:8px}
+.kv-row input{flex:1}
+.add-btn{
+  background:transparent;border:1px dashed rgba(255,255,255,0.04);
+  padding:8px;border-radius:8px;color:var(--muted);cursor:pointer;
+}
+.send-row{display:flex;gap:12px;align-items:center}
+.send-btn{
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#012; border:none;padding:10px 16px;border-radius:10px;font-weight:700;
+  box-shadow:0 6px 24px rgba(96,165,250,0.12);
+  cursor:pointer;
+}
+.clear-btn{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+/* Right panel (response) */
+.right-panel{display:flex;flex-direction:column;height:100%;gap:12px}
+.response-card{
+  flex:1;display:flex;flex-direction:column;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  overflow:auto;
+}
+.res-meta{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.status{
+  padding:6px 10px;border-radius:8px;font-weight:700;font-size:13px;
+  background:rgba(255,255,255,0.02);
+}
+.status.ok{color:#0b6f45;background:rgba(110,231,183,0.08)}
+.status.err{color:#7a1220;background:rgba(255,123,123,0.06)}
+.code{font-weight:700;color:var(--muted)}
+.headers-list{font-size:13px;color:var(--muted);overflow:auto;max-height:120px}
+.response-body{background:#021026;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);overflow:auto;flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+
+/* small helpers */
+.row{display:flex;gap:10px;align-items:center}
+.badge{font-size:12px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted)}
+
+/* Footer */
+.footer{
+  display:flex;gap:12px;align-items:center;justify-content:space-between;color:var(--muted);font-size:13px;
+  padding:8px 12px;border-radius:12px;margin-top:8px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  border:1px solid rgba(255,255,255,0.02);
+}
+
+/* Prism (syntax highlight baseline) */
+.token.comment{color:#6b7280}
+.token.keyword{color:#60a5fa}
+.token.operator{color:#c7c7ff}
+.token.string{color:#86efac}
+.token.function{color:#f0abfc}
+.token.number{color:#f6ad55}
+
+/* Responsive */
+@media (max-width:980px){
+  .app{grid-template-columns:1fr;grid-auto-rows:auto}
+  .editor{grid-template-columns:1fr}
+  .right-panel{order:3}
+  .sidebar{order:2}
+  .header .left{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="app" role="application" aria-label="Mini Swagger API Explorer">
+  <aside class="sidebar" aria-label="Endpoints">
+    <div class="brand">
+      <div class="logo">MS</div>
+      <div>
+        <div class="title">Mini Swagger</div>
+        <div class="subtitle">Explore your APIs — single file</div>
+      </div>
+    </div>
+
+    <div class="row small" style="justify-content:space-between">
+      <div class="badge">Environment: <strong style="margin-left:6px">Local</strong></div>
+      <div class="small">Tip: click an endpoint</div>
+    </div>
+
+    <div class="eps" id="endpointsList" role="list">
+      <!-- Endpoints injected by JS -->
+    </div>
+
+    <div style="margin-top:auto" class="small">Made with care — client-side only</div>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <div class="left">
+        <div class="endpoint-card" style="min-width:520px">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div id="curMethod" class="method" style="min-width:78px;padding:8px 10px;border-radius:10px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021028;font-weight:800"></div>
+            <div style="display:flex;flex-direction:column;">
+              <div id="curPath" style="font-weight:800;font-size:15px"></div>
+              <div class="small" id="curDesc"></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:10px;align-items:center" class="controls">
+            <div class="method-select">
+              <select id="methodSelect" class="input" aria-label="HTTP method">
+                <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option>
+              </select>
+            </div>
+            <input id="baseUrl" class="input url-input" placeholder="Base URL (e.g. https://api.example.com)" value="https://jsonplaceholder.typicode.com" />
+            <input id="pathInput" class="input" style="width:260px" placeholder="/posts/1" />
+            <div class="send-row">
+              <button id="sendBtn" class="send-btn">Send</button>
+              <button id="clearBtn" class="clear-btn">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right small" style="text-align:right">
+        <div>Mini Swagger • Single file • Pretty UI</div>
+      </div>
+    </div>
+
+    <div class="editor" role="region" aria-label="Request and response editor">
+      <div class="left-editor">
+        <div class="section">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700">Query Parameters</div>
+            <button id="addQuery" class="add-btn">+ add</button>
+          </div>
+          <div id="queryList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
+        </div>
+
+        <div class="section">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700">Headers</div>
+            <button id="addHeader" class="add-btn">+ add</button>
+          </div>
+          <div id="headerList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <div class="kv-row"><input placeholder="Accept" class="input" value="application/json"><input placeholder="Value" class="input" value="application/json"></div>
+          </div>
+        </div>
+
+        <div class="section" style="flex:1;min-height:120px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700">Body (JSON)</div>
+            <div class="small">Pretty JSON only</div>
+          </div>
+          <textarea id="bodyInput" placeholder='{"name":"value"}' style="width:100%;height:180px;border-radius:10px;padding:10px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit"></textarea>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="response-card">
+          <div class="res-meta">
+            <div id="statusBadge" class="status">—</div>
+            <div class="code" id="statusCode">No response</div>
+            <div class="small" id="timeTaken"></div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:6px">
+            <div class="badge">Headers</div>
+            <div style="flex:1" class="headers-list" id="resHeaders">—</div>
+            <div class="badge">Body</div>
+            <div class="badge" id="bodySize">0 B</div>
+          </div>
+
+          <div class="response-body" id="resBody" role="document"><pre id="resPre" style="margin:0;white-space:pre-wrap"></pre></div>
+        </div>
+
+        <div class="footer">
+          <div class="small" id="hint">Use sample endpoints on the left or enter your own URL.</div>
+          <div class="small">Status: <span id="lastStatus">idle</span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Prism simple embed for highlighting small JSON blocks -->
+<script>
+/* Minimal syntax highlight helper (tiny) */
+function tinyHighlightJSON(json){
+  try{
+    const s = JSON.stringify(JSON.parse(json), null, 2)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return s.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?([eE][+\-]?\d+)?)/g, function (match) {
+      let cls = 'number';
+      if (/^"/.test(match)) {
+        if (/:$/.test(match)) cls = 'key';
+        else cls = 'string';
+      } else if (/true|false/.test(match)) cls = 'boolean';
+      else if (/null/.test(match)) cls = 'null';
+      return '<span class="token '+cls+'">' + match + '</span>';
+    });
+  }catch(e){
+    return json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+}
+
+/* Small utility */
+function bytes(n){ if(n===null||n===undefined) return '0 B'; if(n<1024) return n+' B'; if(n<1024*1024) return (n/1024).toFixed(1)+' KB'; return (n/1024/1024).toFixed(2)+' MB' }
+
+/* Sample endpoints */
+const sampleEndpoints = [
+  { method:'GET', path:'/posts', desc:'List posts', sample:'/posts' },
+  { method:'GET', path:'/posts/{id}', desc:'Get post', sample:'/posts/1' },
+  { method:'POST', path:'/posts', desc:'Create post', sample:'/posts' },
+  { method:'PUT', path:'/posts/{id}', desc:'Replace post', sample:'/posts/1' },
+  { method:'PATCH', path:'/posts/{id}', desc:'Update post', sample:'/posts/1' },
+  { method:'DELETE', path:'/posts/{id}', desc:'Delete post', sample:'/posts/1' },
+  { method:'GET', path:'/comments', desc:'List comments', sample:'/comments' }
+];
+
+/* Populate sidebar */
+const listEl = document.getElementById('endpointsList');
+sampleEndpoints.forEach((ep,idx)=>{
+  const div = document.createElement('div');
+  div.className='ep';
+  div.setAttribute('role','listitem');
+  div.innerHTML = `<div class="method ${ep.method}">${ep.method}</div>
+                   <div class="meta"><div class="path">${ep.path}</div><div class="small">${ep.desc}</div></div>`;
+  div.onclick = ()=>selectEndpoint(idx);
+  listEl.appendChild(div);
+});
+let activeIndex = 0;
+
+function selectEndpoint(i){
+  activeIndex = i;
+  Array.from(listEl.children).forEach((n,idx)=> n.classList.toggle('active', idx===i));
+  const ep = sampleEndpoints[i];
+  document.getElementById('curMethod').textContent = ep.method;
+  document.getElementById('curPath').textContent = ep.path;
+  document.getElementById('curDesc').textContent = ep.desc;
+  document.getElementById('methodSelect').value = ep.method;
+  document.getElementById('pathInput').value = ep.sample;
+  // body example
+  if(ep.method==='POST' || ep.method==='PUT' || ep.method==='PATCH'){
+    document.getElementById('bodyInput').value = JSON.stringify({ title: "foo", body: "bar", userId: 1 }, null, 2);
+  } else {
+    document.getElementById('bodyInput').value = '';
+  }
+}
+selectEndpoint(0);
+
+/* Add KV row functions */
+function makeKVplaceholders(key='', val=''){
+  const row = document.createElement('div');
+  row.className='kv-row';
+  const k = document.createElement('input'); k.className='input'; k.placeholder='Key'; k.value=key;
+  const v = document.createElement('input'); v.className='input'; v.placeholder='Value'; v.value=val;
+  const rem = document.createElement('button'); rem.className='add-btn'; rem.textContent='−'; rem.style.width='36px';
+  rem.onclick = ()=> row.remove();
+  row.appendChild(k); row.appendChild(v); row.appendChild(rem);
+  return row;
+}
+
+document.getElementById('addHeader').onclick = ()=> document.getElementById('headerList').appendChild(makeKVplaceholders());
+document.getElementById('addQuery').onclick = ()=> document.getElementById('queryList').appendChild(makeKVplaceholders());
+
+/* Build request from UI */
+function gatherKV(listEl){
+  const rows = Array.from(listEl.children).filter(c=>c.classList.contains('kv-row'));
+  const obj = {};
+  rows.forEach(r=>{
+    const k = r.children[0].value.trim();
+    const v = r.children[1].value;
+    if(k) obj[k] = v;
+  });
+  return obj;
+}
+
+/* Send logic */
+const sendBtn = document.getElementById('sendBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+sendBtn.onclick = async ()=>{
+  const base = document.getElementById('baseUrl').value.trim();
+  let path = document.getElementById('pathInput').value.trim();
+  if(!base){ alert('Enter base URL'); return; }
+  const method = document.getElementById('methodSelect').value;
+  const headers = gatherKV(document.getElementById('headerList'));
+  const query = gatherKV(document.getElementById('queryList'));
+  // build URL
+  const url = new URL(path, base);
+  Object.keys(query).forEach(k=> url.searchParams.set(k, query[k]));
+  // body
+  let body = undefined;
+  const rawBody = document.getElementById('bodyInput').value.trim();
+  if(rawBody && (method!=='GET' && method!=='DELETE')){
+    try{
+      // Try parse JSON — if not valid, send raw
+      body = JSON.stringify(JSON.parse(rawBody));
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    }catch(e){
+      body = rawBody;
+      headers['Content-Type'] = headers['Content-Type'] || 'text/plain';
+    }
+  }
+
+  // UI state
+  const statusBadge = document.getElementById('statusBadge');
+  const statusCode = document.getElementById('statusCode');
+  const resHeaders = document.getElementById('resHeaders');
+  const resPre = document.getElementById('resPre');
+  const timeTaken = document.getElementById('timeTaken');
+  const bodySize = document.getElementById('bodySize');
+  statusBadge.textContent = 'Sending...'; statusBadge.className='status';
+  statusCode.textContent = url.toString();
+  resHeaders.textContent = '—';
+  resPre.textContent = '';
+
+  const start = performance.now();
+  try{
+    const resp = await fetch(url.toString(), {
+      method,
+      headers,
+      body
+    });
+    const ms = (performance.now()-start).toFixed(0);
+    timeTaken.textContent = `${ms} ms`;
+    // status
+    statusCode.textContent = `${resp.status} ${resp.statusText}`;
+    statusBadge.className = 'status ' + (resp.ok ? 'ok' : 'err');
+    statusBadge.textContent = resp.ok ? 'OK' : 'ERROR';
+    document.getElementById('lastStatus').textContent = resp.ok ? 'ok' : 'error';
+
+    // headers
+    const headersArr = [];
+    resp.headers.forEach((v,k)=> headersArr.push(`${k}: ${v}`));
+    resHeaders.innerHTML = headersArr.join('<br/>') || '—';
+
+    // body
+    const ct = resp.headers.get('content-type') || '';
+    let text;
+    if(ct.includes('application/json')){
+      const j = await resp.clone().json();
+      text = JSON.stringify(j, null, 2);
+      resPre.innerHTML = tinyHighlightJSON(text);
+    } else {
+      text = await resp.text();
+      // try pretty JSON if possible
+      try{
+        const j = JSON.parse(text);
+        const pretty = JSON.stringify(j, null, 2);
+        resPre.innerHTML = tinyHighlightJSON(pretty);
+      }catch(e){
+        resPre.textContent = text;
+      }
+    }
+    bodySize.textContent = bytes(new Blob([text]).size);
+  }catch(err){
+    const ms = (performance.now()-start).toFixed(0);
+    timeTaken.textContent = `${ms} ms`;
+    statusBadge.className = 'status err';
+    statusBadge.textContent = 'NETWORK ERROR';
+    statusCode.textContent = err.message || 'Fetch error';
+    resPre.textContent = String(err);
+    document.getElementById('lastStatus').textContent = 'network error';
+    bodySize.textContent = '0 B';
+  }
+};
+
+/* Clear */
+clearBtn.onclick = ()=>{
+  document.getElementById('resPre').textContent = '';
+  document.getElementById('resHeaders').textContent = '—';
+  document.getElementById('statusBadge').textContent = '—';
+  document.getElementById('statusBadge').className='status';
+  document.getElementById('statusCode').textContent = 'No response';
+  document.getElementById('timeTaken').textContent = '';
+  document.getElementById('bodySize').textContent = '0 B';
+};
+
+/* Small keyboard shortcuts */
+document.addEventListener('keydown', (e)=>{
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='enter'){
+    sendBtn.click();
+    e.preventDefault();
+  }
+});
+</script>
+
+</body>
+</html>
