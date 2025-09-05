@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat Interface | OpenRouter API</title>
+    <title>Adam's AI UI | OpenRouter API</title>
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloud.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -20,7 +23,11 @@
             --error: #ef4444;
             --warning: #f59e0b;
             --sidebar-width: 320px;
+            --sidebar-collapsed-width: 50px;
             --transition-speed: 0.3s;
+            --header-height: 80px;
+            --input-height: 80px;
+            --controls-height: 70px;
         }
         
         * {
@@ -34,143 +41,214 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            padding: 0;
+            overflow: hidden;
         }
         
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            background: var(--light);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+        .app-container {
             display: flex;
-            height: 90vh;
+            width: 100%;
+            height: 100vh;
         }
         
         /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
-            background: #f8fafc;
-            border-right: 1px solid #e2e8f0;
-            padding: 20px;
-            overflow-y: auto;
+            background: var(--light);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: width var(--transition-speed) ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+            height: 100vh;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
         }
         
         .sidebar-header {
+            padding: 20px;
+            background: var(--primary);
+            color: white;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            min-height: var(--header-height);
+            flex-shrink: 0;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .toggle-sidebar {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .toggle-sidebar:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            height: calc(100vh - var(--header-height));
+        }
+        
+        .sidebar-section {
             margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e2e8f0;
+            opacity: 1;
+            transition: opacity var(--transition-speed) ease;
         }
         
-        .sidebar-header h2 {
-            color: var(--primary-dark);
-            font-size: 1.4rem;
+        .sidebar.collapsed .sidebar-section {
+            opacity: 0;
+            pointer-events: none;
         }
         
-        .sidebar-header i {
-            margin-right: 10px;
-            font-size: 1.5rem;
-        }
-        
-        .config-section {
-            margin-bottom: 25px;
-        }
-        
-        .section-title {
+        .section-header {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
             color: var(--primary-dark);
             font-weight: 600;
+            font-size: 1rem;
         }
         
-        .section-title i {
+        .section-header i {
             margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .section-content {
+            padding-left: 28px;
+        }
+        
+        .info-text {
+            line-height: 1.6;
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .info-text p {
+            margin-bottom: 10px;
+        }
+        
+        .api-config-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         
         .form-group {
-            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
         
         .form-group label {
-            display: block;
-            margin-bottom: 5px;
             font-weight: 600;
             font-size: 0.9rem;
             color: var(--dark);
         }
         
-        .form-group input {
-            width: 100%;
+        #api-key-input, #endpoint-input, #model-input {
             padding: 10px 15px;
             border: 1px solid var(--gray);
             border-radius: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .form-group input:focus {
             outline: none;
-            border-color: var(--primary);
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
         }
         
-        button {
-            cursor: pointer;
-            transition: all 0.3s ease;
+        #api-key-input:focus, #endpoint-input:focus, #model-input:focus {
+            border-color: var(--primary);
         }
         
         #save-config {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 15px;
             border-radius: 8px;
-            width: 100%;
+            padding: 10px 15px;
+            cursor: pointer;
             font-weight: 600;
+            transition: background 0.3s;
+            margin-top: 5px;
         }
         
         #save-config:hover {
             background: var(--primary-dark);
         }
         
-        .info-section {
-            background: #fffbeb;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--warning);
-            margin-top: 20px;
-        }
-        
-        .info-section h3 {
-            color: var(--warning);
-            margin-bottom: 10px;
+        .cf-status {
             display: flex;
             align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.05);
+            font-size: 0.85rem;
         }
         
-        .info-section h3 i {
-            margin-right: 8px;
+        .cf-status i {
+            font-size: 1rem;
+            width: 16px;
         }
         
-        .info-section ul {
-            padding-left: 20px;
-            margin: 10px 0;
+        .cf-status.success {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
         }
         
-        .info-section li {
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+        .cf-status.error {
+            color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
         }
         
-        .info-section code {
+        code {
             background: rgba(0, 0, 0, 0.05);
             padding: 2px 6px;
             border-radius: 4px;
             font-family: monospace;
+            font-size: 0.85em;
+        }
+        
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
         }
         
         /* Main Content Styles */
@@ -178,6 +256,11 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-width: 0;
+            background: var(--light);
+            border-radius: 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            height: 100vh;
         }
         
         header {
@@ -186,6 +269,8 @@
             padding: 20px;
             text-align: center;
             position: relative;
+            height: var(--header-height);
+            flex-shrink: 0;
         }
         
         h1 {
@@ -205,6 +290,7 @@
         .subtitle {
             font-size: 0.9rem;
             opacity: 0.9;
+            margin-top: 5px;
         }
         
         .api-status {
@@ -242,6 +328,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height));
         }
         
         .message {
@@ -266,15 +353,10 @@
             position: relative;
         }
         
-        .code-buttons {
+        .copy-button {
             position: absolute;
-            top: 8px;
+            bottom: 8px;
             right: 8px;
-            display: flex;
-            gap: 5px;
-        }
-        
-        .copy-button, .run-button {
             background: var(--primary);
             color: white;
             border: none;
@@ -283,10 +365,22 @@
             font-size: 0.8rem;
             cursor: pointer;
             opacity: 0;
-            transition: opacity 0.3s ease, background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            transition: opacity 0.3s ease;
+        }
+        
+        .run-button {
+            position: absolute;
+            bottom: 8px;
+            right: 70px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .message-content pre:hover .copy-button,
@@ -294,19 +388,15 @@
             opacity: 1;
         }
         
-        .copy-button:hover, .run-button:hover {
+        .copy-button:hover {
             background: var(--primary-dark);
         }
         
+        .run-button:hover {
+            background: #0da271;
+        }
+        
         .copy-button.copied {
-            background: var(--success);
-        }
-        
-        .run-button.running {
-            background: var(--warning);
-        }
-        
-        .run-button.ran {
             background: var(--success);
         }
         
@@ -323,25 +413,104 @@
             padding: 0;
         }
         
-        .code-output {
-            background: rgba(0, 0, 0, 0.03);
-            border-left: 4px solid var(--primary);
+        .message-content h1, 
+        .message-content h2, 
+        .message-content h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .message-content p {
+            margin-bottom: 10px;
+        }
+        
+        .message-content ul, 
+        .message-content ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .message-content blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 15px;
+            margin: 15px 0;
+            color: #666;
+        }
+        
+        .message-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .message-content th, 
+        .message-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        
+        .message-content th {
+            background-color: #f5f5f5;
+        }
+        
+        .thinking-header {
+            font-weight: bold;
+            color: #6366f1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .thinking-message {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6366f1;
             padding: 12px 15px;
             margin: 10px 0;
             border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: #495057;
+        }
+
+        .thinking-message pre {
+            font-style: normal;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .thinking-message code {
             font-family: 'Fira Code', monospace;
             font-size: 0.9em;
-            overflow-x: auto;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
-        
-        .code-output.success {
-            border-left-color: var(--success);
+
+        .thinking-message pre code {
+            background: none;
+            padding: 0;
         }
-        
-        .code-output.error {
-            border-left-color: var(--error);
+
+        .final-answer-header {
+            font-weight: bold;
+            color: #10b981;
+            margin: 15px 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
+
+        .final-answer {
+            background-color: #f0fdf4;
+            border-left: 4px solid #10b981;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -374,6 +543,8 @@
             border-top: 1px solid rgba(0, 0, 0, 0.1);
             display: flex;
             gap: 10px;
+            flex-shrink: 0;
+            height: var(--input-height);
         }
         
         #user-input {
@@ -383,6 +554,7 @@
             border-radius: 24px;
             outline: none;
             font-size: 1rem;
+            transition: border-color 0.3s;
         }
         
         #user-input:focus {
@@ -397,6 +569,7 @@
             padding: 0 24px;
             cursor: pointer;
             font-weight: 600;
+            transition: background 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -454,7 +627,15 @@
         .controls {
             display: flex;
             justify-content: space-between;
+            gap: 10px;
             padding: 0 20px 15px 20px;
+            height: var(--controls-height);
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
         }
         
         #clear-chat, #save-pdf {
@@ -465,6 +646,7 @@
             padding: 8px 15px;
             cursor: pointer;
             font-weight: 600;
+            transition: background 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -481,18 +663,78 @@
         #save-pdf:hover {
             background: #0da271;
         }
-
+        
+        .hidden {
+            display: none;
+        }
+        
+        .pdf-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            display: none;
+        }
+        
+        .pdf-loading .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
-            .container {
+            .app-container {
                 flex-direction: column;
-                height: 95vh;
+                height: auto;
             }
             
             .sidebar {
                 width: 100%;
-                max-height: 40vh;
+                height: auto;
+                max-height: 60px;
+                overflow: hidden;
+                transition: max-height var(--transition-speed) ease;
+            }
+            
+            .sidebar.expanded {
+                max-height: 70vh;
                 overflow-y: auto;
+            }
+            
+            .sidebar.collapsed {
+                width: 100%;
+                max-height: 60px;
+            }
+            
+            .sidebar.collapsed .sidebar-section {
+                display: none;
+            }
+            
+            .main-content {
+                height: auto;
+                min-height: calc(100vh - 60px);
+            }
+            
+            .chat-container {
+                height: auto;
+                min-height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height) - 60px);
             }
             
             .message {
@@ -517,86 +759,101 @@
             
             .controls {
                 flex-direction: column;
-                gap: 10px;
+                height: auto;
+                padding: 15px 20px;
+            }
+            
+            .control-group {
+                width: 100%;
+                justify-content: space-between;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <i class="fas fa-cog"></i>
-                <h2>Configuration</h2>
+                <div class="sidebar-title">Configuration Panel</div>
+                <button class="toggle-sidebar" id="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
             
-            <div class="config-section">
-                <div class="form-group">
-                    <label for="api-key-input">API Key</label>
-                    <input type="password" id="api-key-input" placeholder="Enter your API key">
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <i class="fas fa-cog"></i> Configuration
+                    </div>
+                    <div class="section-content">
+                        <p class="info-text" id="config-status">Configure your API settings to get started.</p>
+                        <div id="cloudflare-status" class="cf-status">
+                            <i class="fas fa-cloud"></i>
+                            <span>Checking Cloudflare environment variable...</span>
+                        </div>
+                        <div class="api-config-form">
+                            <div class="form-group">
+                                <label for="api-key-input">API Key</label>
+                                <input type="password" id="api-key-input" placeholder="Enter your API key">
+                            </div>
+                            <div class="form-group">
+                                <label for="endpoint-input">API Endpoint</label>
+                                <input type="text" id="endpoint-input" value="https://openrouter.ai/api/v1/chat/completions" placeholder="Enter API endpoint">
+                            </div>
+                            <div class="form-group">
+                                <label for="model-input">Model Name</label>
+                                <input type="text" id="model-input" value="deepseek/deepseek-chat-v3.1:free" placeholder="Enter model name">
+                            </div>
+                            <button id="save-config">Save Configuration</button>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="endpoint-input">API Endpoint</label>
-                    <input type="text" id="endpoint-input" value="https://openrouter.ai/api/v1/chat/completions">
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <i class="fas fa-info-circle"></i> Information
+                    </div>
+                    <div class="section-content">
+                        <div class="info-text">
+                            <p>This chat interface can connect to various AI APIs. By default, it uses the OpenRouter API, but you can change the endpoint to use other services.</p>
+                            <p>Get your OpenRouter API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
+                            <p>Popular API endpoints:</p>
+                            <ul>
+                                <li><code>https://openrouter.ai/api/v1/chat/completions</code> - OpenRouter</li>
+                                <li><code>https://api.deepinfra.com/v1/openai/chat/completions</code> - DeepInfra</li>
+                            </ul>
+                            <p>Some popular models you can try:</p>
+                            <ul>
+                                <li><code>deepseek/deepseek-chat-v3.1:free</code> - DeepSeek v3.1 - OpenRouter</li>
+                                <li><code>meta-llama/llama-3.3-70b-instruct:free</code> - Meta: Llama 3.3 70B - OpenRouter</li>
+                                <li><code>cognitivecomputations/dolphin-mistral-24b-venice-edition:free</code> - Venice: Uncensored - OpenRouter</li>
+                                <li><code>deepseek-ai/DeepSeek-V3</code> - DeepSeek V3 - DeepInfra</li>
+                                <li><code>meta-llama/Llama-4-Scout-17B-16E-Instruct</code> - Llama 4 Scout 17B - DeepInfra</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="model-input">Model Name</label>
-                    <input type="text" id="model-input" value="deepseek/deepseek-chat-v3.1:free">
-                </div>
-                
-                <button id="save-config">Save Configuration</button>
-            </div>
-            
-            <div class="info-section">
-                <h3><i class="fas fa-info-circle"></i> API Information</h3>
-                <p>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></p>
-                <p>Popular models:</p>
-                <ul>
-                    <li><code>deepseek/deepseek-chat-v3.1:free</code></li>
-                    <li><code>meta-llama/llama-3.3-70b-instruct:free</code></li>
-                    <li><code>cognitivecomputations/dolphin-mistral-24b-venice-edition:free</code></li>
-                </ul>
             </div>
         </div>
         
         <!-- Main Content -->
         <div class="main-content">
             <header>
-                <h1><i class="fas fa-robot logo"></i> AI Chat Interface</h1>
+                <h1><i class="fas fa-robot logo"></i> Adam's AI UI</h1>
                 <div class="subtitle">Powered by OpenRouter API</div>
                 <div class="api-status">
                     <span class="status-dot" id="status-dot"></span>
-                    <span id="status-text">Ready</span>
+                    <span id="status-text">Checking API</span>
                 </div>
             </header>
             
             <div class="chat-container" id="chat-container">
                 <div class="message ai-message">
                     <div class="message-content">
-                        <i class="fas fa-robot"></i> Hello! I'm an AI assistant. How can I help you today?
+                        <i class="fas fa-robot"></i> Hello! I'm an AI assistant powered by OpenRouter. How can I help you today?
                     </div>
                     <span class="message-info">Model: <span id="current-model">deepseek/deepseek-chat-v3.1:free</span></span>
-                </div>
-                
-                <!-- Example message with code block -->
-                <div class="message ai-message">
-                    <div class="message-content">
-                        <p>Here's an example of a code block with test run functionality:</p>
-                        <pre><code class="language-javascript">// Example JavaScript code
-function factorial(n) {
-    if (n === 0 || n === 1) return 1;
-    return n * factorial(n - 1);
-}
-
-// Test the function
-console.log("Factorial of 5 is: " + factorial(5));
-
-// Additional examples
-console.log("Factorial of 7 is: " + factorial(7));</code></pre>
-                    </div>
                 </div>
             </div>
             
@@ -604,12 +861,12 @@ console.log("Factorial of 7 is: " + factorial(7));</code></pre>
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
-                <span>AI is thinking...</span>
+                <span id="typing-model">AI is typing...</span>
             </div>
             
             <div class="input-container">
-                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
-                <button id="send-button">
+                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off" disabled>
+                <button id="send-button" disabled>
                     <i class="fas fa-paper-plane"></i> Send
                 </button>
             </div>
@@ -625,9 +882,14 @@ console.log("Factorial of 7 is: " + factorial(7));</code></pre>
         </div>
     </div>
 
+    <div id="pdf-loading" class="pdf-loading">
+        <div class="spinner"></div>
+        <p>Generating PDF, please wait...</p>
+    </div>
+
     <script>
-        // Initialize syntax highlighting
-        hljs.highlightAll();
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
         
         document.addEventListener('DOMContentLoaded', function() {
             const chatContainer = document.getElementById('chat-container');
@@ -636,34 +898,56 @@ console.log("Factorial of 7 is: " + factorial(7));</code></pre>
             const typingIndicator = document.getElementById('typing-indicator');
             const statusDot = document.getElementById('status-dot');
             const statusText = document.getElementById('status-text');
+            const configStatus = document.getElementById('config-status');
             const apiKeyInput = document.getElementById('api-key-input');
             const modelInput = document.getElementById('model-input');
             const endpointInput = document.getElementById('endpoint-input');
             const saveConfigButton = document.getElementById('save-config');
             const currentModelElement = document.getElementById('current-model');
+            const typingModelElement = document.getElementById('typing-model');
+            const cloudflareStatus = document.getElementById('cloudflare-status');
             const clearChatButton = document.getElementById('clear-chat');
             const savePdfButton = document.getElementById('save-pdf');
+            const pdfLoading = document.getElementById('pdf-loading');
+            const sidebar = document.getElementById('sidebar');
+            const toggleSidebarButton = document.getElementById('toggle-sidebar');
             
-            // Add copy and run buttons to code blocks
-            function addCodeButtonsToCodeBlocks() {
+            // API configuration
+            let API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+            let API_KEY = '';
+            let MODEL_NAME = 'deepseek/deepseek-chat-v3.1:free';
+            
+            // Conversation history
+            let conversationHistory = [
+                {
+                    role: 'system',
+                    content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                }
+            ];
+            
+            // Configure marked to render code blocks with syntax highlighting
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    }
+                    return hljs.highlightAuto(code).value;
+                }
+            });
+
+            
+            // Add copy buttons to code blocks
+            function addCopyButtonsToCodeBlocks() {
                 document.querySelectorAll('.message-content pre').forEach((preElement) => {
-                    // Check if this pre element already has buttons
-                    if (preElement.querySelector('.code-buttons')) {
+                    // Check if this pre element already has a copy button
+                    if (preElement.querySelector('.copy-button')) {
                         return;
                     }
-                    
-                    const codeButtons = document.createElement('div');
-                    codeButtons.className = 'code-buttons';
                     
                     const copyButton = document.createElement('button');
                     copyButton.className = 'copy-button';
                     copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
                     copyButton.title = 'Copy code to clipboard';
-                    
-                    const runButton = document.createElement('button');
-                    runButton.className = 'run-button';
-                    runButton.innerHTML = '<i class="fas fa-play"></i> Run';
-                    runButton.title = 'Run this code';
                     
                     copyButton.addEventListener('click', function() {
                         const codeElement = preElement.querySelector('code');
@@ -687,86 +971,302 @@ console.log("Factorial of 7 is: " + factorial(7));</code></pre>
                         });
                     });
                     
-                    runButton.addEventListener('click', function() {
-                        const codeElement = preElement.querySelector('code');
-                        const codeToRun = codeElement ? codeElement.textContent : preElement.textContent;
-                        
-                        runButton.innerHTML = '<i class="fas fa-sync fa-spin"></i> Running';
-                        runButton.classList.add('running');
-                        
-                        // Remove any existing output
-                        const existingOutput = preElement.parentNode.querySelector('.code-output');
-                        if (existingOutput) {
-                            existingOutput.remove();
-                        }
-                        
-                        try {
-                            // Create a safe execution environment
-                            const outputElement = document.createElement('div');
-                            outputElement.className = 'code-output';
-                            
-                            // Capture console.log output
-                            const originalConsoleLog = console.log;
-                            let outputText = '';
-                            
-                            console.log = function() {
-                                for (let i = 0; i < arguments.length; i++) {
-                                    outputText += (i > 0 ? ' ' : '') + String(arguments[i]);
-                                }
-                                outputText += '\n';
-                                originalConsoleLog.apply(console, arguments);
-                            };
-                            
-                            // Execute the code
-                            const result = eval(codeToRun);
-                            
-                            // Restore console.log
-                            console.log = originalConsoleLog;
-                            
-                            // Display the result
-                            if (result !== undefined) {
-                                outputText += String(result);
-                            }
-                            
-                            if (outputText) {
-                                outputElement.textContent = outputText;
-                                outputElement.classList.add('success');
-                            } else {
-                                outputElement.textContent = 'Code executed successfully (no output)';
-                                outputElement.classList.add('success');
-                            }
-                            
-                            // Insert after the pre element
-                            preElement.parentNode.insertBefore(outputElement, preElement.nextSibling);
-                            
-                            runButton.innerHTML = '<i class="fas fa-check"></i> Ran';
-                            runButton.classList.remove('running');
-                            runButton.classList.add('ran');
-                            
-                        } catch (error) {
-                            // Restore console.log in case of error
-                            console.log = originalConsoleLog;
-                            
-                            const outputElement = document.createElement('div');
-                            outputElement.className = 'code-output error';
-                            outputElement.textContent = `Error: ${error.message}`;
-                            
-                            // Insert after the pre element
-                            preElement.parentNode.insertBefore(outputElement, preElement.nextSibling);
-                            
-                            runButton.innerHTML = '<i class="fas fa-times"></i> Error';
-                            runButton.classList.remove('running');
-                            
-                            setTimeout(() => {
-                                runButton.innerHTML = '<i class="fas fa-play"></i> Run';
-                            }, 2000);
-                        }
-                    });
+                    preElement.appendChild(copyButton);
                     
-                    codeButtons.appendChild(copyButton);
-                    codeButtons.appendChild(runButton);
-                    preElement.appendChild(codeButtons);
+                    // Check if this is HTML code and add a run button
+                    const codeElement = preElement.querySelector('code');
+                    if (codeElement) {
+                        const codeText = codeElement.textContent;
+                        // Check if the code contains HTML tags
+                        if (codeText.match(/<\/?[a-z][\s\S]*>/i)) {
+                            // Add a run button for HTML code
+                            const runButton = document.createElement('button');
+                            runButton.className = 'run-button';
+                            runButton.innerHTML = '<i class="fas fa-play"></i> Run';
+                            runButton.title = 'Run HTML code in new tab';
+                            
+                            runButton.addEventListener('click', function() {
+                                runHtmlCode(codeText);
+                            });
+                            
+                            preElement.appendChild(runButton);
+                        }
+                    }
                 });
+            }
+            
+            // Function to run HTML code in a new tab
+            function runHtmlCode(htmlCode) {
+                // Create a new blob with the HTML content
+                const blob = new Blob([htmlCode], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                // Open the HTML in a new tab
+                window.open(url, '_blank');
+                
+                // Clean up the URL object after a short delay
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
+            }
+            
+            // Save conversation as PDF
+            async function saveAsPDF() {
+                // Show loading indicator
+                pdfLoading.style.display = 'flex';
+                
+                try {
+                    // Create a new PDF document
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const margin = 20;
+                    const contentWidth = pageWidth - (margin * 2);
+                    let yPosition = margin;
+                    
+                    // Add title
+                    pdf.setFontSize(20);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.setTextColor(99, 102, 241); // Primary color
+                    pdf.text('Adam\'s AI UI Conversation', pageWidth / 2, yPosition, { align: 'center' });
+                    yPosition += 15;
+                    
+                    // Add date and model info
+                    pdf.setFontSize(12);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.setTextColor(0, 0, 0);
+                    const date = new Date().toLocaleString();
+                    pdf.text(`Date: ${date}`, margin, yPosition);
+                    yPosition += 8;
+                    pdf.text(`Model: ${MODEL_NAME}`, margin, yPosition);
+                    yPosition += 8;
+                    pdf.text(`Total Messages: ${conversationHistory.length - 1}`, margin, yPosition);
+                    yPosition += 15;
+                    
+                    // Add a line separator
+                    pdf.setDrawColor(200, 200, 200);
+                    pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+                    yPosition += 10;
+                    
+                    // Set font for messages
+                    pdf.setFontSize(11);
+                    
+                    // Add conversation messages
+                    for (const message of conversationHistory) {
+                        if (message.role === 'system') continue;
+                        
+                        // Check if we need a new page
+                        if (yPosition > 250) {
+                            pdf.addPage();
+                            yPosition = margin;
+                        }
+                        
+                        // Set message background color
+                        if (message.role === 'user') {
+                            pdf.setFillColor(99, 102, 241); // Primary color
+                            pdf.setTextColor(255, 255, 255);
+                        } else {
+                            pdf.setFillColor(243, 244, 246); // Secondary color
+                            pdf.setTextColor(0, 0, 0);
+                        }
+                        
+                        // Split message into lines that fit the page width
+                        const messageLines = pdf.splitTextToSize(message.content, contentWidth - 20);
+                        
+                        // Calculate message height
+                        const lineHeight = 7;
+                        const messageHeight = messageLines.length * lineHeight + 10;
+                        
+                        // Draw message background
+                        pdf.roundedRect(margin, yPosition, contentWidth, messageHeight, 3, 3, 'F');
+                        
+                        // Add message text
+                        pdf.text(messageLines, margin + 10, yPosition + 10);
+                        
+                        // Add sender label
+                        pdf.setFont(undefined, 'bold');
+                        if (message.role === 'user') {
+                            pdf.text('User', margin + 10, yPosition + 5);
+                        } else {
+                            pdf.text('AI Assistant', margin + 10, yPosition + 5);
+                        }
+                        pdf.setFont(undefined, 'normal');
+                        
+                        // Update Y position for next message
+                        yPosition += messageHeight + 10;
+                    }
+                    
+                    // Add page numbers
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        pdf.setFontSize(10);
+                        pdf.setTextColor(100, 100, 100);
+                        pdf.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pdf.internal.pageSize.getHeight() - 10, { align: 'right' });
+                    }
+                    
+                    // Save the PDF
+                    const dateStr = new Date().toISOString().slice(0, 10);
+                    pdf.save(`Adams-AI-UI-${dateStr}.pdf`);
+                    
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    alert('Error generating PDF. Please try again.');
+                } finally {
+                    // Hide loading indicator
+                    pdfLoading.style.display = 'none';
+                }
+            }
+            
+            // Toggle sidebar visibility
+            function toggleSidebar() {
+                sidebar.classList.toggle('collapsed');
+                
+                // Update button icon
+                const icon = toggleSidebarButton.querySelector('i');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-chevron-right');
+                } else {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-bars');
+                }
+                
+                // Save sidebar state to localStorage
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+            
+            // Check for Cloudflare Pages environment variable
+            function checkCloudflareEnv() {
+                // This will be replaced at build time by Cloudflare Pages
+                // The variable needs to be injected into the HTML during build
+                const cfApiKey = '{{API_KEY}}';
+                
+                if (cfApiKey && cfApiKey !== '{{API_KEY}}' && cfApiKey.length > 10) {
+                    // Valid Cloudflare environment variable found
+                    API_KEY = cfApiKey;
+                    cloudflareStatus.innerHTML = `<i class="fas fa-check-circle"></i> <span>Using API key from Cloudflare environment variable: <code>${cfApiKey.substring(0, 10)}...</code></span>`;
+                    cloudflareStatus.classList.add('success');
+                    return true;
+                } else {
+                    // No valid Cloudflare environment variable found - hide the status
+                    cloudflareStatus.style.display = 'none';
+                    return false;
+                }
+            }
+            
+            // Check for saved configuration
+            function initializeConfig() {
+                // Load sidebar state from localStorage
+                const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+                if (sidebarCollapsed === 'true') {
+                    sidebar.classList.add('collapsed');
+                    const icon = toggleSidebarButton.querySelector('i');
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-chevron-right');
+                }
+                
+                const cloudflareResult = checkCloudflareEnv();
+                
+                // Check localStorage for model name
+                const savedModel = localStorage.getItem('openrouter_model');
+                
+                // Check localStorage for endpoint
+                const savedEndpoint = localStorage.getItem('api_endpoint');
+                if (savedEndpoint) {
+                    API_URL = savedEndpoint;
+                    endpointInput.value = savedEndpoint;
+                }
+                if (savedModel) {
+                    MODEL_NAME = savedModel;
+                    modelInput.value = savedModel;
+                    currentModelElement.textContent = savedModel;
+                    typingModelElement.textContent = `${savedModel.split('/').pop()} is typing...`;
+                }
+                
+                // Check localStorage for API key if Cloudflare didn't provide one
+                const savedApiKey = localStorage.getItem('openrouter_api_key');
+                if (savedApiKey) {
+                    API_KEY = savedApiKey;
+                    apiKeyInput.value = savedApiKey;
+                    configStatus.innerHTML = `Configuration loaded from browser storage. Using model: <code>${MODEL_NAME}</code>` + 
+                                            (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
+                    updateStatus('API key loaded', true);
+                    return true;
+                }
+                
+                // Load conversation history from localStorage if available
+                const savedHistory = localStorage.getItem('conversation_history');
+                if (savedHistory) {
+                    try {
+                        conversationHistory = JSON.parse(savedHistory);
+                        // Re-render the conversation from history
+                        renderConversationHistory();
+                    } catch (e) {
+                        console.error('Error loading conversation history:', e);
+                        conversationHistory = [
+                            {
+                                role: 'system',
+                                content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                            }
+                        ];
+                    }
+                }
+                
+                if (cloudflareResult) {
+                    configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>` + 
+                                            (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
+                    updateStatus('API key loaded', true);
+                    return true;
+                }
+                
+                configStatus.innerHTML = 'Please configure your API settings above';
+                updateStatus('API key required', false);
+                
+                // Add copy buttons to any existing code blocks
+                setTimeout(() => {
+                    addCopyButtonsToCodeBlocks();
+                }, 100);
+                
+                return false;
+            }
+            
+            // Render conversation history
+            function renderConversationHistory() {
+                // Clear the chat container except for the first message
+                while (chatContainer.children.length > 1) {
+                    chatContainer.removeChild(chatContainer.lastChild);
+                }
+                
+                // Add messages from history (skip system message)
+                for (const message of conversationHistory) {
+                    if (message.role === 'user') {
+                        addMessage(message.content, 'user', false);
+                    } else if (message.role === 'assistant') {
+                        addMessage(message.content, 'ai', false);
+                    }
+                }                
+                // Add copy buttons to code blocks in history
+                setTimeout(() => {
+                    addCopyButtonsToCodeBlocks();
+                }, 100);                
+            }
+            
+            // Check if API key is available
+            function checkApiKey() {
+                if (!API_KEY) {
+                    updateStatus('No API key (some endpoints may not work)', true);
+                    addMessage('System: No API key configured. Some endpoints may not work without authentication. You can still try to send messages.', 'ai');
+                    userInput.disabled = false;
+                    sendButton.disabled = false;
+                    userInput.focus();
+                    return true;
+                }
+                
+                updateStatus('API key loaded' + (API_KEY ? '' : ' (some endpoints may not work)'), true);
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.focus();
+                return true;
             }
             
             // Update connection status UI
@@ -781,8 +1281,8 @@ console.log("Factorial of 7 is: " + factorial(7));</code></pre>
                 }
             }
             
-            // Add message to chat
-            function addMessage(text, sender) {
+            // Add message to chat with markdown support
+            function addMessage(text, sender, addToHistory = true) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message');
                 messageElement.classList.add(sender + '-message');
@@ -794,21 +1294,111 @@ console.log("Factorial of 7 is: " + factorial(7));</code></pre>
                 const icon = document.createElement('i');
                 icon.className = sender === 'ai' ? 'fas fa-robot' : 'fas fa-user';
                 
-                // Add message text
-                const textNode = document.createTextNode(text);
-                messageContent.appendChild(icon);
-                messageContent.appendChild(textNode);
+                // Parse markdown if it's an AI message
+                if (sender === 'ai') {
+                    // First, check if this appears to be a combined thinking + response message
+                    if (text.includes("assistantfinal") || text.includes("analysisWe must answer")) {
+                        // This is a special case where the API returned thinking and response combined
+                        // Split the thinking from the final answer
+                        const thinkingMatch = text.match(/analysis(.*?)assistantfinal/s);
+                        const finalMatch = text.match(/assistantfinal(.*)/s);
+                        
+                        if (thinkingMatch && finalMatch) {
+                            const thinkingText = thinkingMatch[1].trim();
+                            const finalText = finalMatch[1].trim();
+                            
+                            messageContent.innerHTML = `
+                                <div class="thinking-header">
+                                    <i class="fas fa-brain"></i> Thinking Process
+                                </div>
+                                <div class="thinking-message">${marked.parse(thinkingText)}</div>
+                                <div class="final-answer-header">
+                                    <i class="fas fa-check-circle"></i> Final Answer
+                                </div>
+                                <div class="final-answer">${marked.parse(finalText)}</div>
+                            `;
+                        } else {
+                            // Fallback if the pattern doesn't match exactly
+                            messageContent.innerHTML = marked.parse(text);
+                        }
+                    } else {
+                        // More precise detection of thinking vs final answer
+                        const thinkingPatterns = [
+                            /let me think/i,
+                            /let's think/i,
+                            /hmm/i,
+                            /thinking/i,
+                            /first,/i,
+                            /first let me/i,
+                            /step by step/i,
+                            /break this down/i,
+                            /analyze/i,
+                            /reasoning:/i,
+                            /thought process:/i,
+                            /so, to answer your question/i,  // Added pattern
+                            /in conclusion/i,                // Added pattern
+                            /therefore/i,                    // Added pattern
+                            /thus/i,                         // Added pattern
+                            /the answer is/i,                // Added pattern
+                            /the solution is/i               // Added pattern
+                        ];
+                        
+                        // Check if this is likely a final answer (not thinking)
+                        const isFinalAnswer = text.includes("the answer is") || 
+                                             text.includes("therefore") ||
+                                             text.includes("in conclusion") ||
+                                             text.includes("thus") ||
+                                             text.includes("the solution is") ||
+                                             text.length < 100; // Short responses are usually final answers
+                        
+                        const isThinking = !isFinalAnswer && thinkingPatterns.some(pattern => pattern.test(text));
+                        
+                        if (isThinking) {
+                            // Format thinking messages differently with a clear header
+                            messageContent.innerHTML = `
+                                <div class="thinking-header">
+                                    <i class="fas fa-brain"></i> Thinking Process
+                                </div>
+                                <div class="thinking-message">${marked.parse(text)}</div>
+                            `;
+                        } else {
+                            // This is a final answer, format normally
+                            messageContent.innerHTML = marked.parse(text);
+                        }
+                    }
+                } else {
+                    messageContent.textContent = text;
+                }
                 
+                messageElement.appendChild(icon);
                 messageElement.appendChild(messageContent);
                 
                 // Add to chat container
                 chatContainer.appendChild(messageElement);
                 
-                // Scroll to bottom
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 
-                // Add buttons to code blocks if any
-                setTimeout(addCodeButtonsToCodeBlocks, 100);
+                // Highlight any code blocks in the message
+                messageContent.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+                
+                // Add copy buttons to code blocks
+                setTimeout(() => {
+                    addCopyButtonsToCodeBlocks();
+                }, 100);
+                
+                // Add to conversation history
+                if (addToHistory) {
+                    if (sender === 'user') {
+                        conversationHistory.push({ role: 'user', content: text });
+                    } else if (sender === 'ai') {
+                        conversationHistory.push({ role: 'assistant', content: text });
+                    }
+                    
+                    // Save conversation history to localStorage
+                    localStorage.setItem('conversation_history', JSON.stringify(conversationHistory));
+                }
             }
             
             // Show/hide typing indicator
@@ -819,41 +1409,52 @@ console.log("Factorial of 7 is: " + factorial(7));</code></pre>
                 }
             }
             
-            // Send message function
-            function sendMessage() {
+            // Send message to API
+            async function sendMessage() {
                 const message = userInput.value.trim();
                 if (!message) return;
                 
                 // Add user message to chat
                 addMessage(message, 'user');
                 userInput.value = '';
-                
-                // Simulate AI response
+                sendButton.disabled = true;
                 setTyping(true);
-                setTimeout(() => {
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${API_KEY}`,
+                            'HTTP-Referer': window.location.href,
+                            'X-Title': 'DeepSeek Chat Interface'
+                        },
+                        body: JSON.stringify({
+                            model: MODEL_NAME,
+                            messages: conversationHistory
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const aiResponse = data.choices[0].message.content;
+
                     setTyping(false);
-                    
-                    // Create a sample response with code
-                    const codeResponse = `Here's a JavaScript solution for you:
-
-\`\`\`javascript
-// Function to calculate Fibonacci sequence
-function fibonacci(n) {
-    if (n <= 1) return n;
-    return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-// Calculate first 10 Fibonacci numbers
-console.log("First 10 Fibonacci numbers:");
-for (let i = 0; i < 10; i++) {
-    console.log(\`F(\${i}) = \${fibonacci(i)}\`);
-}
-\`\`\`
-
-You can run this code to see the Fibonacci sequence calculation.`;
-                    
-                    addMessage(codeResponse, 'ai');
-                }, 1500);
+                    addMessage(aiResponse, 'ai');
+                    updateStatus('Response received', true);
+                } catch (error) {
+                    setTyping(false);
+                    addMessage(`Error: ${error.message}. Please check your API key and try again.`, 'ai');
+                    updateStatus('API error', false);
+                    console.error('Error:', error);
+                }
+                
+                sendButton.disabled = false;
+                userInput.focus();
             }
             
             // Save configuration
@@ -861,28 +1462,56 @@ You can run this code to see the Fibonacci sequence calculation.`;
                 const key = apiKeyInput.value.trim();
                 const endpoint = endpointInput.value.trim();
                 const model = modelInput.value.trim();
-                
-                if (!model) {
-                    alert('Please enter a model name');
+                          
+                if (!endpoint) {
+                    alert('Please enter an API endpoint');
                     return;
                 }
                 
-                currentModelElement.textContent = model;
-                
                 // API key is optional, but show warning if empty
                 if (!key) {
-                    updateStatus('No API key (some endpoints may not work)', true);
-                } else {
-                    updateStatus('Configuration saved', true);
+                    if (!confirm('Warning: No API key provided. Some endpoints may not work without authentication. Continue anyway?')) {
+                        return;
+                    }
                 }
                 
+                API_KEY = key;
+                API_URL = endpoint;
+                MODEL_NAME = model;
+                
+                localStorage.setItem('openrouter_api_key', key);
+                localStorage.setItem('api_endpoint', endpoint);
+                localStorage.setItem('openrouter_model', model);
+                
+                currentModelElement.textContent = model;
+                typingModelElement.textContent = `${model.split('/').pop()} is typing...`;
+                configStatus.innerHTML = `Configuration saved. Using model: <code>${model}</code>` + 
+                                        (key ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
+                
+                // Update the status to show API key is loaded
+                updateStatus('API key loaded', true);
+                
+                // Enable the chat input
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.focus();
+                
                 // Add a confirmation message
-                addMessage('Configuration saved successfully. Using model: ' + model, 'ai');
+                addMessage('Configuration saved successfully. You can now start chatting!', 'ai');
             }
             
             // Clear chat history
             function clearChat() {
                 if (confirm('Are you sure you want to clear the conversation history?')) {
+                    conversationHistory = [
+                        {
+                            role: 'system',
+                            content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                        }
+                    ];
+                    
+                    localStorage.removeItem('conversation_history');
+                    
                     // Clear the chat container except for the first message
                     while (chatContainer.children.length > 1) {
                         chatContainer.removeChild(chatContainer.lastChild);
@@ -892,34 +1521,41 @@ You can run this code to see the Fibonacci sequence calculation.`;
                 }
             }
             
-            // Save as PDF (placeholder)
-            function saveAsPDF() {
-                alert('PDF export would be implemented here with a library like jsPDF');
-            }
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            saveConfigButton.addEventListener('click', saveConfig);
+            clearChatButton.addEventListener('click', clearChat);
+            toggleSidebarButton.addEventListener('click', toggleSidebar);
+            savePdfButton.addEventListener('click', saveAsPDF);
+            
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            apiKeyInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveConfig();
+                }
+            });
+            
+            modelInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveConfig();
+                }
+            });
+
+                        
+            endpointInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveConfig();
+                }
+            });
             
             // Initialize the app
-            function initialize() {
-                // Add buttons to existing code blocks
-                addCodeButtonsToCodeBlocks();
-                
-                // Set up event listeners
-                sendButton.addEventListener('click', sendMessage);
-                userInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-                
-                saveConfigButton.addEventListener('click', saveConfig);
-                clearChatButton.addEventListener('click', clearChat);
-                savePdfButton.addEventListener('click', saveAsPDF);
-                
-                // Set initial status
-                updateStatus('Ready', true);
-            }
-            
-            // Initialize the app
-            initialize();
+            initializeConfig();
+            checkApiKey();
         });
     </script>
 </body>
