@@ -46,6 +46,7 @@
             padding: 15px;
             background: #f9f9f9;
             border-bottom: 1px solid #ddd;
+            display: none; /* Hidden by default */
         }
 
         .config-area label {
@@ -61,6 +62,19 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
+        }
+
+        .toggle-config {
+            background: #4CAF50;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .toggle-config:hover {
+            background: #3e8e41;
         }
 
         #chat {
@@ -88,6 +102,45 @@
         .bot-message {
             background: #e0e0e0;
             margin-right: auto;
+        }
+
+        .bot-message pre {
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .bot-message table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .bot-message th, .bot-message td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .bot-message code {
+            background: #333;
+            color: #fff;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .bot-message strong {
+            font-weight: bold;
+        }
+
+        .bot-message em {
+            font-style: italic;
+        }
+
+        .bot-message u {
+            text-decoration: underline;
         }
 
         .input-area {
@@ -126,6 +179,12 @@
             margin: 10px;
             font-size: 14px;
         }
+
+        .thinking-indicator {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -133,6 +192,7 @@
         <div class="header">
             <h1>OpenRouter Chat</h1>
         </div>
+        <div class="toggle-config" onclick="toggleConfigArea()">⚙️ Show/Hide Config</div>
         <div class="config-area">
             <label for="api-key">API Key:</label>
             <input type="text" id="api-key" placeholder="Enter your OpenRouter API key">
@@ -153,12 +213,19 @@
         const chatDiv = document.getElementById('chat');
         const queryInput = document.getElementById('query');
         const errorDiv = document.getElementById('error-message');
+        const configArea = document.querySelector('.config-area');
+        let isProcessing = false;
+
+        // Toggle config area visibility
+        function toggleConfigArea() {
+            configArea.style.display = configArea.style.display === 'none' ? 'block' : 'none';
+        }
 
         // Function to add messages to the chat
         function addMessage(sender, message) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
-            messageDiv.innerText = `${sender === 'user' ? 'You' : 'Bot'}: ${message}`;
+            messageDiv.innerHTML = `${sender === 'user' ? 'You' : 'Bot'}: ${message}`;
             chatDiv.appendChild(messageDiv);
             chatDiv.scrollTop = chatDiv.scrollHeight; // Auto-scroll to the latest message
         }
@@ -168,8 +235,27 @@
             errorDiv.innerText = message;
         }
 
+        // Function to show thinking indicator
+        function showThinking() {
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'thinking-indicator';
+            thinkingDiv.innerText = 'Thinking...';
+            chatDiv.appendChild(thinkingDiv);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        // Function to remove thinking indicator
+        function removeThinking() {
+            const thinkingDiv = document.querySelector('.thinking-indicator');
+            if (thinkingDiv) {
+                thinkingDiv.remove();
+            }
+        }
+
         // Function to send a message to the API
         async function sendMessage() {
+            if (isProcessing) return;
+
             const query = queryInput.value.trim();
             if (!query) {
                 showError('Please enter a message.');
@@ -188,6 +274,9 @@
             addMessage('user', query); // Add user message to chat
             queryInput.value = ''; // Clear the input
             errorDiv.innerText = ''; // Clear any previous error
+
+            isProcessing = true;
+            showThinking(); // Show thinking indicator
 
             try {
                 const response = await fetch(apiEndpoint, {
@@ -216,6 +305,9 @@
                 addMessage('bot', botResponse); // Add bot response to chat
             } catch (error) {
                 showError(`Error: ${error.message}`);
+            } finally {
+                isProcessing = false;
+                removeThinking(); // Remove thinking indicator
             }
         }
 
