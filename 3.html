@@ -49,21 +49,6 @@
             display: none; /* Hidden by default */
         }
 
-        .config-area label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .config-area input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
         .toggle-config {
             background: #4CAF50;
             color: #fff;
@@ -91,6 +76,7 @@
             border-radius: 10px;
             max-width: 70%;
             word-wrap: break-word;
+            white-space: pre-wrap; /* Preserve spaces and line breaks */
         }
 
         .user-message {
@@ -110,18 +96,7 @@
             padding: 10px;
             border-radius: 5px;
             overflow-x: auto;
-        }
-
-        .bot-message table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0;
-        }
-
-        .bot-message th, .bot-message td {
-            padding: 8px;
-            border: 1px solid #ddd;
-            text-align: left;
+            white-space: pre-wrap; /* Preserve spaces and line breaks in code */
         }
 
         .bot-message code {
@@ -225,9 +200,24 @@
         function addMessage(sender, message) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
-            messageDiv.innerHTML = `${sender === 'user' ? 'You' : 'Bot'}: ${message}`;
+            messageDiv.innerHTML = `${sender === 'user' ? 'You' : 'Bot'}: ${formatMessage(message)}`;
             chatDiv.appendChild(messageDiv);
             chatDiv.scrollTop = chatDiv.scrollHeight; // Auto-scroll to the latest message
+        }
+
+        // Function to format message output
+        function formatMessage(message) {
+            // Replace double asterisks with <strong> tags
+            message = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Replace single asterisks with <em> tags
+            message = message.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            // Replace underscores with <u> tags
+            message = message.replace(/_(.*?)_/g, '<u>$1</u>');
+            // Replace triple backticks with <pre><code> tags
+            message = message.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+            // Replace single backticks with <code> tags
+            message = message.replace(/`(.*?)`/g, '<code>$1</code>');
+            return message;
         }
 
         // Function to handle errors
@@ -272,11 +262,11 @@
             }
 
             addMessage('user', query); // Add user message to chat
-            queryInput.value = ''; // Clear the input
-            errorDiv.innerText = ''; // Clear any previous error
+            queryInput.value = '';
+            errorDiv.innerText = '';
 
             isProcessing = true;
-            showThinking(); // Show thinking indicator
+            showThinking();
 
             try {
                 const response = await fetch(apiEndpoint, {
@@ -307,7 +297,7 @@
                 showError(`Error: ${error.message}`);
             } finally {
                 isProcessing = false;
-                removeThinking(); // Remove thinking indicator
+                removeThinking();
             }
         }
 
