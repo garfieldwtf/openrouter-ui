@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Model Browser v2.2 – Free OpenRouter + Groq + SambaNova</title>
+<title>Model Browser v2.4 – Free OpenRouter + Groq + SambaNova + DeepInfra</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     :root {
         --primary: #6366f1;
         --primary-dark: #4f46e5;
         --secondary: #10b981;
+        --deepinfra: #8B5CF6;
         --dark: #1f2937;
         --light: #f9fafb;
         --gray: #9ca3af;
@@ -169,6 +170,16 @@
         transform: translateY(-2px);
     }
 
+    .btn-deepinfra {
+        background: var(--deepinfra);
+        color: white;
+    }
+
+    .btn-deepinfra:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
     .actions {
         display: flex;
         gap: 1rem;
@@ -293,6 +304,11 @@
         color: #ef4444;
     }
 
+    .tag-deepinfra {
+        background: rgba(139, 92, 246, 0.15);
+        color: #8b5cf6;
+    }
+
     @media (max-width: 768px) {
         .container {
             margin: 1rem;
@@ -321,7 +337,7 @@
 
 <div class="container">
     <div class="card">
-        <div class="version-badge">v2.2</div>
+        <div class="version-badge">v2.4</div>
         <div class="card-header">
             <h1><i class="fas fa-brain"></i> Model Browser</h1>
             <p>Choose a provider, add an API key when required, and press <strong>Load Models</strong>. For <strong>OpenRouter</strong> the list is filtered to show only free-tier models.</p>
@@ -334,6 +350,7 @@
                     <option value="openrouter">OpenRouter <span class="provider-tag tag-openrouter">Free tier available</span></option>
                     <option value="groq">Groq <span class="provider-tag tag-groq">API key required</span></option>
                     <option value="sambanova">SambaNova <span class="provider-tag tag-sambanova">API key required</span></option>
+                    <option value="deepinfra">DeepInfra <span class="provider-tag tag-deepinfra">API key optional</span></option>
                 </select>
             </div>
             
@@ -342,7 +359,7 @@
                 <div class="input-wrapper">
                     <input type="text" id="apikey" placeholder="sk-…">
                 </div>
-                <small style="display: block; margin-top: 0.5rem; color: var(--gray);">Optional for OpenRouter, required for Groq & SambaNova</small>
+                <small style="display: block; margin-top: 0.5rem; color: var(--gray);">Optional for OpenRouter & DeepInfra, required for Groq & SambaNova</small>
             </div>
             
             <div class="form-group" style="animation-delay: 0.3s">
@@ -365,7 +382,7 @@
             <div class="result-container">
                 <div class="result-header">
                     <h3><i class="fas fa-list"></i> Available Models</h3>
-                    <button id="copyAllBtn" class="btn btn-secondary"><i class="fas fa-copy"></i> Copy All</button>
+                    <button id="copyAllBtn" class="btn btn-deepinfra"><i class="fas fa-copy"></i> Copy All</button>
                 </div>
                 <div class="result-content"></div>
                 <div class="stats">
@@ -397,6 +414,10 @@ const defaults = {
     sambanova: {
         endpoint: 'https://api.sambanova.ai/v1/models',
         keyOptional: false
+    },
+    deepinfra: {
+        endpoint: 'https://api.deepinfra.com/v1/openai/models',
+        keyOptional: true
     }
 };
 
@@ -520,7 +541,7 @@ loadBtn.addEventListener('click', async () => {
                       modelNames.push(m.id);
                   });
         } else {
-            // Groq & SambaNova: just list all model IDs
+            // Groq, SambaNova & DeepInfra: just list all model IDs
             models.forEach(m => {
                 modelNames.push(m.id);
             });
