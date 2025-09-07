@@ -251,167 +251,6 @@
             text-decoration: underline;
         }
         
-        /* Chat Sessions Panel */
-        .chat-sessions-panel {
-            position: fixed;
-            top: 0;
-            right: -350px;
-            width: 350px;
-            height: 100vh;
-            background: var(--light);
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-            transition: right var(--transition-speed) ease;
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .chat-sessions-panel.open {
-            right: 0;
-        }
-        
-        .sessions-header {
-            padding: 20px;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: var(--header-height);
-        }
-        
-        .sessions-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-        
-        .close-sessions {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
-        }
-        
-        .close-sessions:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .sessions-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        
-        .session-item {
-            padding: 15px;
-            border-radius: 8px;
-            background: var(--secondary);
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: background 0.3s;
-            position: relative;
-        }
-        
-        .session-item:hover {
-            background: #e5e7eb;
-        }
-        
-        .session-item.active {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .session-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .session-preview {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .session-date {
-            font-size: 0.75rem;
-            margin-top: 8px;
-            opacity: 0.7;
-        }
-        
-        .session-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-        }
-        
-        .session-action {
-            background: rgba(0, 0, 0, 0.1);
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: background 0.3s;
-        }
-        
-        .session-item.active .session-action {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .session-action:hover {
-            background: rgba(0, 0, 0, 0.2);
-        }
-        
-        .session-item.active .session-action:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .no-sessions {
-            text-align: center;
-            padding: 20px;
-            color: var(--gray);
-            font-style: italic;
-        }
-        
-        .new-session-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 15px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 15px;
-            width: 100%;
-        }
-        
-        .new-session-btn:hover {
-            background: var(--primary-dark);
-        }
-        
         /* Main Content Styles */
         .main-content {
             flex: 1;
@@ -800,7 +639,7 @@
             gap: 10px;
         }
         
-        #clear-chat, #save-pdf, #view-sessions {
+        #clear-chat, #save-pdf {
             background: var(--gray);
             color: white;
             border: none;
@@ -824,14 +663,6 @@
         
         #save-pdf:hover {
             background: #0da271;
-        }
-        
-        #view-sessions {
-            background: var(--primary);
-        }
-        
-        #view-sessions:hover {
-            background: var(--primary-dark);
         }
         
         .hidden {
@@ -936,11 +767,6 @@
             .control-group {
                 width: 100%;
                 justify-content: space-between;
-            }
-            
-            .chat-sessions-panel {
-                width: 85%;
-                right: -85%;
             }
         }
         
@@ -1092,30 +918,7 @@
                 <button id="save-pdf">
                     <i class="fas fa-file-pdf"></i> Save as PDF
                 </button>
-                <button id="view-sessions">
-                    <i class="fas fa-history"></i> Chat Sessions
-                </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Chat Sessions Panel -->
-    <div class="chat-sessions-panel" id="chat-sessions-panel">
-        <div class="sessions-header">
-            <div class="sessions-title">Chat Sessions</div>
-            <button class="close-sessions" id="close-sessions">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <div class="sessions-content" id="sessions-content">
-            <!-- Sessions will be loaded here -->
-        </div>
-        
-        <div class="sessions-footer" style="padding: 15px;">
-            <button class="new-session-btn" id="new-session-btn">
-                <i class="fas fa-plus"></i> Start New Session
-            </button>
         </div>
     </div>
 
@@ -1145,14 +948,9 @@
             const cloudflareStatus = document.getElementById('cloudflare-status');
             const clearChatButton = document.getElementById('clear-chat');
             const savePdfButton = document.getElementById('save-pdf');
-            const viewSessionsButton = document.getElementById('view-sessions');
             const pdfLoading = document.getElementById('pdf-loading');
             const sidebar = document.getElementById('sidebar');
             const toggleSidebarButton = document.getElementById('toggle-sidebar');
-            const chatSessionsPanel = document.getElementById('chat-sessions-panel');
-            const closeSessionsButton = document.getElementById('close-sessions');
-            const sessionsContent = document.getElementById('sessions-content');
-            const newSessionButton = document.getElementById('new-session-btn');
             
             // API configuration
             let API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -1161,9 +959,6 @@
             
             // Track if Highlight.js is available
             let hljsAvailable = false;
-            
-            // Current session ID
-            let currentSessionId = null;
             
             // Conversation history
             let conversationHistory = [
@@ -1428,7 +1223,7 @@
                 }
             }
             
-            // Initialize the app
+            // Check for saved configuration
             function initializeConfig() {
                 // Load sidebar state from localStorage
                 const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
@@ -1468,8 +1263,23 @@
                     return true;
                 }
                 
-                // Load the most recent session or create a new one
-                loadSessions();
+                // Load conversation history from localStorage if available
+                const savedHistory = localStorage.getItem('conversation_history');
+                if (savedHistory) {
+                    try {
+                        conversationHistory = JSON.parse(savedHistory);
+                        // Re-render the conversation from history
+                        renderConversationHistory();
+                    } catch (e) {
+                        console.error('Error loading conversation history:', e);
+                        conversationHistory = [
+                            {
+                                role: 'system',
+                                content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                            }
+                        ];
+                    }
+                }
                 
                 if (cloudflareResult) {
                     configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>` + 
@@ -1487,228 +1297,6 @@
                 }, 100);
                 
                 return false;
-            }
-            
-            // Save the current session to localStorage
-            function saveSession() {
-                if (!currentSessionId) return;
-                
-                const sessionData = {
-                    id: currentSessionId,
-                    title: getSessionTitle(),
-                    preview: getSessionPreview(),
-                    history: conversationHistory,
-                    timestamp: new Date().toISOString(),
-                    model: MODEL_NAME
-                };
-                
-                // Get existing sessions
-                const sessions = getSessions();
-                
-                // Update or add the current session
-                const existingIndex = sessions.findIndex(s => s.id === currentSessionId);
-                if (existingIndex !== -1) {
-                    sessions[existingIndex] = sessionData;
-                } else {
-                    sessions.push(sessionData);
-                }
-                
-                // Save to localStorage
-                localStorage.setItem('chat_sessions', JSON.stringify(sessions));
-                
-                // Update the sessions panel
-                renderSessions();
-            }
-            
-            // Get all sessions from localStorage
-            function getSessions() {
-                const sessionsJson = localStorage.getItem('chat_sessions');
-                return sessionsJson ? JSON.parse(sessionsJson) : [];
-            }
-            
-            // Generate a session title based on the first user message
-            function getSessionTitle() {
-                const firstUserMessage = conversationHistory.find(msg => msg.role === 'user');
-                if (firstUserMessage) {
-                    // Truncate if too long
-                    return firstUserMessage.content.length > 30 
-                        ? firstUserMessage.content.substring(0, 30) + '...' 
-                        : firstUserMessage.content;
-                }
-                return 'New Chat';
-            }
-            
-            // Generate a session preview based on the last message
-            function getSessionPreview() {
-                const lastMessage = [...conversationHistory].reverse().find(msg => 
-                    msg.role === 'user' || msg.role === 'assistant'
-                );
-                
-                if (lastMessage) {
-                    // Remove markdown and truncate
-                    const plainText = lastMessage.content.replace(/[#*_`~]/g, '');
-                    return plainText.length > 50 
-                        ? plainText.substring(0, 50) + '...' 
-                        : plainText;
-                }
-                return 'No messages yet';
-            }
-            
-            // Load a specific session
-            function loadSession(sessionId) {
-                const sessions = getSessions();
-                const session = sessions.find(s => s.id === sessionId);
-                
-                if (session) {
-                    conversationHistory = session.history;
-                    currentSessionId = sessionId;
-                    
-                    // Re-render the conversation
-                    renderConversationHistory();
-                    
-                    // Update the sessions panel
-                    renderSessions();
-                    
-                    // Add a message indicating the session was loaded
-                    addMessage(`Session "${session.title}" loaded.`, 'ai');
-                }
-            }
-            
-            // Create a new session
-            function createNewSession() {
-                // Save the current session first
-                if (currentSessionId && conversationHistory.length > 1) {
-                    saveSession();
-                }
-                
-                // Generate a new session ID
-                currentSessionId = 'session_' + Date.now();
-                
-                // Reset conversation history
-                conversationHistory = [
-                    {
-                        role: 'system',
-                        content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
-                    }
-                ];
-                
-                // Clear the chat container except for the first message
-                while (chatContainer.children.length > 1) {
-                    chatContainer.removeChild(chatContainer.lastChild);
-                }
-                
-                // Add a welcome message
-                addMessage('Started a new chat session. How can I help you?', 'ai');
-                
-                // Update the sessions panel
-                renderSessions();
-            }
-            
-            // Delete a session
-            function deleteSession(sessionId) {
-                if (!confirm('Are you sure you want to delete this chat session?')) {
-                    return;
-                }
-                
-                const sessions = getSessions();
-                const updatedSessions = sessions.filter(s => s.id !== sessionId);
-                
-                // If we're deleting the current session, create a new one
-                if (sessionId === currentSessionId) {
-                    createNewSession();
-                }
-                
-                // Save to localStorage
-                localStorage.setItem('chat_sessions', JSON.stringify(updatedSessions));
-                
-                // Update the sessions panel
-                renderSessions();
-            }
-            
-            // Render the sessions panel
-            function renderSessions() {
-                const sessions = getSessions();
-                
-                // Sort sessions by timestamp (newest first)
-                sessions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                
-                // Clear the sessions panel
-                sessionsContent.innerHTML = '';
-                
-                if (sessions.length === 0) {
-                    sessionsContent.innerHTML = '<div class="no-sessions">No chat sessions yet</div>';
-                    return;
-                }
-                
-                // Add each session to the panel
-                sessions.forEach(session => {
-                    const sessionElement = document.createElement('div');
-                    sessionElement.className = 'session-item';
-                    if (session.id === currentSessionId) {
-                        sessionElement.classList.add('active');
-                    }
-                    
-                    sessionElement.innerHTML = `
-                        <div class="session-title">
-                            <span>${session.title}</span>
-                            <div class="session-actions">
-                                <button class="session-action delete-session" data-id="${session.id}" title="Delete session">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="session-preview">${session.preview}</div>
-                        <div class="session-date">${new Date(session.timestamp).toLocaleString()}</div>
-                    `;
-                    
-                    // Add click event to load the session
-                    sessionElement.addEventListener('click', (e) => {
-                        if (!e.target.closest('.session-actions')) {
-                            loadSession(session.id);
-                            closeSessionsPanel();
-                        }
-                    });
-                    
-                    sessionsContent.appendChild(sessionElement);
-                });
-                
-                // Add event listeners to delete buttons
-                document.querySelectorAll('.delete-session').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteSession(button.dataset.id);
-                    });
-                });
-            }
-            
-            // Load all sessions (for the sessions panel)
-            function loadSessions() {
-                const sessions = getSessions();
-                
-                if (sessions.length > 0) {
-                    // Load the most recent session
-                    const mostRecent = sessions.sort((a, b) => 
-                        new Date(b.timestamp) - new Date(a.timestamp)
-                    )[0];
-                    
-                    loadSession(mostRecent.id);
-                } else {
-                    // Create a new session
-                    currentSessionId = 'session_' + Date.now();
-                }
-                
-                // Render the sessions panel
-                renderSessions();
-            }
-            
-            // Open the sessions panel
-            function openSessionsPanel() {
-                chatSessionsPanel.classList.add('open');
-            }
-            
-            // Close the sessions panel
-            function closeSessionsPanel() {
-                chatSessionsPanel.classList.remove('open');
             }
             
             // Render conversation history
@@ -1884,8 +1472,8 @@
                         conversationHistory.push({ role: 'assistant', content: text });
                     }
                     
-                    // Save the session
-                    saveSession();
+                    // Save conversation history to localStorage
+                    localStorage.setItem('conversation_history', JSON.stringify(conversationHistory));
                 }
             }
             
@@ -1998,8 +1586,7 @@
                         }
                     ];
                     
-                    // Save the cleared session
-                    saveSession();
+                    localStorage.removeItem('conversation_history');
                     
                     // Clear the chat container except for the first message
                     while (chatContainer.children.length > 1) {
@@ -2016,9 +1603,6 @@
             clearChatButton.addEventListener('click', clearChat);
             toggleSidebarButton.addEventListener('click', toggleSidebar);
             savePdfButton.addEventListener('click', saveAsPDF);
-            viewSessionsButton.addEventListener('click', openSessionsPanel);
-            closeSessionsButton.addEventListener('click', closeSessionsPanel);
-            newSessionButton.addEventListener('click', createNewSession);
             
             userInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
