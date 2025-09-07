@@ -2,84 +2,385 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Model Browser – Free OpenRouter + Groq + SambaNova</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Browser v2.2 – Free OpenRouter + Groq + SambaNova</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    body{
-        margin:0;
-        font-family:Arial,Helvetica,sans-serif;
-        background:#f5f5f5;
-        display:flex;
-        justify-content:center;
-        align-items:flex-start;
-        min-height:100vh;
+    :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --secondary: #10b981;
+        --dark: #1f2937;
+        --light: #f9fafb;
+        --gray: #9ca3af;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
     }
-    .card{
-        background:#fff;
-        max-width:860px;
-        width:100%;
-        margin:2rem;
-        padding:1.5rem 2rem;
-        border-radius:8px;
-        box-shadow:0 2px 12px rgba(0,0,0,.1);
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-    h1{margin-top:0;text-align:center;font-size:1.9rem;}
-    label{display:block;margin-top:1rem;font-weight:bold;}
-    input[type=text], select{
-        width:100%;padding:.4rem;margin-top:.3rem;
-        border:1px solid #ccc;border-radius:4px;font-size:1rem;box-sizing:border-box;
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        color: var(--dark);
     }
-    button{
-        background:#007bff;color:#fff;border:none;border-radius:4px;
-        padding:.6rem 1.2rem;cursor:pointer;font-size:1rem;margin-top:1rem;
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+        margin: 2rem auto;
     }
-    button:hover{background:#0056b3;}
-    #result{
-        margin-top:1.5rem;background:#fafafa;
-        border:1px solid #e0e0e0;border-radius:4px;
-        padding:1rem;max-height:400px;overflow:auto;
-        white-space:pre-wrap;font-family:monospace;
+
+    .card {
+        background: var(--light);
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        position: relative;
     }
-    .msg{margin-top:.8rem;color:#555;}
-    .error{color:#c00;font-weight:bold;}
-    .copyBtn{
-        background:#eee;border:none;padding:.2rem .5rem;
-        margin-left:.5rem;cursor:pointer;border-radius:3px;font-size:.9rem;
+
+    .version-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 10;
+    }
+
+    .card-header {
+        background: var(--primary);
+        color: white;
+        padding: 1.5rem 2rem;
+        position: relative;
+    }
+
+    .card-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header p {
+        opacity: 0.9;
+        font-size: 0.95rem;
+        max-width: 90%;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: var(--transition);
+        background: white;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.75rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    .btn-secondary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .result-container {
+        margin-top: 2rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        display: none;
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .result-header h3 {
+        font-size: 1.1rem;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .result-content {
+        padding: 1.5rem;
+        max-height: 400px;
+        overflow: auto;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .stats {
+        display: flex;
+        gap: 1.5rem;
+        padding: 0.75rem 1.5rem;
+        background: #f1f5f9;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+    }
+
+    .stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(99, 102, 241, 0.2);
+        border-radius: 50%;
+        border-top-color: var(--primary);
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        background: var(--dark);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: var(--transition);
+        z-index: 1000;
+    }
+
+    .notification.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .provider-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .tag-openrouter {
+        background: rgba(139, 92, 246, 0.15);
+        color: #8b5cf6;
+    }
+
+    .tag-groq {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+
+    .tag-sambanova {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            margin: 1rem;
+        }
+        
+        .card-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+        
+        .stats {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
     }
 </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>Model Browser</h1>
-
-    <p class="msg">
-        Choose a provider, add an API key when required, and press **Load Models**.
-        <br>
-        For **OpenRouter** the list is filtered to show **only free‑tier** models
-        (prompt = 0 && completion = 0).
-    </p>
-
-    <label for="provider">Provider</label>
-    <select id="provider">
-        <option value="openrouter">OpenRouter</option>
-        <option value="groq">Groq</option>
-        <option value="sambanova">SambaNova</option>
-    </select>
-
-    <label for="apikey">API Key (Bearer token)<br>
-        <small>Optional for OpenRouter, required for Groq &amp; SambaNova</small>
-    </label>
-    <input type="text" id="apikey" placeholder="sk-…">
-
-    <label for="endpoint">Endpoint URL</label>
-    <input type="text" id="endpoint" placeholder="https://…">
-
-    <div style="margin-top:1rem;">
-        <button id="loadBtn">Load Models 🚀</button>
-        <button id="copyAllBtn" class="copyBtn" style="display:none;">Copy All</button>
+<div class="container">
+    <div class="card">
+        <div class="version-badge">v2.2</div>
+        <div class="card-header">
+            <h1><i class="fas fa-brain"></i> Model Browser</h1>
+            <p>Choose a provider, add an API key when required, and press <strong>Load Models</strong>. For <strong>OpenRouter</strong> the list is filtered to show only free-tier models.</p>
+        </div>
+        
+        <div class="card-body">
+            <div class="form-group" style="animation-delay: 0.1s">
+                <label for="provider"><i class="fas fa-server"></i> Provider</label>
+                <select id="provider">
+                    <option value="openrouter">OpenRouter <span class="provider-tag tag-openrouter">Free tier available</span></option>
+                    <option value="groq">Groq <span class="provider-tag tag-groq">API key required</span></option>
+                    <option value="sambanova">SambaNova <span class="provider-tag tag-sambanova">API key required</span></option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="animation-delay: 0.2s">
+                <label for="apikey"><i class="fas fa-key"></i> API Key (Bearer token)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="apikey" placeholder="sk-…">
+                </div>
+                <small style="display: block; margin-top: 0.5rem; color: var(--gray);">Optional for OpenRouter, required for Groq & SambaNova</small>
+            </div>
+            
+            <div class="form-group" style="animation-delay: 0.3s">
+                <label for="endpoint"><i class="fas fa-link"></i> Endpoint URL</label>
+                <div class="input-wrapper">
+                    <input type="text" id="endpoint" placeholder="https://…">
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button id="loadBtn" class="btn btn-primary"><i class="fas fa-rocket"></i> Load Models</button>
+                <button id="clearBtn" class="btn"><i class="fas fa-broom"></i> Clear</button>
+            </div>
+            
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Fetching models from provider...</p>
+            </div>
+            
+            <div class="result-container">
+                <div class="result-header">
+                    <h3><i class="fas fa-list"></i> Available Models</h3>
+                    <button id="copyAllBtn" class="btn btn-secondary"><i class="fas fa-copy"></i> Copy All</button>
+                </div>
+                <div class="result-content"></div>
+                <div class="stats">
+                    <div class="stat"><i class="fas fa-clock"></i> <span id="responseTime">--</span> ms</div>
+                    <div class="stat"><i class="fas fa-database"></i> <span id="modelCount">0</span> models</div>
+                    <div class="stat"><i class="fas fa-hashtag"></i> <span id="totalChars">0</span> characters</div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div id="result" hidden></div>
+<div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-text"></span>
 </div>
 
 <script>
@@ -87,7 +388,7 @@
 const defaults = {
     openrouter: {
         endpoint: 'https://openrouter.ai/api/v1/models',
-        keyOptional: true          // OpenRouter works without a key for public data
+        keyOptional: true
     },
     groq: {
         endpoint: 'https://api.groq.com/openai/v1/models',
@@ -99,102 +400,168 @@ const defaults = {
     }
 };
 
-/* ---------- UI: fill defaults when provider changes ---------- */
+/* ---------- DOM Elements ---------- */
 const providerSelect = document.getElementById('provider');
 const endpointInput   = document.getElementById('endpoint');
 const apiKeyInput     = document.getElementById('apikey');
+const loadBtn         = document.getElementById('loadBtn');
+const clearBtn        = document.getElementById('clearBtn');
+const copyBtn         = document.getElementById('copyAllBtn');
+const resultContainer = document.querySelector('.result-container');
+const resultContent   = document.querySelector('.result-content');
+const loadingElement  = document.querySelector('.loading');
+const notification    = document.getElementById('notification');
+const notificationText = document.getElementById('notification-text');
+const responseTimeEl  = document.getElementById('responseTime');
+const modelCountEl    = document.getElementById('modelCount');
+const totalCharsEl    = document.getElementById('totalChars');
 
+/* ---------- UI: fill defaults when provider changes ---------- */
 function applyDefaults(){
     const p = providerSelect.value;
     endpointInput.value = defaults[p].endpoint;
-    apiKeyInput.value = '';      // clear any previously‑typed key
+    apiKeyInput.placeholder = defaults[p].keyOptional ? 'sk-… (optional)' : 'sk-… (required)';
 }
 providerSelect.addEventListener('change', applyDefaults);
-applyDefaults();   // initialise on load
+
+// Initialize on load
+window.addEventListener('DOMContentLoaded', function() {
+    applyDefaults();
+});
+
+/* ---------- Clear Form ---------- */
+clearBtn.addEventListener('click', () => {
+    apiKeyInput.value = '';
+    endpointInput.value = defaults[providerSelect.value].endpoint;
+    resultContainer.style.display = 'none';
+    showNotification('Form cleared');
+});
+
+/* ---------- Show Notification ---------- */
+function showNotification(message, isError = false) {
+    notificationText.textContent = message;
+    notification.style.background = isError ? 'var(--error)' : 'var(--dark)';
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
 
 /* ---------- Main fetching logic ---------- */
-const loadBtn   = document.getElementById('loadBtn');
-const copyBtn   = document.getElementById('copyAllBtn');
-const resultDiv = document.getElementById('result');
-
 loadBtn.addEventListener('click', async () => {
     const provider = providerSelect.value;
     const endpoint = endpointInput.value.trim();
     const apiKey   = apiKeyInput.value.trim();
 
-    // UI reset
-    resultDiv.hidden = true;
-    resultDiv.textContent = '';
-    copyBtn.style.display = 'none';
-
+    // Reset UI
+    resultContainer.style.display = 'none';
+    resultContent.textContent = '';
+    
+    // Validation
     if (!endpoint) {
-        resultDiv.innerHTML = '<span class="error">❗ Endpoint URL is required.</span>';
-        resultDiv.hidden = false;
+        showNotification('Endpoint URL is required', true);
         return;
     }
 
     if (!defaults[provider].keyOptional && !apiKey) {
-        resultDiv.innerHTML = `<span class="error">❗ ${provider.charAt(0).toUpperCase()+provider.slice(1)} requires an API key.</span>`;
-        resultDiv.hidden = false;
+        showNotification(`${provider.charAt(0).toUpperCase()+provider.slice(1)} requires an API key`, true);
         return;
     }
 
+    // Show loading state
+    loadingElement.style.display = 'block';
+    loadBtn.disabled = true;
+    
+    const startTime = Date.now();
+    
     try {
         const headers = new Headers();
         if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
-
-        const resp = await fetch(endpoint, { headers });
-
+        
+        // Add timeout to the fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        
+        const resp = await fetch(endpoint, { 
+            headers,
+            signal: controller.signal 
+        });
+        
+        clearTimeout(timeoutId);
+        
+        // Calculate response time
+        const responseTime = Date.now() - startTime;
+        responseTimeEl.textContent = responseTime;
+        
         if (!resp.ok) throw new Error(`HTTP ${resp.status} – ${resp.statusText}`);
-
+        
         const data = await resp.json();
-
-        // ------------------- Normalise model array -------------------
+        
+        // Normalize model array
         let models = [];
         if (Array.isArray(data?.data)) {
             models = data.data;
         } else if (Array.isArray(data?.objects)) {
             models = data.objects;
+        } else if (Array.isArray(data)) {
+            models = data;
         } else {
-            throw new Error('Unexpected response format – no "data" array found.');
+            throw new Error('Unexpected response format – no model array found.');
         }
-
-        // ------------------- Provider‑specific processing -------------------
-        let ids = [];
+        
+        // Provider-specific processing
+        let modelNames = [];
 
         if (provider === 'openrouter') {
             // Keep only models whose pricing.prompt == "0" && pricing.completion == "0"
-            ids = models
-                .filter(m => m.pricing?.prompt === "0" && m.pricing?.completion === "0")
-                .map(m => m.id);
+            models.filter(m => m.pricing?.prompt === "0" && m.pricing?.completion === "0")
+                  .forEach(m => {
+                      modelNames.push(m.id);
+                  });
         } else {
             // Groq & SambaNova: just list all model IDs
-            ids = models.map(m => m.id);
+            models.forEach(m => {
+                modelNames.push(m.id);
+            });
         }
-
-        if (ids.length === 0) {
-            resultDiv.textContent = 'No matching model IDs were found.';
+        
+        // Update stats
+        modelCountEl.textContent = modelNames.length;
+        totalCharsEl.textContent = modelNames.join('\n').length;
+        
+        if (modelNames.length === 0) {
+            resultContent.textContent = 'No matching model IDs were found.';
         } else {
-            resultDiv.textContent = ids.join('\n');
-            copyBtn.style.display = 'inline-block';
+            resultContent.textContent = modelNames.join('\n');
         }
-
-        resultDiv.hidden = false;
+        
+        resultContainer.style.display = 'block';
+        showNotification(`Successfully loaded ${modelNames.length} models from ${provider}`);
+        
     } catch (err) {
-        resultDiv.innerHTML = `<span class="error">❗ Error: ${err.message}</span>`;
-        resultDiv.hidden = false;
+        let errorMsg = err.message;
+        if (err.name === 'AbortError') {
+            errorMsg = 'Request timed out. Please check your connection and try again.';
+        }
+        
+        resultContent.innerHTML = `<span style="color: var(--error);">Error: ${errorMsg}</span>`;
+        resultContainer.style.display = 'block';
+        showNotification(`Error: ${errorMsg}`, true);
+    } finally {
+        loadingElement.style.display = 'none';
+        loadBtn.disabled = false;
     }
 });
 
-/* ---------- Copy‑All button ---------- */
+/* ---------- Copy button ---------- */
 copyBtn.addEventListener('click', async () => {
-    const txt = resultDiv.textContent;
+    const txt = resultContent.textContent;
     try {
         await navigator.clipboard.writeText(txt);
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => copyBtn.textContent = 'Copy All', 1500);
+        showNotification('All models copied to clipboard!');
     } catch (e) {
-        alert('Copy failed: ' + e);
+        showNotification('Copy failed: ' + e, true);
     }
 });
 </script>
