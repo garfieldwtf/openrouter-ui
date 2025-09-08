@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adam's AI UI v2.1 | Document Processing</title>
+    <title>Adam's AI UI v2.2 | Document Processing</title>
     <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
@@ -204,7 +204,7 @@
             gap: 8px;
             margin-top: 10px;
             padding: 8px 12px;
-            border-radius: 6px;
+            край: 6px;
             background: rgba(0, 0, 0, 0.05);
             font-size: 0.85rem;
         }
@@ -316,7 +316,7 @@
             background: var(--secondary);
             margin-bottom: 15px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 极速 ease;
             position: relative;
         }
         
@@ -487,6 +487,7 @@
             font-weight: 600;
             transition: background 0.3s;
             font-size: 0.8rem;
+            margin-top: 8px;
         }
         
         .browse-btn:hover {
@@ -621,7 +622,7 @@
             text-align: center;
             position: relative;
             height: var(--header-height);
-            flex-shrink: 0;
+            flex-shrink: 极;
         }
         
         h1 {
@@ -651,7 +652,7 @@
             right: 20px;
             display: flex;
             align-items: center;
-            font-size: 0.8rem;
+            font-size: 极.8rem;
             background: rgba(255, 255, 255, 0.2);
             padding: 5px 10px;
             border-radius: 20px;
@@ -827,7 +828,7 @@
         .thinking-message pre {
             font-style: normal;
             background: rgba(0, 0, 0, 0.05);
-            padding: 12px;
+            padding: 极2px;
             border-radius: 8px;
             overflow-x: auto;
             margin: 10px 0;
@@ -929,7 +930,7 @@
         }
         
         #send-button:hover {
-            background: var(--primary-dark);
+            background: var(--极rimary-dark);
         }
         
         #send-button:disabled {
@@ -946,7 +947,7 @@
             border-radius: 18px;
             border-bottom-left-radius: 4px;
             margin-bottom: 10px;
-        }
+极        }
         
         .typing-indicator.active {
             display: flex;
@@ -979,7 +980,7 @@
         .controls {
             display: flex;
             justify-content: space-between;
-            gap: 10px;
+            gap: 10极;
             padding: 0 20px 15px 20px;
             height: var(--controls-height);
             align-items: center;
@@ -999,7 +1000,7 @@
             cursor: pointer;
             font-weight: 600;
             transition: background 0.3s;
-            display: flex;
+            display:极 flex;
             align-items: center;
             gap: 8px;
         }
@@ -1008,7 +1009,7 @@
             background: var(--error);
         }
         
-        #save-pdf {
+极        #save-pdf {
             background: var(--success);
         }
         
@@ -1044,7 +1045,7 @@
             display: none;
         }
         
-        .pdf-loading .spinner {
+        .pdf-loading .sp极ner {
             width: 50px;
             height: 50px;
             border: 5px solid rgba(255, 255, 255, 0.3);
@@ -1160,7 +1161,7 @@
             color: #6f42c1;
         }
         
-        .hljs-fallback .hljs-comment {
+        .hljs-fallback .极ljs-comment {
             color: #6a737d;
         }
         
@@ -1199,7 +1200,7 @@
             <div class="sidebar-header">
                 <div class="sidebar-title">Configuration Panel</div>
                 <button class="toggle-sidebar" id="toggle-sidebar">
-                    <i class="fas fa-bars"></i>
+                    <i class="fas fa-chevron-left"></i>
                 </button>
             </div>
             
@@ -1237,13 +1238,13 @@
                         <i class="fas fa-info-circle"></i> Information
                     </div>
                     <div class="section-content">
-                        <div class="info-text">
+                        <div class极="info-text">
                             <p>This chat interface can connect to various AI APIs. By default, it uses the OpenRouter API, but you can change the endpoint to use other services.</p>
                             <p>Get your OpenRouter API key from <a href="https://openrouter.ai/keys" target="_blank">https://openrouter.ai/keys</a></p>
                             <p>Popular API endpoints:</p>
                             <ul>
                                 <li><code>https://openrouter.ai/api/v1/chat/completions</code> - OpenRouter</li>
-                                <li><code>https://api.deepinfra.com/v1/openai/chat/completions</code> - DeepInfra</li>
+                                <li><code>极ttps://api.deepinfra.com/v1/openai/chat/completions</code> - DeepInfra</li>
                             </ul>
                             <p>Some popular models you can try:</p>
                             <ul>
@@ -1263,7 +1264,7 @@
         <div class="main-content">
             <header>
                 <h1><i class="fas fa-robot logo"></i> Adam's AI UI</h1>
-                <div class="subtitle">Powered by OpenRouter API | v2.1</div>
+                <div class="subtitle">Powered by OpenRouter API | v2.2</div>
                 <div class="api-status">
                     <span class="status-dot" id="status-dot"></span>
                     <span id="status-text">Checking API</span>
@@ -1280,7 +1281,7 @@
             </div>
             
             <div class="typing-indicator" id="typing-indicator">
-                <div class="dot"></div>
+                <div class极="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <span id="typing-model">AI is typing...</span>
@@ -1301,7 +1302,7 @@
                         <i class="fas fa-cloud-upload-alt"></i>
                         <div class="drop-text">Drag & drop text files here or click to browse</div>
                         <div class="file-type-warning" id="file-type-warning">Only text-based files are supported (txt, json, yaml, xml, code files, etc.)</div>
-                        <input type="file" id="file-input" class="file-input" multiple accept=".txt,.json,.yaml,.yml,.xml,.html,.css,.js,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.rs,.ts,.md">
+                        <input type="file" id="file-input" class="file-input" multiple accept=".txt,.json,.yaml,.yml,.xml,.html,.htm,.css,.scss,.sass,.less,.js,.jsx,.ts,.tsx,.py,.pyw,.java,.cpp,.cc,.cxx,.c,.h,.hpp,.cs,.php,.rb,.go,.rs,.swift,.kt,.kts,.scala,.pl,.pm,.r,.m,.sql,.sh,.bash,.zsh,.ps1,.bat,.cmd,.fs,.fsx,.fsi,.ml,.mli,.vb,.vbs,.rkt,.lsp,.lisp,.clj,.cljs,.cljc,.edn,.ex,.exs,.elm,.purs,.coffee,.litcoffee,.iced,.dart,.jl,.tcl,.awk,.sed,.xml,.xsl,.xslt,.svg,.md,.markdown,.tex,.bib,.rst,.log,.csv,.tsv,.ini,.cfg,.conf,.properties,.yml,.yaml,.toml,.xml,.jsonld,.geojson,.topojson,.ndjson,.jsonl,.ipynb,.proto,.thrift,.avdl,.avpr,.avsc,.graphql,.gql,.sqlite,.db,.diff,.patch,.env,.gitignore,.dockerignore,.yaml,.yml,.lock,.txt,.text,.rtf,.asc,.adoc,.asciidoc,.nfo,.org,.pod,.pm6,.p6,.pl6,.pm6,.t,.rakumod,.rakudoc,.rakutest,.pp,.epp,.rbw,.gemspec,.ru,.rake,.erb,.haml,.slim,.vue,.svelte,.angular,.j2,.jinja2,.jinja,.twig,.mustache,.hbs,.handlebars,.ejs,.njk,.nunjucks,.pug,.jade,.latte,.volt,.twig,.smarty,.tpl,.ctp,.module,.install,.inc,.theme,.engine,.template,.layout,.view,.partial,.include">
                         <button class="browse-btn" id="browse-btn">Browse Files</button>
                     </div>
                     
@@ -1338,7 +1339,7 @@
     </div>
 
     <!-- Chat Sessions Panel -->
-    <div class="chat-sessions-panel" id="chat-sessions-panel">
+    <div class="chat-sessions-panel"极 id="chat-sessions-panel">
         <div class="sessions-header">
             <div class="sessions-title">Chat Sessions</div>
             <button class="close-sessions" id="close-sessions">
@@ -1351,8 +1352,8 @@
         </div>
         
         <div class="sessions-footer" style="padding: 15px;">
-            <button class="new-session-btn" id="new-session-btn">
-                <i class="fas fa-plus"></i> Start New Session
+            <button class="new-session-btn" id极="new-session-btn">
+                <极 class="fas fa-plus"></i> Start New Session
             </button>
         </div>
     </div>
@@ -1362,7 +1363,7 @@
         <p>Generating PDF, please wait...</p>
     </div>
 
-    <div class="version-info">v2.1 - Added file upload with text-only restriction, chat sessions, and file display in messages</div>
+    <div class="version-info">v2.2 - Added extensive text file support, HTML run feature, improved UI</div>
 
     <script>
         // Initialize jsPDF
@@ -1402,7 +1403,7 @@
             const fileInput = document.getElementById('file-input');
             const browseBtn = document.getElementById('browse-btn');
             const filePreview = document.getElementById('file-preview');
-            const fileTypeWarning = document.getElementById('file-type-warning');
+            const fileTypeWarning = document.getElementById极('file-type-warning');
             const uploadedFilesIndicator = document.getElementById('uploaded-files-indicator');
             const filesCount = document.getElementById('files-count');
             
@@ -1461,6 +1462,7 @@
             // Add copy buttons to code blocks
             function addCopyButtonsToCodeBlocks() {
                 document.querySelectorAll('.message-content pre').forEach((preElement) => {
+                    // Check if this pre element already has a copy button
                     if (preElement.querySelector('.copy-button')) {
                         return;
                     }
@@ -1474,7 +1476,7 @@
                         const codeElement = preElement.querySelector('code');
                         const codeToCopy = codeElement ? codeElement.textContent : preElement.textContent;
                         
-                        navigator.clipboard.writeText(codeToCopy).then(() => {
+                        navigator.clipboard.writeText(code极Copy).then(() => {
                             copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
                             copyButton.classList.add('copied');
                             
@@ -1493,7 +1495,42 @@
                     });
                     
                     preElement.appendChild(copyButton);
+                    
+                    // Check if this is HTML code and add a run button
+                    const codeElement = preElement.querySelector('code');
+                    if (codeElement) {
+                        const codeText = codeElement.textContent;
+                        // Check if the code contains HTML tags
+                        if (codeText.match(/<\/?[a-z][\s\S]*>/i)) {
+                            // Add a run button for HTML code
+                            const runButton = document.createElement('button');
+                            runButton.className = 'run-button';
+                            runButton.innerHTML = '<i class="fas fa-play"></i> Run';
+                            runButton.title = 'Run HTML code in new tab';
+                            
+                            runButton.addEventListener('click', function() {
+                                runHtmlCode(codeText);
+                            });
+                            
+                            preElement.appendChild(runButton);
+                        }
+                    }
                 });
+            }
+            
+            // Function to run HTML code in a new tab
+            function runHtmlCode(htmlCode) {
+                // Create a new blob with the HTML content
+                const blob = new Blob([htmlCode], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                // Open the HTML in a new tab
+                window.open(url, '_blank');
+                
+                // Clean up the URL object after a short delay
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
             }
             
             // Save conversation as PDF
@@ -1554,7 +1591,7 @@
                         pdf.text(messageLines, margin + 10, yPosition + 10);
                         
                         pdf.setFont(undefined, 'bold');
-                        if (message.role === 'user') {
+                        if (message.role ===极 'user') {
                             pdf.text('User', margin + 10, yPosition + 5);
                         } else {
                             pdf.text('AI Assistant', margin + 10, yPosition + 5);
@@ -1587,15 +1624,17 @@
             function toggleSidebar() {
                 sidebar.classList.toggle('collapsed');
                 
+                // Update button icon
                 const icon = toggleSidebarButton.querySelector('i');
                 if (sidebar.classList.contains('collapsed')) {
-                    icon.classList.remove('fa-bars');
+                    icon.classList.remove('fa-chevron-left');
                     icon.classList.add('fa-chevron-right');
                 } else {
                     icon.classList.remove('fa-chevron-right');
-                    icon.classList.add('fa-bars');
+                    icon.classList.add('fa-chevron-left');
                 }
                 
+                // Save sidebar state to localStorage
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
             }
             
@@ -1603,6 +1642,7 @@
             function toggleUploadArea() {
                 uploadContent.classList.toggle('expanded');
                 
+                // Update chevron icon
                 if (uploadContent.classList.contains('expanded')) {
                     uploadChevron.classList.remove('fa-chevron-down');
                     uploadChevron.classList.add('fa-chevron-up');
@@ -1640,17 +1680,21 @@
             
             // Initialize the app
             function initializeConfig() {
+                // Load sidebar state from localStorage
                 const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
                 if (sidebarCollapsed === 'true') {
                     sidebar.classList.add('collapsed');
                     const icon = toggleSidebarButton.querySelector('i');
-                    icon.classList.remove('fa-bars');
+                    icon.classList.remove('fa-chevron-left');
                     icon.classList.add('fa-chevron-right');
                 }
                 
                 const cloudflareResult = checkCloudflareEnv();
                 
+                // Check localStorage for model name
                 const savedModel = localStorage.getItem('openrouter_model');
+                
+                // Check localStorage for endpoint
                 const savedEndpoint = localStorage.getItem('api_endpoint');
                 if (savedEndpoint) {
                     API_URL = savedEndpoint;
@@ -1663,6 +1707,7 @@
                     typingModelElement.textContent = `${savedModel.split('/').pop()} is typing...`;
                 }
                 
+                // Check localStorage for API key if Cloudflare didn't provide one
                 const savedApiKey = localStorage.getItem('openrouter_api_key');
                 if (savedApiKey) {
                     API_KEY = savedApiKey;
@@ -1678,7 +1723,7 @@
                 }
                 
                 if (cloudflareResult) {
-                    configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>` + 
+                    configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <极ode>${MODEL_NAME}</code>` + 
                                             (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
                     updateStatus('API key loaded', true);
                     
@@ -1715,7 +1760,7 @@
                 };
                 
                 // Get existing sessions
-                const sessions = getSessions();
+                const sessions = get极essions();
                 
                 // Update or add the current session
                 const existingIndex = sessions.findIndex(s => s.id === currentSessionId);
@@ -1890,7 +1935,7 @@
                 
                 // Add event listeners to delete buttons
                 document.querySelectorAll('.delete-session').forEach(button => {
-                    button.addEventListener('click', (e) => {
+                    button.addEventListener('click', (e)极 {
                         e.stopPropagation();
                         deleteSession(button.dataset.id);
                     });
@@ -1981,19 +2026,108 @@
                             if (file.name.endsWith('.json')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.xml')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.html')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.css')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.js')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.py')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.html') || file.name.endsWith('.htm')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.css') || file.name.endsWith('.scss') || file.name.endsWith('.sass') || file.name.endsWith('.less')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.js') || file.name.endsWith('.jsx')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ts') || file.name.endsWith('.tsx')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.py') || file.name.endsWith('.pyw')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.java')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.cpp') || file.name.endsWith('.c')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.cpp') || file.name.endsWith('.cc') || file.name.endsWith('.cxx')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.c') || file.name.endsWith('.h')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.cs')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.php')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.rb')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.go')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.rs')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.ts')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.md')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.swift')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.kt') || file.name.endsWith('.kts')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.scala')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.pl') || file.name.endsWith('.pm')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.r')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.m')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.sql')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.sh') || file.name.endsWith('.bash') || file.name.endsWith('.zsh')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ps1')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.bat') || file.name.endsWith('.cmd')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.fs') || file.name.endsWith('.fsx') || file.name.endsWith('.fsi')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ml') || file.name.endsWith('.mli')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.vb') || file.name.endsWith('.vbs')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.rkt')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.lsp') || file.name.endsWith('.lisp')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.clj') || file.name.endsWith('.cljs') || file.name.endsWith('.cljc')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.edn')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ex') || file.name.endsWith('.exs')) fileIcon = '极ile-code';
+                            else if (file.name.endsWith('.elm')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.purs')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.coffee') || file.name.endsWith('.litcoffee') || file.name.endsWith('.iced')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.dart')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.jl')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.tcl')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.awk')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.sed')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.xsl') || file.name.endsWith('.xslt')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.svg')) fileIcon = 'file-image';
+                            else if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.tex') || file.name.endsWith('.bib')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.rst')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.log')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.csv') || file.name.endsWith('.tsv')) fileIcon = 'file-csv';
+                            else if (file.name.endsWith('.ini') || file.name.endsWith('.cfg') || file.name.endsWith('.conf')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.properties')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.toml')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.jsonld') || file.name.endsWith('.geojson') || file.name.endsWith('.topojson')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ndjson') || file.name.endsWith('.jsonl')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ipynb')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.proto')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.thrift')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.avdl') || file.name.endsWith('.avpr') || file.name.endsWith('.avsc')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.graphql') || file.name.endsWith('.gql')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.sqlite') || file.name.endsWith('.db')) fileIcon = 'database';
+                            else if (file.name.endsWith('.diff') || file.name.endsWith('.patch')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.env')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.gitignore') || file.name.endsWith('.dockerignore')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.lock')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.txt') || file.name.endsWith('.text')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.rtf')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.asc')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.adoc') || file.name.endsWith('.asciidoc')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.nfo')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.org')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.pod')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.pm6') || file.name.endsWith('.p6') || file.name.endsWith('.pl6')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.rakumod') || file.name.endsWith('.rakudoc') || file.name.endsWith('.rakutest')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.t')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.pp') || file.name.endsWith('.epp')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.rbw') || file.name.endsWith('.gemspec')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ru')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.rake')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.erb')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.haml')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.slim')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.vue')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.svelte')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.angular')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.j2') || file.name.endsWith('.jinja2') || file.name.endsWith('.jinja')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.twig')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.mustache')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.hbs') || file.name.endsWith('.handlebars')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ejs')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.njk') || file.name.endsWith('.nunjucks')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.pug') || file.name.endsWith('.jade')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.latte')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.volt')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.smarty')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.tpl')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ctp')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.module') || file.name.endsWith('.install')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.inc')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.theme')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.engine')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.template')) fileIcon = 'file-code';
+                            else if (极ile.name.endsWith('.layout')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.view')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.partial')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.include')) fileIcon = 'file-code';
                             
                             attachment.innerHTML = `
                                 <div class="file-attachment-icon">
@@ -2099,7 +2233,7 @@
                 const sizes = ['Bytes', 'KB', 'MB', 'GB'];
                 const i = Math.floor(Math.log(bytes) / Math.log(k));
                 
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' '极 sizes[i];
             }
             
             // Send message to API
@@ -2165,7 +2299,7 @@
             
             // Save configuration
             function saveConfig() {
-                const key = apiKeyInput.value.trim();
+                const key = apiKey极Input.value.trim();
                 const endpoint = endpointInput.value.trim();
                 const model = modelInput.value.trim();
                           
@@ -2234,29 +2368,12 @@
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     
-                    // Check if file is a text file
-                    const isTextFile = file.type.startsWith('text/') || 
-                                      file.name.endsWith('.txt') || 
-                                      file.name.endsWith('.json') || 
-                                      file.name.endsWith('.yaml') || 
-                                      file.name.endsWith('.yml') || 
-                                      file.name.endsWith('.xml') || 
-                                      file.name.endsWith('.html') || 
-                                      file.name.endsWith('.css') || 
-                                      file.name.endsWith('.js') || 
-                                      file.name.endsWith('.py') || 
-                                      file.name.endsWith('.java') || 
-                                      file.name.endsWith('.cpp') || 
-                                      file.name.endsWith('.c') || 
-                                      file.name.endsWith('.cs') || 
-                                      file.name.endsWith('.php') || 
-                                      file.name.endsWith('.rb') || 
-                                      file.name.endsWith('.go') || 
-                                      file.name.endsWith('.rs') || 
-                                      file.name.endsWith('.ts') || 
-                                      file.name.endsWith('.md');
+                    // Check if file is a text file - accept all files with extensions in the accept attribute
+                    // This is a simplified check since we already have extensive accept attribute
+                    const isLikelyTextFile = file.type.startsWith('text/') || 
+                                           /\.(txt|json|yaml|yml|xml|html|htm|css|scss|sass|less|js|jsx|ts|tsx|py|pyw|java|cpp|cc|cxx|c|h|hpp|cs|php|rb|go|rs|swift|kt|kts|scala|pl|pm|r|m|sql|sh|bash|zsh|ps1|bat|cmd|fs|fsx|fsi|ml|mli|vb|vbs|rkt|lsp|lisp|clj|cljs|cljc|edn|ex|exs|elm|purs|coffee|litcoffee|iced|dart|jl|tcl|awk|sed|xsl|xslt|svg|md|markdown|tex|bib|rst|log|csv|tsv|ini|cfg|conf|properties|toml|jsonld|geojson|topojson|ndjson|jsonl|ipynb|proto|thrift|avdl|avpr|avsc|graphql|gql|diff|patch|env|gitignore|dockerignore|lock|text|rtf|asc|adoc|asciidoc|nfo|org|pod|pm6|p6|pl6|rakumod|rakudoc|rakutest|t|pp|epp|rbw|gemspec|ru|rake|erb|haml|slim|vue|svelte|angular|j2|jinja2|jinja|twig|mustache|hbs|handlebars|ejs|njk|nunjucks|pug|jade|latte|volt|smarty|tpl|ctp|module|install|inc|theme|engine|template|layout|view|partial|include)$/i.test(file.name);
                     
-                    if (!isTextFile) {
+                    if (!isLikelyTextFile) {
                         hasInvalidFile = true;
                         continue;
                     }
@@ -2301,19 +2418,108 @@
                     if (file.name.endsWith('.json')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.xml')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.html')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.css')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.js')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.py')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.html') || file.name.endsWith('.htm')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.css') || file.name.endsWith('.scss') || file.name.endsWith('.sass') || file.name.endsWith('.less')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.js') || file.name.endsWith('.jsx')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ts') || file.name.endsWith('.tsx')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.py') || file.name.endsWith('.pyw')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.java')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.cpp') || file.name.endsWith('.c')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.cpp') || file.name.endsWith('.cc') || file.name.endsWith('.cxx')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.c') || file.name.endsWith('.h')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.cs')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.php')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.rb')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.go')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.rs')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.ts')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.md')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.swift')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.kt') || file.name.endsWith('.kts')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.scala')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.pl') || file.name.endsWith('.pm')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.r')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.m')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.sql')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.sh') || file.name.endsWith('.bash') || file.name.endsWith('.zsh')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ps1')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.bat') || file.name.endsWith('.cmd')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.fs') || file.name.endsWith('.fsx') || file.name.endsWith('.fs极')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ml') || file.name.endsWith('.mli')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.vb') || file.name.endsWith('.vbs')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.rkt')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.lsp') || file.name.endsWith('.lisp')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.clj') || file.name.endsWith('.cljs') || file.name.endsWith('.cljc')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.edn')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ex') || file.name.endsWith('.exs')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.elm')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.purs')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.coffee') || file.name.endsWith('.litcoffee') || file.name.endsWith('.iced')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.dart')) fileIcon = '极ile-code';
+                    else if (file.name.endsWith('.jl')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.tcl')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.awk')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.sed')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.xsl') || file.name.endsWith('.xslt')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.svg')) fileIcon = 'file-image';
+                    else if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.tex') || file.name.endsWith('.bib')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.rst')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.log')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.csv') || file.name.endsWith('.tsv')) fileIcon = 'file-csv';
+                    else if (file.name.endsWith('.ini') || file.name.endsWith('.cfg') || file.name.endsWith('.conf')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.properties')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.toml')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.jsonld') || file.name.endsWith('.geojson') || file.name.endsWith('.topojson')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ndjson') || file.name.endsWith('.jsonl')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ipynb')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.proto')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.thrift')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.avdl') || file.name.endsWith('.avpr') || file.name.ends极('.avsc')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.graphql') || file.name.endsWith('.gql')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.sqlite') || file.name.endsWith('.db')) fileIcon = 'database';
+                    else if (file.name.ends极('.diff') || file.name.endsWith('.patch')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.env')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.gitignore') || file.name.endsWith('.dockerignore')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.lock')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.txt') || file.name.endsWith('.text')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.rtf')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.asc')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.adoc') || file.name.endsWith('.asciidoc')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.nfo')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.org')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.pod')) file极con = 'file-alt';
+                    else if (file.name.endsWith('.pm6') || file.name.endsWith('.p6') || file.name.endsWith('.pl6')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.rakumod') || file.name.endsWith('.rakudoc') || file.name.endsWith('.rakutest')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.t')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.pp') || file.name.endsWith('.epp')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.rbw') || file.name.endsWith('.gemspec')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ru')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.rake')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.erb')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.haml')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.slim')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.vue')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.svelte')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.angular')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.j2') || file.name.endsWith('.jinja2') || file.name.endsWith('.jinja')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.twig')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.mustache')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.hbs') || file.name.endsWith('.handlebars')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ejs')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.njk') || file.name.endsWith('.nunjucks')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.pug') || file.name.endsWith('.jade')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.latte')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.volt')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.smarty')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.tpl')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ctp')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.module') || file.name.endsWith('.install')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.inc')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.theme')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.engine')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.template')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.layout')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.view')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.partial')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.include')) fileIcon = 'file-code';
                     
                     const fileSize = formatFileSize(file.size);
                     
@@ -2335,6 +2541,7 @@
                     filePreview.appendChild(fileItem);
                 });
                 
+                // Add event listeners to remove buttons
                 document.querySelectorAll('.file-remove').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const index = parseInt(button.dataset.index);
