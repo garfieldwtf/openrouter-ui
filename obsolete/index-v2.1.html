@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adam's AI UI | Document Processing</title>
+    <title>Adam's AI UI | OpenRouter API</title>
     <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
@@ -251,156 +251,165 @@
             text-decoration: underline;
         }
         
-        /* Document Upload Area */
-        .document-upload {
-            padding: 15px;
+        /* Chat Sessions Panel */
+        .chat-sessions-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100vh;
             background: var(--light);
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: right var(--transition-speed) ease;
+            z-index: 20;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-        }
-        
-        .upload-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-        }
-        
-        .upload-title {
-            font-weight: 600;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .upload-content {
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .upload-content.expanded {
-            display: flex;
-        }
-        
-        .drop-area {
-            border: 2px dashed var(--gray);
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-        
-        .drop-area:hover, .drop-area.active {
-            border-color: var(--primary);
-        }
-        
-        .drop-area i {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        
-        .drop-text {
-            margin-bottom: 10px;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .browse-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 15px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
-        
-        .browse-btn:hover {
-            background: var(--primary-dark);
-        }
-        
-        .file-preview {
-            margin-top: 15px;
-        }
-        
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            background: var(--secondary);
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
-        
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-        }
-        
-        .file-icon {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary);
-            color: white;
-            border-radius: 4px;
-        }
-        
-        .file-details {
-            flex: 1;
             overflow: hidden;
         }
         
-        .file-name {
+        .chat-sessions-panel.open {
+            right: 0;
+        }
+        
+        .sessions-header {
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: var(--header-height);
+        }
+        
+        .sessions-title {
+            font-size: 1.2rem;
             font-weight: 600;
+        }
+        
+        .close-sessions {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .close-sessions:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .sessions-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .session-item {
+            padding: 15px;
+            border-radius: 8px;
+            background: var(--secondary);
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+        }
+        
+        .session-item:hover {
+            background: #e5e7eb;
+        }
+        
+        .session-item.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .session-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .session-preview {
+            font-size: 0.85rem;
+            opacity: 0.8;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
-        .file-size {
-            font-size: 0.8rem;
-            color: var(--gray);
+        .session-date {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            opacity: 0.7;
         }
         
-        .file-content {
-            font-size: 0.8rem;
-            margin-top: 5px;
-            color: var(--dark);
-            background: rgba(0, 0, 0, 0.05);
-            padding: 8px;
-            border-radius: 4px;
-            max-height: 100px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            font-family: monospace;
+        .session-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
         }
         
-        .file-remove {
-            background: none;
+        .session-action {
+            background: rgba(0, 0, 0, 0.1);
             border: none;
-            color: var(--error);
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 1.2rem;
-            padding: 5px;
+            font-size: 0.8rem;
+            transition: background 0.3s;
         }
         
-        .file-remove:hover {
-            color: #dc2626;
+        .session-item.active .session-action {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .session-action:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .session-item.active .session-action:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .no-sessions {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-style: italic;
+        }
+        
+        .new-session-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .new-session-btn:hover {
+            background: var(--primary-dark);
         }
         
         /* Main Content Styles */
@@ -481,7 +490,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height) - 60px);
+            height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height));
         }
         
         .message {
@@ -929,16 +938,9 @@
                 justify-content: space-between;
             }
             
-            .document-upload {
-                padding: 10px;
-            }
-            
-            .drop-area {
-                padding: 15px;
-            }
-            
-            .file-content {
-                max-height: 80px;
+            .chat-sessions-panel {
+                width: 85%;
+                right: -85%;
             }
         }
         
@@ -1076,32 +1078,8 @@
                 <span id="typing-model">AI is typing...</span>
             </div>
             
-            <!-- Document Upload Area -->
-            <div class="document-upload">
-                <div class="upload-header" id="upload-toggle">
-                    <div class="upload-title">
-                        <i class="fas fa-file-upload"></i>
-                        <span>Document Upload</span>
-                    </div>
-                    <i class="fas fa-chevron-down" id="upload-chevron"></i>
-                </div>
-                
-                <div class="upload-content" id="upload-content">
-                    <div class="drop-area" id="drop-area">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <div class="drop-text">Drag & drop files here or click to browse</div>
-                        <input type="file" id="file-input" class="file-input" multiple accept=".txt,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.html,.xml,.json,.yaml,.yml,.js,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.rs,.ts,.css,.md">
-                        <button class="browse-btn" id="browse-btn">Browse Files</button>
-                    </div>
-                    
-                    <div class="file-preview" id="file-preview">
-                        <!-- Files will be previewed here -->
-                    </div>
-                </div>
-            </div>
-            
             <div class="input-container">
-                <input type="text" id="user-input" placeholder="Type your message or question about the uploaded files..." autocomplete="off" disabled>
+                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off" disabled>
                 <button id="send-button" disabled>
                     <i class="fas fa-paper-plane"></i> Send
                 </button>
@@ -1118,6 +1096,26 @@
                     <i class="fas fa-history"></i> Chat Sessions
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Chat Sessions Panel -->
+    <div class="chat-sessions-panel" id="chat-sessions-panel">
+        <div class="sessions-header">
+            <div class="sessions-title">Chat Sessions</div>
+            <button class="close-sessions" id="close-sessions">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="sessions-content" id="sessions-content">
+            <!-- Sessions will be loaded here -->
+        </div>
+        
+        <div class="sessions-footer" style="padding: 15px;">
+            <button class="new-session-btn" id="new-session-btn">
+                <i class="fas fa-plus"></i> Start New Session
+            </button>
         </div>
     </div>
 
@@ -1151,15 +1149,10 @@
             const pdfLoading = document.getElementById('pdf-loading');
             const sidebar = document.getElementById('sidebar');
             const toggleSidebarButton = document.getElementById('toggle-sidebar');
-            
-            // Document upload elements
-            const uploadToggle = document.getElementById('upload-toggle');
-            const uploadContent = document.getElementById('upload-content');
-            const uploadChevron = document.getElementById('upload-chevron');
-            const dropArea = document.getElementById('drop-area');
-            const fileInput = document.getElementById('file-input');
-            const browseBtn = document.getElementById('browse-btn');
-            const filePreview = document.getElementById('file-preview');
+            const chatSessionsPanel = document.getElementById('chat-sessions-panel');
+            const closeSessionsButton = document.getElementById('close-sessions');
+            const sessionsContent = document.getElementById('sessions-content');
+            const newSessionButton = document.getElementById('new-session-btn');
             
             // API configuration
             let API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -1169,14 +1162,14 @@
             // Track if Highlight.js is available
             let hljsAvailable = false;
             
-            // Uploaded files
-            let uploadedFiles = [];
+            // Current session ID
+            let currentSessionId = null;
             
             // Conversation history
             let conversationHistory = [
                 {
                     role: 'system',
-                    content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets. When users upload files, help them analyze the content of those files.'
+                    content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
                 }
             ];
             
@@ -1416,20 +1409,6 @@
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
             }
             
-            // Toggle upload area visibility
-            function toggleUploadArea() {
-                uploadContent.classList.toggle('expanded');
-                
-                // Update chevron icon
-                if (uploadContent.classList.contains('expanded')) {
-                    uploadChevron.classList.remove('fa-chevron-down');
-                    uploadChevron.classList.add('fa-chevron-up');
-                } else {
-                    uploadChevron.classList.remove('fa-chevron-up');
-                    uploadChevron.classList.add('fa-chevron-down');
-                }
-            }
-            
             // Check for Cloudflare Pages environment variable
             function checkCloudflareEnv() {
                 // This will be replaced at build time by Cloudflare Pages
@@ -1489,6 +1468,9 @@
                     return true;
                 }
                 
+                // Load the most recent session or create a new one
+                loadSessions();
+                
                 if (cloudflareResult) {
                     configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>` + 
                                             (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
@@ -1505,6 +1487,267 @@
                 }, 100);
                 
                 return false;
+            }
+            
+            // Save the current session to localStorage
+            function saveSession() {
+                if (!currentSessionId) return;
+                
+                const sessionData = {
+                    id: currentSessionId,
+                    title: getSessionTitle(),
+                    preview: getSessionPreview(),
+                    history: conversationHistory,
+                    timestamp: new Date().toISOString(),
+                    model: MODEL_NAME
+                };
+                
+                // Get existing sessions
+                const sessions = getSessions();
+                
+                // Update or add the current session
+                const existingIndex = sessions.findIndex(s => s.id === currentSessionId);
+                if (existingIndex !== -1) {
+                    sessions[existingIndex] = sessionData;
+                } else {
+                    sessions.push(sessionData);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('chat_sessions', JSON.stringify(sessions));
+                
+                // Update the sessions panel
+                renderSessions();
+            }
+            
+            // Get all sessions from localStorage
+            function getSessions() {
+                const sessionsJson = localStorage.getItem('chat_sessions');
+                return sessionsJson ? JSON.parse(sessionsJson) : [];
+            }
+            
+            // Generate a session title based on the first user message
+            function getSessionTitle() {
+                const firstUserMessage = conversationHistory.find(msg => msg.role === 'user');
+                if (firstUserMessage) {
+                    // Truncate if too long
+                    return firstUserMessage.content.length > 30 
+                        ? firstUserMessage.content.substring(0, 30) + '...' 
+                        : firstUserMessage.content;
+                }
+                return 'New Chat';
+            }
+            
+            // Generate a session preview based on the last message
+            function getSessionPreview() {
+                const lastMessage = [...conversationHistory].reverse().find(msg => 
+                    msg.role === 'user' || msg.role === 'assistant'
+                );
+                
+                if (lastMessage) {
+                    // Remove markdown and truncate
+                    const plainText = lastMessage.content.replace(/[#*_`~]/g, '');
+                    return plainText.length > 50 
+                        ? plainText.substring(0, 50) + '...' 
+                        : plainText;
+                }
+                return 'No messages yet';
+            }
+            
+            // Load a specific session
+            function loadSession(sessionId) {
+                const sessions = getSessions();
+                const session = sessions.find(s => s.id === sessionId);
+                
+                if (session) {
+                    conversationHistory = session.history;
+                    currentSessionId = sessionId;
+                    
+                    // Re-render the conversation
+                    renderConversationHistory();
+                    
+                    // Update the sessions panel
+                    renderSessions();
+                    
+                    // Add a message indicating the session was loaded
+                    addMessage(`Session "${session.title}" loaded.`, 'ai');
+                }
+            }
+            
+            // Create a new session
+            function createNewSession() {
+                // Save the current session first
+                if (currentSessionId && conversationHistory.length > 1) {
+                    saveSession();
+                }
+                
+                // Generate a new session ID
+                currentSessionId = 'session_' + Date.now();
+                
+                // Reset conversation history
+                conversationHistory = [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
+                    }
+                ];
+                
+                // Clear the chat container except for the first message
+                while (chatContainer.children.length > 1) {
+                    chatContainer.removeChild(chatContainer.lastChild);
+                }
+                
+                // Add a welcome message
+                addMessage('Started a new chat session. How can I help you?', 'ai');
+                
+                // Update the sessions panel
+                renderSessions();
+            }
+            
+            // Delete a session
+            function deleteSession(sessionId) {
+                if (!confirm('Are you sure you want to delete this chat session?')) {
+                    return;
+                }
+                
+                const sessions = getSessions();
+                const updatedSessions = sessions.filter(s => s.id !== sessionId);
+                
+                // If we're deleting the current session, create a new one
+                if (sessionId === currentSessionId) {
+                    createNewSession();
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('chat_sessions', JSON.stringify(updatedSessions));
+                
+                // Update the sessions panel
+                renderSessions();
+            }
+            
+            // Render the sessions panel
+            function renderSessions() {
+                const sessions = getSessions();
+                
+                // Sort sessions by timestamp (newest first)
+                sessions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                // Clear the sessions panel
+                sessionsContent.innerHTML = '';
+                
+                if (sessions.length === 0) {
+                    sessionsContent.innerHTML = '<div class="no-sessions">No chat sessions yet</div>';
+                    return;
+                }
+                
+                // Add each session to the panel
+                sessions.forEach(session => {
+                    const sessionElement = document.createElement('div');
+                    sessionElement.className = 'session-item';
+                    if (session.id === currentSessionId) {
+                        sessionElement.classList.add('active');
+                    }
+                    
+                    sessionElement.innerHTML = `
+                        <div class="session-title">
+                            <span>${session.title}</span>
+                            <div class="session-actions">
+                                <button class="session-action delete-session" data-id="${session.id}" title="Delete session">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="session-preview">${session.preview}</div>
+                        <div class="session-date">${new Date(session.timestamp).toLocaleString()}</div>
+                    `;
+                    
+                    // Add click event to load the session
+                    sessionElement.addEventListener('click', (e) => {
+                        if (!e.target.closest('.session-actions')) {
+                            loadSession(session.id);
+                            closeSessionsPanel();
+                        }
+                    });
+                    
+                    sessionsContent.appendChild(sessionElement);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-session').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteSession(button.dataset.id);
+                    });
+                });
+            }
+            
+            // Load all sessions (for the sessions panel)
+            function loadSessions() {
+                const sessions = getSessions();
+                
+                if (sessions.length > 0) {
+                    // Load the most recent session
+                    const mostRecent = sessions.sort((a, b) => 
+                        new Date(b.timestamp) - new Date(a.timestamp)
+                    )[0];
+                    
+                    loadSession(mostRecent.id);
+                } else {
+                    // Create a new session
+                    currentSessionId = 'session_' + Date.now();
+                }
+                
+                // Render the sessions panel
+                renderSessions();
+            }
+            
+            // Open the sessions panel
+            function openSessionsPanel() {
+                chatSessionsPanel.classList.add('open');
+            }
+            
+            // Close the sessions panel
+            function closeSessionsPanel() {
+                chatSessionsPanel.classList.remove('open');
+            }
+            
+            // Render conversation history
+            function renderConversationHistory() {
+                // Clear the chat container except for the first message
+                while (chatContainer.children.length > 1) {
+                    chatContainer.removeChild(chatContainer.lastChild);
+                }
+                
+                // Add messages from history (skip system message)
+                for (const message of conversationHistory) {
+                    if (message.role === 'user') {
+                        addMessage(message.content, 'user', false);
+                    } else if (message.role === 'assistant') {
+                        addMessage(message.content, 'ai', false);
+                    }
+                }                
+                // Add copy buttons to code blocks in history
+                setTimeout(() => {
+                    addCopyButtonsToCodeBlocks();
+                }, 100);                
+            }
+            
+            // Check if API key is available
+            function checkApiKey() {
+                if (!API_KEY) {
+                    updateStatus('No API key (some endpoints may not work)', true);
+                    addMessage('System: No API key configured. Some endpoints may not work without authentication. You can still try to send messages.', 'ai');
+                    userInput.disabled = false;
+                    sendButton.disabled = false;
+                    userInput.focus();
+                    return true;
+                }
+                
+                updateStatus('API key loaded' + (API_KEY ? '' : ' (some endpoints may not work)'), true);
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.focus();
+                return true;
             }
             
             // Update connection status UI
@@ -1534,7 +1777,76 @@
                 
                 // Parse markdown if it's an AI message
                 if (sender === 'ai') {
-                    messageContent.innerHTML = marked.parse(text);
+                    // First, check if this appears to be a combined thinking + response message
+                    if (text.includes("assistantfinal") || text.includes("analysisWe must answer")) {
+                        // This is a special case where the API returned thinking and response combined
+                        // Split the thinking from the final answer
+                        const thinkingMatch = text.match(/analysis(.*?)assistantfinal/s);
+                        const finalMatch = text.match(/assistantfinal(.*)/s);
+                        
+                        if (thinkingMatch && finalMatch) {
+                            const thinkingText = thinkingMatch[1].trim();
+                            const finalText = finalMatch[1].trim();
+                            
+                            messageContent.innerHTML = `
+                                <div class="thinking-header">
+                                    <i class="fas fa-brain"></i> Thinking Process
+                                </div>
+                                <div class="thinking-message">${marked.parse(thinkingText)}</div>
+                                <div class="final-answer-header">
+                                    <i class="fas fa-check-circle"></i> Final Answer
+                                </div>
+                                <div class="final-answer">${marked.parse(finalText)}</div>
+                            `;
+                        } else {
+                            // Fallback if the pattern doesn't match exactly
+                            messageContent.innerHTML = marked.parse(text);
+                        }
+                    } else {
+                        // More precise detection of thinking vs final answer
+                        const thinkingPatterns = [
+                            /let me think/i,
+                            /let's think/i,
+                            /hmm/i,
+                            /thinking/i,
+                            /first,/i,
+                            /first let me/i,
+                            /step by step/i,
+                            /break this down/i,
+                            /analyze/i,
+                            /reasoning:/i,
+                            /thought process:/i,
+                            /so, to answer your question/i,  // Added pattern
+                            /in conclusion/i,                // Added pattern
+                            /therefore/i,                    // Added pattern
+                            /thus/i,                         // Added pattern
+                            /the answer is/i,                // Added pattern
+                            /the solution is/i               // Added pattern
+                        ];
+                        
+                        // Check if this is likely a final answer (not thinking)
+                        const isFinalAnswer = text.includes("the answer is") || 
+                                             text.includes("therefore") ||
+                                             text.includes("in conclusion") ||
+                                             text.includes("thus") ||
+                                             text.includes("the solution is") ||
+                                             text.length < 100; // Short responses are usually final answers
+                        
+                        const isThinking = !isFinalAnswer && thinkingPatterns.some(pattern => pattern.test(text));
+                        
+                        if (isThinking) {
+                            // Format thinking messages differently with a clear header
+                            messageContent.innerHTML = `
+                                <div class="thinking-header">
+                                    <i class="fas fa-brain"></i> Thinking Process
+                                </div>
+                                <div class="thinking-message">${marked.parse(text)}</div>
+                            `;
+                        } else {
+                            // This is a final answer, format normally
+                            messageContent.innerHTML = marked.parse(text);
+                        }
+                    }
                 } else {
                     messageContent.textContent = text;
                 }
@@ -1571,6 +1883,9 @@
                     } else if (sender === 'ai') {
                         conversationHistory.push({ role: 'assistant', content: text });
                     }
+                    
+                    // Save the session
+                    saveSession();
                 }
             }
             
@@ -1582,98 +1897,13 @@
                 }
             }
             
-            // Read file content
-            function readFileContent(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    
-                    reader.onload = (event) => {
-                        resolve({
-                            name: file.name,
-                            type: file.type,
-                            size: file.size,
-                            content: event.target.result
-                        });
-                    };
-                    
-                    reader.onerror = (error) => {
-                        reject(error);
-                    };
-                    
-                    // Read based on file type
-                    if (file.type.includes('text') || file.type === 'application/json' || 
-                        file.name.endsWith('.yml') || file.name.endsWith('.yaml') ||
-                        file.name.endsWith('.js') || file.name.endsWith('.py') ||
-                        file.name.endsWith('.java') || file.name.endsWith('.cpp') ||
-                        file.name.endsWith('.c') || file.name.endsWith('.cs') ||
-                        file.name.endsWith('.php') || file.name.endsWith('.rb') ||
-                        file.name.endsWith('.go') || file.name.endsWith('.rs') ||
-                        file.name.endsWith('.ts') || file.name.endsWith('.css') ||
-                        file.name.endsWith('.html') || file.name.endsWith('.xml') ||
-                        file.name.endsWith('.md')) {
-                        reader.readAsText(file);
-                    } else {
-                        // For binary files, just note their presence
-                        resolve({
-                            name: file.name,
-                            type: file.type,
-                            size: file.size,
-                            content: null
-                        });
-                    }
-                });
-            }
-            
-            // Process uploaded files and add to conversation
-            async function processUploadedFiles() {
-                if (uploadedFiles.length === 0) return '';
-                
-                let fileContents = 'I have uploaded the following files:\n';
-                
-                for (const file of uploadedFiles) {
-                    try {
-                        const fileData = await readFileContent(file);
-                        
-                        if (fileData.content) {
-                            // For text files, include the content
-                            fileContents += `\n--- ${fileData.name} ---\n${fileData.content}\n`;
-                        } else {
-                            // For binary files, just note their presence
-                            fileContents += `\n--- ${fileData.name} ---\n(Binary file - ${fileData.type}, ${formatFileSize(fileData.size)})\n`;
-                        }
-                    } catch (error) {
-                        console.error('Error reading file:', error);
-                        fileContents += `\n--- ${file.name} ---\n(Error reading file)\n`;
-                    }
-                }
-                
-                return fileContents;
-            }
-            
-            // Format file size
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-            
             // Send message to API
             async function sendMessage() {
                 const message = userInput.value.trim();
-                if (!message && uploadedFiles.length === 0) return;
-                
-                // Process uploaded files
-                const fileContents = await processUploadedFiles();
-                
-                // Combine user message with file contents
-                const fullMessage = message + (fileContents ? `\n\n${fileContents}` : '');
+                if (!message) return;
                 
                 // Add user message to chat
-                addMessage(fullMessage, 'user');
+                addMessage(message, 'user');
                 userInput.value = '';
                 sendButton.disabled = true;
                 setTyping(true);
@@ -1685,18 +1915,11 @@
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${API_KEY}`,
                             'HTTP-Referer': window.location.href,
-                            'X-Title': 'Adam\'s AI UI'
+                            'X-Title': 'DeepSeek Chat Interface'
                         },
                         body: JSON.stringify({
                             model: MODEL_NAME,
-                            messages: [
-                                {
-                                    role: 'system',
-                                    content: 'You are a helpful AI assistant. Analyze the content of any uploaded files and provide helpful responses based on the file content. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
-                                },
-                                ...conversationHistory.filter(msg => msg.role !== 'system'),
-                                { role: 'user', content: fullMessage }
-                            ]
+                            messages: conversationHistory
                         })
                     });
                     
@@ -1711,10 +1934,6 @@
                     setTyping(false);
                     addMessage(aiResponse, 'ai');
                     updateStatus('Response received', true);
-                    
-                    // Clear uploaded files after successful processing
-                    uploadedFiles = [];
-                    renderFilePreviews();
                 } catch (error) {
                     setTyping(false);
                     addMessage(`Error: ${error.message}. Please check your API key and try again.`, 'ai');
@@ -1775,13 +1994,12 @@
                     conversationHistory = [
                         {
                             role: 'system',
-                            content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets. When users upload files, help them analyze the content of those files.'
+                            content: 'You are a helpful AI assistant. Format your responses using Markdown for better readability. Use code blocks for code snippets.'
                         }
                     ];
                     
-                    // Clear uploaded files
-                    uploadedFiles = [];
-                    renderFilePreviews();
+                    // Save the cleared session
+                    saveSession();
                     
                     // Clear the chat container except for the first message
                     while (chatContainer.children.length > 1) {
@@ -1792,130 +2010,15 @@
                 }
             }
             
-            // Handle file uploads
-            function handleFiles(files) {
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    
-                    // Check if file is already uploaded
-                    if (!uploadedFiles.some(f => f.name === file.name && f.size === file.size && f.type === file.type)) {
-                        uploadedFiles.push(file);
-                    }
-                }
-                
-                renderFilePreviews();
-            }
-            
-            // Render file previews
-            function renderFilePreviews() {
-                filePreview.innerHTML = '';
-                
-                if (uploadedFiles.length === 0) {
-                    return;
-                }
-                
-                uploadedFiles.forEach((file, index) => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-                    
-                    // Get file icon based on type
-                    let fileIcon = 'file';
-                    if (file.type.includes('image')) fileIcon = 'file-image';
-                    else if (file.type.includes('pdf')) fileIcon = 'file-pdf';
-                    else if (file.type.includes('word')) fileIcon = 'file-word';
-                    else if (file.type.includes('excel')) fileIcon = 'file-excel';
-                    else if (file.type.includes('powerpoint')) fileIcon = 'file-powerpoint';
-                    else if (file.type.includes('text') || file.type.includes('json') || 
-                             file.name.endsWith('.yml') || file.name.endsWith('.yaml')) fileIcon = 'file-alt';
-                    else if (file.type.includes('zip')) fileIcon = 'file-archive';
-                    else if (file.name.endsWith('.js')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.py')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.java')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.cpp') || file.name.endsWith('.c')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.cs')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.php')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.rb')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.go')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.rs')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.ts')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.css')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.html')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.xml')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.md')) fileIcon = 'file-alt';
-                    
-                    // Format file size
-                    const fileSize = formatFileSize(file.size);
-                    
-                    fileItem.innerHTML = `
-                        <div class="file-info">
-                            <div class="file-icon">
-                                <i class="fas fa-${fileIcon}"></i>
-                            </div>
-                            <div class="file-details">
-                                <div class="file-name">${file.name}</div>
-                                <div class="file-size">${fileSize}</div>
-                            </div>
-                        </div>
-                        <button class="file-remove" data-index="${index}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-                    
-                    filePreview.appendChild(fileItem);
-                });
-                
-                // Add event listeners to remove buttons
-                document.querySelectorAll('.file-remove').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const index = parseInt(button.dataset.index);
-                        uploadedFiles.splice(index, 1);
-                        renderFilePreviews();
-                    });
-                });
-                
-                // Update input placeholder
-                userInput.placeholder = "Type your question about the uploaded files...";
-            }
-            
             // Event listeners
             sendButton.addEventListener('click', sendMessage);
             saveConfigButton.addEventListener('click', saveConfig);
             clearChatButton.addEventListener('click', clearChat);
             toggleSidebarButton.addEventListener('click', toggleSidebar);
             savePdfButton.addEventListener('click', saveAsPDF);
-            uploadToggle.addEventListener('click', toggleUploadArea);
-            browseBtn.addEventListener('click', () => fileInput.click());
-            
-            // File input change event
-            fileInput.addEventListener('change', (e) => {
-                handleFiles(e.target.files);
-                // Reset file input
-                fileInput.value = '';
-            });
-            
-            // Drag and drop events
-            dropArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropArea.classList.add('active');
-            });
-            
-            dropArea.addEventListener('dragleave', () => {
-                dropArea.classList.remove('active');
-            });
-            
-            dropArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropArea.classList.remove('active');
-                
-                if (e.dataTransfer.files.length > 0) {
-                    handleFiles(e.dataTransfer.files);
-                }
-            });
-            
-            // Click on drop area to open file browser
-            dropArea.addEventListener('click', () => {
-                fileInput.click();
-            });
+            viewSessionsButton.addEventListener('click', openSessionsPanel);
+            closeSessionsButton.addEventListener('click', closeSessionsPanel);
+            newSessionButton.addEventListener('click', createNewSession);
             
             userInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
