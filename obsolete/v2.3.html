@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adam's AI UI v2.4 | Document Processing</title>
+    <title>Adam's AI UI v2.1 | Document Processing</title>
     <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
@@ -92,29 +92,16 @@
             color: white;
             width: 32px;
             height: 32px;
-            border-radius: 16px;
+            border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            position: relative;
-            padding: 0;
-            box-sizing: border-box;
+            transition: background 0.3s;
         }
-
+        
         .toggle-sidebar:hover {
             background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
-        .toggle-sidebar i {
-            transition: all 0.3s ease;
-        }
-
-        /* Remove the rotation transform since we're changing icons instead */
-        .sidebar.collapsed .toggle-sidebar i {
-            transform: none;
         }
         
         .sidebar-content {
@@ -1195,7 +1182,7 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title">Configuration Panel</div>
-                <button class="toggle-sidebar" id="toggle-sidebar" title="Toggle sidebar">
+                <button class="toggle-sidebar" id="toggle-sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -1260,7 +1247,7 @@
         <div class="main-content">
             <header>
                 <h1><i class="fas fa-robot logo"></i> Adam's AI UI</h1>
-                <div class="subtitle">Powered by OpenRouter API | v2.4</div>
+                <div class="subtitle">Powered by OpenRouter API | v2.1</div>
                 <div class="api-status">
                     <span class="status-dot" id="status-dot"></span>
                     <span id="status-text">Checking API</span>
@@ -1359,7 +1346,7 @@
         <p>Generating PDF, please wait...</p>
     </div>
 
-    <div class="version-info">v2.4 - Added file upload with text-only restriction, chat sessions, and file display in messages</div>
+    <div class="version-info">v2.1 - Added file upload with text-only restriction, chat sessions, and file display in messages</div>
 
     <script>
         // Initialize jsPDF
@@ -1587,9 +1574,9 @@
                 const icon = toggleSidebarButton.querySelector('i');
                 if (sidebar.classList.contains('collapsed')) {
                     icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-chevron-left');
+                    icon.classList.add('fa-chevron-right');
                 } else {
-                    icon.classList.remove('fa-chevron-left');
+                    icon.classList.remove('fa-chevron-right');
                     icon.classList.add('fa-bars');
                 }
                 
