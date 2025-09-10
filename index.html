@@ -97,11 +97,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
         }
-        
+
         .toggle-sidebar:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .toggle-sidebar i {
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed .toggle-sidebar i {
+            transform: rotate(180deg);
         }
         
         .sidebar-content {
@@ -1182,8 +1192,8 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title">Configuration Panel</div>
-                <button class="toggle-sidebar" id="toggle-sidebar">
-                    <i class="fas fa-bars"></i>
+                <button class="toggle-sidebar" id="toggle-sidebar" title="Toggle sidebar">
+                    <i class="fas fa-chevron-left"></i>
                 </button>
             </div>
             
