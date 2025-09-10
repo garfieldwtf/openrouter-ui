@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adam's AI UI v2.1 | Document Processing</title>
+    <title>Adam's AI UI v2.3 | Document Processing</title>
     <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
@@ -199,29 +199,7 @@
         }
         
         .cf-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            background: rgba(0, 0, 0, 0.05);
-            font-size: 0.85rem;
-        }
-        
-        .cf-status i {
-            font-size: 1rem;
-            width: 16px;
-        }
-        
-        .cf-status.success {
-            color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .cf-status.error {
-            color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
+            display: none; /* Hide Cloudflare status */
         }
         
         code {
@@ -487,6 +465,7 @@
             font-weight: 600;
             transition: background 0.3s;
             font-size: 0.8rem;
+            display: inline-block;
         }
         
         .browse-btn:hover {
@@ -495,6 +474,8 @@
         
         .file-preview {
             margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
         }
         
         .file-item {
@@ -530,6 +511,7 @@
         .file-details {
             flex: 1;
             overflow: hidden;
+            min-width: 0;
         }
         
         .file-name {
@@ -552,6 +534,7 @@
             cursor: pointer;
             font-size: 1rem;
             padding: 4px;
+            flex-shrink: 0;
         }
         
         .file-remove:hover {
@@ -637,6 +620,7 @@
         .logo {
             font-size: 1.5rem;
             margin-right: 10px;
+            display: none;
         }
         
         .subtitle {
@@ -1263,7 +1247,7 @@
         <div class="main-content">
             <header>
                 <h1><i class="fas fa-robot logo"></i> Adam's AI UI</h1>
-                <div class="subtitle">Powered by OpenRouter API | v2.1</div>
+                <div class="subtitle">Powered by OpenRouter API | v2.3</div>
                 <div class="api-status">
                     <span class="status-dot" id="status-dot"></span>
                     <span id="status-text">Checking API</span>
@@ -1301,7 +1285,7 @@
                         <i class="fas fa-cloud-upload-alt"></i>
                         <div class="drop-text">Drag & drop text files here or click to browse</div>
                         <div class="file-type-warning" id="file-type-warning">Only text-based files are supported (txt, json, yaml, xml, code files, etc.)</div>
-                        <input type="file" id="file-input" class="file-input" multiple accept=".txt,.json,.yaml,.yml,.xml,.html,.css,.js,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.rs,.ts,.md">
+                        <input type="file" id="file-input" class="file-input" multiple accept=".txt,.json,.yaml,.yml,.xml,.html,.htm,.css,.js,.jsx,.ts,.tsx,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.rs,.pl,.pm,.sh,.bash,.zsh,.ps1,.bat,.cmd,.sql,.r,.m,.mat,.swift,.kt,.kts,.scala,.sbt,.lua,.tcl,.vbs,.f,.f90,.f95,.f03,.f08,.for,.dart,.elm,.clj,.cljs,.cljc,.edn,.ex,.exs,.erl,.hrl,.hs,.lhs,.idr,.lidr,.ml,.mli,.mll,.mly,.purs,.re,.rei,.res,.resi,.v,.sv,.svh,.vhd,.vhdl,.tex,.bib,.sty,.cls,.rst,.md,.markdown,.adoc,.asciidoc,.org,.creole,.wiki,.tex,.latex,.context,.rtf,.csv,.tsv,.tab,.log,.ini,.cfg,.conf,.config,.properties,.toml,.yaml,.yml,.xml,.xsl,.xslt,.xsd,.dtd,.svg,.jsonld,.rdf,.ttl,.n3,.nt,.json,.geojson,.topojson,.ndjson,.jsonl,.ipynb,.proto,.thrift,.avdl,.avpr,.avsc,.graphql,.gql,.sql,.plpgsql,.plsql,.pgsql,.mysql,.bigquery,.cql,.hql,.pig,.pkg,.gvy,.gradle,.jflex,.flex,.j,.jay,.ebnf,.bnf,.abnf,.y,.yacc,.lex,.g4,.antlr,.xtext,.ecore,.genmodel,.xcore,.uml,.plantuml,.puml,.pu,.wsd,.dita,.ditamap,.ditaval,.dtd,.ent,.mod,.mathml,.mml,.svg,.xml,.xsl,.xslt,.xsd,.rng,.rnc,.xhtml,.html,.htm,.xht,.shtml,.jsp,.jspx,.asp,.aspx,.ascx,.asmx,.ashx,.cshtml,.vbhtml,.php,.phtml,.ctp,.twig,.swig,.jinja,.jinja2,.njk,.ejs,.erb,.rhtml,.haml,.slim,.scss,.sass,.less,.styl,.stylus,.postcss,.pcss,.sss,.vue,.svelte,.riot,.tag,.pug,.jade,.mustache,.hbs,.handlebars,.eex,.heex,.leex,.nunjucks,.nunjs,.njk,.liquid,.webc,.astro,.mjml,.eml,.mbox,.emlx,.msg,.vcf,.ics,.ifb,.icalendar,.xlf,.xliff,.po,.pot,.mo,.strings,.arb,.ftl,.properties,.ini,.inf,.reg,.url,.webloc,.desktop,.service,.target,.plist,.xml,.json,.yaml,.yml,.toml,.csv,.tsv,.tab,.diff,.patch,.ed,.rc,.gitignore,.gitattributes,.gitmodules,.mailmap,.editorconfig,.dockerignore,.npmignore,.eslintignore,.prettierignore,.stylelintignore,.htaccess,.htpasswd,.conf,.cfg,.config,.properties,.toml,.yaml,.yml,.xml,.ini,.inf,.reg,.url,.webloc,.desktop,.service,.target,.plist,.xml,.json,.yaml,.yml,.toml,.csv,.tsv,.tab,.diff,.patch,.ed,.rc,.gitignore,.gitattributes,.gitmodules,.mailmap,.editorconfig,.dockerignore,.npmignore,.eslintignore,.prettierignore,.stylelintignore,.htaccess,.htpasswd">
                         <button class="browse-btn" id="browse-btn">Browse Files</button>
                     </div>
                     
@@ -1353,7 +1337,7 @@
         <div class="sessions-footer" style="padding: 15px;">
             <button class="new-session-btn" id="new-session-btn">
                 <i class="fas fa-plus"></i> Start New Session
-            </button>
+                </button>
         </div>
     </div>
 
@@ -1362,7 +1346,7 @@
         <p>Generating PDF, please wait...</p>
     </div>
 
-    <div class="version-info">v2.1 - Added file upload with text-only restriction, chat sessions, and file display in messages</div>
+    <div class="version-info">v2.3 - Added file upload with text-only restriction, chat sessions, and file display in messages</div>
 
     <script>
         // Initialize jsPDF
@@ -1623,19 +1607,9 @@
                 chatSessionsPanel.classList.remove('open');
             }
             
-            // Check for Cloudflare Pages environment variable
+            // Check for Cloudflare Pages environment variable - REMOVED
             function checkCloudflareEnv() {
-                const cfApiKey = '{{API_KEY}}';
-                
-                if (cfApiKey && cfApiKey !== '{{API_KEY}}' && cfApiKey.length > 10) {
-                    API_KEY = cfApiKey;
-                    cloudflareStatus.innerHTML = `<i class="fas fa-check-circle"></i> <span>Using API key from Cloudflare environment variable: <code>${cfApiKey.substring(0, 10)}...</code></span>`;
-                    cloudflareStatus.classList.add('success');
-                    return true;
-                } else {
-                    cloudflareStatus.style.display = 'none';
-                    return false;
-                }
+                return false; // Always return false since we're not using Cloudflare
             }
             
             // Initialize the app
@@ -1648,7 +1622,8 @@
                     icon.classList.add('fa-chevron-right');
                 }
                 
-                const cloudflareResult = checkCloudflareEnv();
+                // Hide Cloudflare status
+                cloudflareStatus.style.display = 'none';
                 
                 const savedModel = localStorage.getItem('openrouter_model');
                 const savedEndpoint = localStorage.getItem('api_endpoint');
@@ -1668,17 +1643,6 @@
                     API_KEY = savedApiKey;
                     apiKeyInput.value = savedApiKey;
                     configStatus.innerHTML = `Configuration loaded from browser storage. Using model: <code>${MODEL_NAME}</code>` + 
-                                            (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
-                    updateStatus('API key loaded', true);
-                    
-                    // Load the most recent session or create a new one
-                    loadSessions();
-                    
-                    return true;
-                }
-                
-                if (cloudflareResult) {
-                    configStatus.innerHTML = `Configuration loaded from Cloudflare. Using model: <code>${MODEL_NAME}</code>` + 
                                             (API_KEY ? '' : '<br><span style="color: var(--warning);">Warning: No API key configured</span>');
                     updateStatus('API key loaded', true);
                     
@@ -1981,9 +1945,10 @@
                             if (file.name.endsWith('.json')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.xml')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.html')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.html') || file.name.endsWith('.htm')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.css')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.js')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.js') || file.name.endsWith('.jsx')) fileIcon = 'file-code';
+                            else if (file.name.endsWith('.ts') || file.name.endsWith('.tsx')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.py')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.java')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.cpp') || file.name.endsWith('.c')) fileIcon = 'file-code';
@@ -1992,8 +1957,7 @@
                             else if (file.name.endsWith('.rb')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.go')) fileIcon = 'file-code';
                             else if (file.name.endsWith('.rs')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.ts')) fileIcon = 'file-code';
-                            else if (file.name.endsWith('.md')) fileIcon = 'file-alt';
+                            else if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) fileIcon = 'file-alt';
                             
                             attachment.innerHTML = `
                                 <div class="file-attachment-icon">
@@ -2234,27 +2198,9 @@
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     
-                    // Check if file is a text file
+                    // Check if file is a text file - expanded to include many more file types
                     const isTextFile = file.type.startsWith('text/') || 
-                                      file.name.endsWith('.txt') || 
-                                      file.name.endsWith('.json') || 
-                                      file.name.endsWith('.yaml') || 
-                                      file.name.endsWith('.yml') || 
-                                      file.name.endsWith('.xml') || 
-                                      file.name.endsWith('.html') || 
-                                      file.name.endsWith('.css') || 
-                                      file.name.endsWith('.js') || 
-                                      file.name.endsWith('.py') || 
-                                      file.name.endsWith('.java') || 
-                                      file.name.endsWith('.cpp') || 
-                                      file.name.endsWith('.c') || 
-                                      file.name.endsWith('.cs') || 
-                                      file.name.endsWith('.php') || 
-                                      file.name.endsWith('.rb') || 
-                                      file.name.endsWith('.go') || 
-                                      file.name.endsWith('.rs') || 
-                                      file.name.endsWith('.ts') || 
-                                      file.name.endsWith('.md');
+                                      /\.(txt|json|yaml|yml|xml|html|htm|css|js|jsx|ts|tsx|py|java|cpp|c|cs|php|rb|go|rs|pl|pm|sh|bash|zsh|ps1|bat|cmd|sql|r|m|mat|swift|kt|kts|scala|sbt|lua|tcl|vbs|f|f90|f95|f03|f08|for|dart|elm|clj|cljs|cljc|edn|ex|exs|erl|hrl|hs|lhs|idr|lidr|ml|mli|mll|mly|purs|re|rei|res|resi|v|sv|svh|vhd|vhdl|tex|bib|sty|cls|rst|md|markdown|adoc|asciidoc|org|creole|wiki|tex|latex|context|rtf|csv|tsv|tab|log|ini|cfg|conf|config|properties|toml|yaml|yml|xml|xsl|xslt|xsd|dtd|svg|jsonld|rdf|ttl|n3|nt|json|geojson|topojson|ndjson|jsonl|ipynb|proto|thrift|avdl|avpr|avsc|graphql|gql|sql|plpgsql|plsql|pgsql|mysql|bigquery|cql|hql|pig|pkg|gvy|gradle|jflex|flex|j|jay|ebnf|bnf|abnf|y|yacc|lex|g4|antlr|xtext|ecore|genmodel|xcore|uml|plantuml|puml|pu|wsd|dita|ditamap|ditaval|dtd|ent|mod|mathml|mml|svg|xml|xsl|xslt|xsd|rng|rnc|xhtml|html|htm|xht|shtml|jsp|jspx|asp|aspx|ascx|asmx|ashx|cshtml|vbhtml|php|phtml|ctp|twig|swig|jinja|jinja2|njk|ejs|erb|rhtml|haml|slim|scss|sass|less|styl|stylus|postcss|pcss|sss|vue|svelte|riot|tag|pug|jade|mustache|hbs|handlebars|eex|heex|leex|nunjucks|nunjs|njk|liquid|webc|astro|mjml|eml|mbox|emlx|msg|vcf|ics|ifb|icalendar|xlf|xliff|po|pot|mo|strings|arb|ftl|properties|ini|inf|reg|url|webloc|desktop|service|target|plist|xml|json|yaml|yml|toml|csv|tsv|tab|diff|patch|ed|rc|gitignore|gitattributes|gitmodules|mailmap|editorconfig|dockerignore|npmignore|eslintignore|prettierignore|stylelintignore|htaccess|htpasswd|conf|cfg|config|properties|toml|yaml|yml|xml|ini|inf|reg|url|webloc|desktop|service|target|plist|xml|json|yaml|yml|toml|csv|tsv|tab|diff|patch|ed|rc|gitignore|gitattributes|gitmodules|mailmap|editorconfig|dockerignore|npmignore|eslintignore|prettierignore|stylelintignore|htaccess|htpasswd)$/i.test(file.name);
                     
                     if (!isTextFile) {
                         hasInvalidFile = true;
@@ -2301,9 +2247,10 @@
                     if (file.name.endsWith('.json')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.xml')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.html')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.html') || file.name.endsWith('.htm')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.css')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.js')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.js') || file.name.endsWith('.jsx')) fileIcon = 'file-code';
+                    else if (file.name.endsWith('.ts') || file.name.endsWith('.tsx')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.py')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.java')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.cpp') || file.name.endsWith('.c')) fileIcon = 'file-code';
@@ -2312,8 +2259,7 @@
                     else if (file.name.endsWith('.rb')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.go')) fileIcon = 'file-code';
                     else if (file.name.endsWith('.rs')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.ts')) fileIcon = 'file-code';
-                    else if (file.name.endsWith('.md')) fileIcon = 'file-alt';
+                    else if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) fileIcon = 'file-alt';
                     
                     const fileSize = formatFileSize(file.size);
                     
@@ -2409,7 +2355,6 @@
             
             // Initialize the app
             initializeConfig();
-            checkApiKey();
             checkHljsAvailability();
         });
     </script>
