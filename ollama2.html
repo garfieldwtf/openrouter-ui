@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adam's AI UI v1.1 | Ollama Integration</title>
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.1/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #f3f4f6;
+            --dark: #1f2937;
+            --light: #ffffff;
+            --gray: #9ca3af;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --sidebar-width: 320px;
+            --sidebar-collapsed-width: 50px;
+            --transition-speed: 0.3s;
+            --header-height: 80px;
+            --input-height: 80px;
+            --controls-height: 70px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--light);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: width var(--transition-speed) ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+            height: 100vh;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: var(--header-height);
+            flex-shrink: 0;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .toggle-sidebar {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .toggle-sidebar:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            height: calc(100vh - var(--header-height));
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+            opacity: 1;
+            transition: opacity var(--transition-speed) ease;
+        }
+        
+        .sidebar.collapsed .sidebar-section {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .section-header i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .section-content {
+            padding-left: 28px;
+        }
+        
+        .info-text {
+            line-height: 1.6;
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .info-text p {
+            margin-bottom: 10px;
+        }
+        
+        .api-config-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        
+        #endpoint-input, #model-input {
+            padding: 10px 15px;
+            border: 1px solid var(--gray);
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+        
+        #endpoint-input:focus, #model-input:focus {
+            border-color: var(--primary);
+        }
+        
+        #save-config {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-top: 5px;
+        }
+        
+        #save-config:hover {
+            background: var(--primary-dark);
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+        
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: var(--light);
+            border-radius: 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            height: var(--header-height);
+            flex-shrink: 0;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            display: none;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .api-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray);
+            margin-right: 6px;
+        }
+        
+        .status-dot.connected {
+            background: var(--success);
+        }
+        
+        .status-dot.error {
+            background: var(--error);
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height) - 60px);
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-content {
+            overflow-wrap: break-word;
+        }
+        
+        .message-content pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message-content pre:hover .copy-button {
+            opacity: 1;
+        }
+        
+        .copy-button:hover {
+            background: var(--primary-dark);
+        }
+        
+        .copy-button.copied {
+            background: var(--success);
+        }
+        
+        .message-content code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .message-content h1, 
+        .message-content h2, 
+        .message-content h3 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .message-content p {
+            margin-bottom: 10px;
+        }
+        
+        .message-content ul, 
+        .message-content ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .message-content blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 15px;
+            margin: 15px 0;
+            color: #666;
+        }
+        
+        .message-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .message-content th, 
+        .message-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        
+        .message-content th {
+            background-color: #f5f5f5;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background: var(--secondary);
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-info {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .input-container {
+            padding: 16px;
+            background: var(--light);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+            height: var(--input-height);
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid var(--gray);
+            border-radius: 24px;
+            outline: none;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        #user-input:focus {
+            border-color: var(--primary);
+        }
+        
+        #send-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 0 24px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        #send-button:hover {
+            background: var(--primary-dark);
+        }
+        
+        #send-button:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            margin-bottom: 10px;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .typing-indicator.active {
+            display: flex;
+        }
+        
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--dark);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .dot:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .dot:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 20px 15px 20px;
+            height: var(--controls-height);
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #clear-chat {
+            background: var(--gray);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #clear-chat:hover {
+            background: var(--error);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 60px;
+                overflow: hidden;
+                transition: max-height var(--transition-speed) ease;
+            }
+            
+            .sidebar.expanded {
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+            
+            .sidebar.collapsed {
+                width: 100%;
+                max-height: 60px;
+            }
+            
+            .sidebar.collapsed .sidebar-section {
+                display: none;
+            }
+            
+            .main-content {
+                height: auto;
+                min-height: calc(100vh - 60px);
+            }
+            
+            .chat-container {
+                height: auto;
+                min-height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height) - 60px);
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .api-status {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                height: auto;
+                padding: 15px 20px;
+            }
+            
+            .control-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        /* Fallback styles for code highlighting if hljs fails */
+        .hljs-fallback {
+            color: #24292e;
+            background: #f6f8fa;
+        }
+        
+        .hljs-fallback .hljs-keyword {
+            color: #d73a49;
+        }
+        
+        .hljs-fallback .hljs-string {
+            color: #032f62;
+        }
+        
+        .hljs-fallback .hljs-function {
+            color: #6f42c1;
+        }
+        
+        .hljs-fallback .hljs-comment {
+            color: #6a737d;
+        }
+        
+        .hljs-fallback .hljs-number {
+            color: #005cc5;
+        }
+        
+        .hljs-fallback .hljs-tag {
+            color: #22863a;
+        }
+        
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #c33;
+        }
+        
+        /* Version info */
+        .version-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.7rem;
+            color: var(--gray);
+            opacity: 0.7;
+        }
+        
+        /* Connection troubleshooting */
+        .troubleshooting {
+            background-color: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .troubleshooting h4 {
+            color: #d97706;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .troubleshooting ul {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+        
+        .troubleshooting li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .cors-warning {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .cors-warning h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Configuration Panel</div>
+                <button class="toggle-sidebar" id="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <i class="fas fa-cog"></i> Configuration
+                    </div>
+                    <div class="section-content">
+                        <p class="info-text" id="config-status">Configure your Ollama settings to get started.</p>
+                        <div class="api-config-form">
+                            <div class="form-group">
+                                <label for="endpoint-input">Ollama API Endpoint</label>
+                                <input type="text" id="endpoint-input" value="http://localhost:11434/api/chat" placeholder="Enter Ollama API endpoint">
+                            </div>
+                            <div class="form-group">
+                                <label for="model-input">Model Name</label>
+                                <input type="text" id="model-input" value="llama3" placeholder="Enter model name">
+                            </div>
+                            <button id="save-config">Save Configuration</button>
+                        </div>
+                        
+                        <div class="cors-warning">
+                            <h4><i class="fas fa-exclamation-triangle"></i> CORS Solution</h4>
+                            <p>If you're getting CORS errors, you need to enable CORS in Ollama:</p>
+                            <ol>
+                                <li>Stop Ollama if it's running</li>
+                                <li>Set this environment variable: <code>set OLLAMA_ORIGINS=*</code> (Windows) or <code>export OLLAMA_ORIGINS=*</code> (Linux/Mac)</li>
+                                <li>Restart Ollama</li>
+                                <li>Alternatively, use the <button id="enable-cors">Enable CORS Helper</button></li>
+                            </ol>
+                        </div>
+                        
+                        <div class="troubleshooting">
+                            <h4><i class="fas fa-tools"></i> Connection Troubleshooting</h4>
+                            <p>If you're having connection issues:</p>
+                            <ul>
+                                <li>Make sure Ollama is running on your machine</li>
+                                <li>Verify the endpoint URL is correct</li>
+                                <li>Check that the model name is available (run <code>ollama list</code>)</li>
+                                <li>Try pulling the model: <code>ollama pull llama3</code></li>
+                                <li>If using a different port, update the endpoint accordingly</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <i class="fas fa-info-circle"></i> Information
+                    </div>
+                    <div class="section-content">
+                        <div class="info-text">
+                            <p>This chat interface connects to your local Ollama instance. Make sure Ollama is running on your machine.</p>
+                            <p>To install and run Ollama:</p>
+                            <ol>
+                                <li>Download from <a href="https://ollama.ai" target="_blank">https://ollama.ai</a></li>
+                                <li>Install and run the application</li>
+                                <li>Pull a model: <code>ollama pull llama3</code></li>
+                                <li>Start chatting!</li>
+                            </ol>
+                            <p>Popular models you can try:</p>
+                            <ul>
+                                <li><code>llama3</code> - Meta's Llama 3</li>
+                                <li><code>llama3.2</code> - Llama 3.2</li>
+                                <li><code>llama3.1</code> - Llama 3.1</li>
+                                <li><code>mistral</code> - Mistral 7B</li>
+                                <li><code>mixtral</code> - Mixtral 8x7B</li>
+                                <li><code>phi3</code> - Phi-3</li>
+                                <li><code>gemma</code> - Google's Gemma</li>
+                                <li><code>codegemma</code> - Code Gemma</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <h1><i class="fas fa-robot logo"></i> Adam's AI UI</h1>
+                <div class="subtitle">Powered by Ollama | v1.1</div>
+                <div class="api-status">
+                    <span class="status-dot" id="status-dot"></span>
+                    <span id="status-text">Checking API</span>
+                </div>
+            </header>
+            
+            <div class="chat-container" id="chat-container">
+                <div class="message ai-message">
+                    <div class="message-content">
+                        <i class="fas fa-robot"></i> Hello! I'm an AI assistant powered by Ollama. How can I help you today?
+                    </div>
+                    <span class="message-info">Model: <span id="current-model">llama3</span></span>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <span>AI is thinking...</span>
+            </div>
+            
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off" disabled>
+                <button id="send-button" disabled>
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <button id="clear-chat">
+                        <i class="fas fa-trash"></i> Clear Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="version-info">v1.1 - Ollama Integration</div>
+    
+    <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuration
+            const config = {
+                endpoint: localStorage.getItem('ollamaEndpoint') || 'http://localhost:11434/api/chat',
+                model: localStorage.getItem('ollamaModel') || 'llama3',
+                currentSession: 'default',
+                sessions: JSON.parse(localStorage.getItem('chatSessions')) || {}
+            };
+            
+            // DOM Elements
+            const chatContainer = document.getElementById('chat-container');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const clearChatButton = document.getElementById('clear-chat');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const currentModel = document.getElementById('current-model');
+            const endpointInput = document.getElementById('endpoint-input');
+            const modelInput = document.getElementById('model-input');
+            const saveConfigButton = document.getElementById('save-config');
+            const toggleSidebarButton = document.getElementById('toggle-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const enableCorsButton = document.getElementById('enable-cors');
+            
+            // Set initial values
+            endpointInput.value = config.endpoint;
+            modelInput.value = config.model;
+            currentModel.textContent = config.model;
+            
+            // Load current session
+            if (!config.sessions[config.currentSession]) {
+                config.sessions[config.currentSession] = {
+                    messages: [],
+                    createdAt: new Date().toISOString()
+                };
+            }
+            
+            // Render messages for current session
+            renderMessages();
+            
+            // Event Listeners
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            clearChatButton.addEventListener('click', clearChat);
+            saveConfigButton.addEventListener('click', saveConfiguration);
+            toggleSidebarButton.addEventListener('click', toggleSidebar);
+            enableCorsButton.addEventListener('click', enableCors);
+            
+            // Check API status on load
+            checkApiStatus();
+            
+            // Functions
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addMessage('user', message);
+                userInput.value = '';
+                
+                // Show typing indicator
+                typingIndicator.classList.add('active');
+                
+                // Prepare the request to Ollama
+                const requestData = {
+                    model: config.model,
+                    messages: getConversationHistory(),
+                    stream: false
+                };
+                
+                // Send request to Ollama
+                fetch(config.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide typing indicator
+                    typingIndicator.classList.remove('active');
+                    
+                    // Add AI response to chat
+                    if (data.message && data.message.content) {
+                        addMessage('assistant', data.message.content);
+                    } else {
+                        throw new Error('Invalid response format from Ollama');
+                    }
+                    
+                    // Update API status
+                    updateApiStatus(true, 'Connected');
+                })
+                .catch(error => {
+                    // Hide typing indicator
+                    typingIndicator.classList.remove('active');
+                    
+                    // Show error message
+                    let errorMsg = error.message;
+                    if (errorMsg.includes('Failed to fetch')) {
+                        errorMsg = 'Connection failed. Please check if Ollama is running and CORS is enabled.';
+                    }
+                    
+                    addMessage('assistant', `Sorry, I encountered an error: ${errorMsg}`);
+                    
+                    // Update API status
+                    updateApiStatus(false, `Error: ${errorMsg}`);
+                });
+            }
+            
+            function addMessage(role, content) {
+                const message = {
+                    role,
+                    content,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Add to current session
+                config.sessions[config.currentSession].messages.push(message);
+                
+                // Save to localStorage
+                saveSessions();
+                
+                // Render the message
+                renderMessage(message);
+            }
+            
+            function renderMessages() {
+                chatContainer.innerHTML = '';
+                
+                // Add welcome message if no messages in session
+                if (config.sessions[config.currentSession].messages.length === 0) {
+                    const welcomeMessage = {
+                        role: 'assistant',
+                        content: "Hello! I'm an AI assistant powered by Ollama. How can I help you today?",
+                        timestamp: new Date().toISOString()
+                    };
+                    renderMessage(welcomeMessage);
+                    return;
+                }
+                
+                // Render all messages in current session
+                config.sessions[config.currentSession].messages.forEach(message => {
+                    renderMessage(message);
+                });
+                
+                // Scroll to bottom
+                scrollToBottom();
+            }
+            
+            function renderMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                
+                if (message.role === 'user') {
+                    messageElement.classList.add('user-message');
+                    messageElement.innerHTML = `
+                        <div class="message-content">${escapeHtml(message.content)}</div>
+                        <span class="message-info">${formatTime(message.timestamp)}</span>
+                    `;
+                } else {
+                    messageElement.classList.add('ai-message');
+                    
+                    // Process markdown and code blocks
+                    const processedContent = marked.parse(message.content);
+                    
+                    messageElement.innerHTML = `
+                        <div class="message-content">${processedContent}</div>
+                        <span class="message-info">${formatTime(message.timestamp)}</span>
+                    `;
+                    
+                    // Apply syntax highlighting to code blocks
+                    setTimeout(() => {
+                        const codeBlocks = messageElement.querySelectorAll('pre code');
+                        codeBlocks.forEach(block => {
+                            // Try to apply highlight.js
+                            if (typeof hljs !== 'undefined') {
+                                hljs.highlightElement(block);
+                            } else {
+                                // Fallback styling
+                                block.classList.add('hljs-fallback');
+                            }
+                            
+                            // Add copy button
+                            const preElement = block.parentElement;
+                            const copyButton = document.createElement('button');
+                            copyButton.classList.add('copy-button');
+                            copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                            copyButton.addEventListener('click', () => {
+                                copyToClipboard(block.textContent);
+                                copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                                copyButton.classList.add('copied');
+                                setTimeout(() => {
+                                    copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                                    copyButton.classList.remove('copied');
+                                }, 2000);
+                            });
+                            preElement.appendChild(copyButton);
+                        });
+                    }, 100);
+                }
+                
+                chatContainer.appendChild(messageElement);
+                scrollToBottom();
+            }
+            
+            function getConversationHistory() {
+                // Get the last 10 messages for context
+                const messages = config.sessions[config.currentSession].messages.slice(-10);
+                
+                // Format for Ollama API
+                return messages.map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
+            }
+            
+            function clearChat() {
+                if (confirm('Are you sure you want to clear this conversation?')) {
+                    config.sessions[config.currentSession].messages = [];
+                    saveSessions();
+                    renderMessages();
+                }
+            }
+            
+            function saveConfiguration() {
+                const endpoint = endpointInput.value.trim();
+                const model = modelInput.value.trim();
+                
+                if (!endpoint) {
+                    alert('Please enter an Ollama API endpoint.');
+                    return;
+                }
+                
+                if (!model) {
+                    alert('Please enter a model name.');
+                    return;
+                }
+                
+                config.endpoint = endpoint;
+                config.model = model;
+                
+                localStorage.setItem('ollamaEndpoint', endpoint);
+                localStorage.setItem('ollamaModel', model);
+                
+                currentModel.textContent = model;
+                
+                // Test the connection
+                checkApiStatus();
+                
+                alert('Configuration saved successfully!');
+            }
+            
+            function checkApiStatus() {
+                updateApiStatus(false, 'Checking...');
+                
+                // Simple request to check if Ollama is reachable
+                fetch(config.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: config.model,
+                        messages: [{ role: 'user', content: 'Hello' }],
+                        stream: false
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        updateApiStatus(true, 'Connected');
+                        // Enable the send button
+                        sendButton.disabled = false;
+                        userInput.disabled = false;
+                    } else {
+                        updateApiStatus(false, `Error: ${response.status}`);
+                        // Disable the send button
+                        sendButton.disabled = true;
+                        userInput.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    let errorMsg = error.message;
+                    if (errorMsg.includes('Failed to fetch')) {
+                        errorMsg = 'Connection failed. Check if Ollama is running and CORS is enabled.';
+                    }
+                    
+                    updateApiStatus(false, `Error: ${errorMsg}`);
+                    // Disable the send button
+                    sendButton.disabled = true;
+                    userInput.disabled = true;
+                });
+            }
+            
+            function updateApiStatus(connected, message) {
+                statusDot.className = 'status-dot ' + (connected ? 'connected' : 'error');
+                statusText.textContent = message;
+            }
+            
+            function saveSessions() {
+                localStorage.setItem('chatSessions', JSON.stringify(config.sessions));
+            }
+            
+            function scrollToBottom() {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            function formatTime(timestamp) {
+                return new Date(timestamp).toLocaleTimeString();
+            }
+            
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/<|>/g, function(m) { 
+                        return m === '<' ? '&lt;' : '&gt;'; 
+                    })
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+            
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            }
+            
+            function toggleSidebar() {
+                sidebar.classList.toggle('collapsed');
+                
+                if (sidebar.classList.contains('collapsed')) {
+                    toggleSidebarButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                } else {
+                    toggleSidebarButton.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            }
+            
+            function enableCors() {
+                const commands = {
+                    'Windows': 'set OLLAMA_ORIGINS=*',
+                    'Linux/Mac': 'export OLLAMA_ORIGINS=*'
+                };
+                
+                const selectedOS = prompt('Select your OS:\n1. Windows\n2. Linux/Mac', '1');
+                let command = '';
+                
+                if (selectedOS === '1') {
+                    command = commands['Windows'];
+                } else if (selectedOS === '2') {
+                    command = commands['Linux/Mac'];
+                } else {
+                    alert('Invalid selection');
+                    return;
+                }
+                
+                alert(`To enable CORS, run this command before starting Ollama:\n\n${command}\n\nThen restart Ollama.`);
+            }
+            
+            // Handle mobile sidebar toggle
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                
+                sidebar.addEventListener('click', function(e) {
+                    if (e.target.closest('.toggle-sidebar') || 
+                        e.target.closest('.sidebar-header') ||
+                        sidebar.classList.contains('collapsed')) {
+                        sidebar.classList.toggle('expanded');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

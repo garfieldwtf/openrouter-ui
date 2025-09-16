@@ -3,33 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adam's AI UI v1.0 | Ollama Version</title>
-    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=XNotH4e8lEuO&format=png&color=000000">
+    <title>Ollama Connection Troubleshooter</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.1/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #f3f4f6;
-            --dark: #1f2937;
-            --light: #ffffff;
-            --gray: #9ca3af;
-            --success: #10b981;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --sidebar-width: 320px;
-            --sidebar-collapsed-width: 50px;
-            --transition-speed: 0.3s;
-            --header-height: 80px;
-            --input-height: 80px;
-            --controls-height: 70px;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -41,163 +17,75 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             display: flex;
-            padding: 0;
-            overflow: hidden;
-        }
-        
-        .app-container {
-            display: flex;
-            width: 100%;
-            height: 100vh;
-        }
-        
-        /* Sidebar Styles */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--light);
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            transition: width var(--transition-speed) ease;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 10;
-            height: 100vh;
-        }
-        
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
-        }
-        
-        .sidebar-header {
-            padding: 20px;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: var(--header-height);
-            flex-shrink: 0;
-        }
-        
-        .sidebar-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        
-        .toggle-sidebar {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            transition: background 0.3s;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        .toggle-sidebar:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            height: calc(100vh - var(--header-height));
-        }
-        
-        .sidebar-section {
-            margin-bottom: 25px;
-            opacity: 1;
-            transition: opacity var(--transition-speed) ease;
-        }
-        
-        .sidebar.collapsed .sidebar-section {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .section-header {
-            display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            color: var(--primary-dark);
-            font-weight: 600;
-            font-size: 1rem;
+            padding: 20px;
         }
         
-        .section-header i {
-            margin-right: 10px;
-            font-size: 1.1rem;
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
         
-        .section-content {
-            padding-left: 28px;
+        header {
+            background: #4f46e5;
+            color: white;
+            padding: 25px;
+            text-align: center;
         }
         
-        .info-text {
-            line-height: 1.6;
-            color: var(--dark);
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-        
-        .info-text p {
+        h1 {
+            font-size: 2.2rem;
             margin-bottom: 10px;
         }
         
-        .api-config-form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
         }
         
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        .content {
+            padding: 30px;
         }
         
-        .form-group label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
-        
-        #endpoint-input, #model-input {
-            padding: 10px 15px;
-            border: 1px solid var(--gray);
+        .diagnosis-section {
+            background: #fef3c7;
             border-radius: 8px;
-            outline: none;
-            font-size: 0.9rem;
-            transition: border-color 0.3s;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #f59e0b;
         }
         
-        #endpoint-input:focus, #model-input:focus {
-            border-color: var(--primary);
+        h2 {
+            color: #4f46e5;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
         }
         
-        #save-config {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-            margin-top: 5px;
+        h3 {
+            color: #4f46e5;
+            margin: 25px 0 15px 0;
+            font-size: 1.4rem;
         }
         
-        #save-config:hover {
-            background: var(--primary-dark);
+        p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #374151;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
         }
         
         code {
@@ -205,1668 +93,590 @@
             padding: 2px 6px;
             border-radius: 4px;
             font-family: monospace;
-            font-size: 0.85em;
+            font-size: 0.95em;
         }
         
-        ul, ol {
-            padding-left: 20px;
-            margin-bottom: 15px;
-        }
-        
-        li {
-            margin-bottom: 5px;
-            line-height: 1.5;
-        }
-        
-        a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Chat Sessions Panel */
-        .chat-sessions-panel {
-            position: fixed;
-            top: 0;
-            right: -350px;
-            width: 350px;
-            height: 100vh;
-            background: var(--light);
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-            transition: right var(--transition-speed) ease;
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .chat-sessions-panel.open {
-            right: 0;
-        }
-        
-        .sessions-header {
-            padding: 20px;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: var(--header-height);
-        }
-        
-        .sessions-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-        
-        .close-sessions {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
-        }
-        
-        .close-sessions:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .sessions-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        
-        .session-item {
-            padding: 15px;
+        .test-area {
+            background: white;
             border-radius: 8px;
-            background: var(--secondary);
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: background 0.3s;
-            position: relative;
-        }
-        
-        .session-item:hover {
-            background: #e5e7eb;
-        }
-        
-        .session-item.active {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .session-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .session-preview {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .session-date {
-            font-size: 0.75rem;
-            margin-top: 8px;
-            opacity: 0.7;
-        }
-        
-        .session-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-        }
-        
-        .session-action {
-            background: rgba(0, 0, 0, 0.1);
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: background 0.3s;
-        }
-        
-        .session-item.active .session-action {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .session-action:hover {
-            background: rgba(0, 0, 0, 0.2);
-        }
-        
-        .session-item.active .session-action:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .no-sessions {
-            text-align: center;
             padding: 20px;
-            color: var(--gray);
-            font-style: italic;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #4f46e5;
+            margin-top: 30px;
         }
         
-        .new-session-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 15px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 15px;
-            width: 100%;
-        }
-        
-        .new-session-btn:hover {
-            background: var(--primary-dark);
-        }
-        
-        /* Compact Document Upload Area */
-        .document-upload {
-            padding: 10px 16px;
-            background: var(--light);
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .upload-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-        }
-        
-        .upload-title {
-            font-weight: 600;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .upload-content {
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .upload-content.expanded {
-            display: flex;
-        }
-        
-        .drop-area {
-            border: 2px dashed var(--gray);
-            border-radius: 6px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.3s;
-            font-size: 0.85rem;
-        }
-        
-        .drop-area:hover, .drop-area.active {
-            border-color: var(--primary);
-        }
-        
-        .drop-area i {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-        
-        .drop-text {
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .browse-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 6px 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-            font-size: 0.8rem;
-            display: inline-block;
-        }
-        
-        .browse-btn:hover {
-            background: var(--primary-dark);
-        }
-        
-        .file-preview {
-            margin-top: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px;
-            background: var(--secondary);
-            border-radius: 4px;
-            margin-bottom: 6px;
-            font-size: 0.85rem;
-        }
-        
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .file-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary);
-            color: white;
-            border-radius: 3px;
-            font-size: 0.7rem;
-            flex-shrink: 0;
-        }
-        
-        .file-details {
-            flex: 1;
-            overflow: hidden;
-            min-width: 0;
-        }
-        
-        .file-name {
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.85rem;
-        }
-        
-        .file-size {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-        
-        .file-remove {
-            background: none;
-            border: none;
-            color: var(--error);
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 4px;
-            flex-shrink: 0;
-        }
-        
-        .file-remove:hover {
-            color: #dc2626;
-        }
-        
-        .file-type-warning {
-            font-size: 0.75rem;
-            color: var(--error);
-            margin-top: 5px;
-            display: none;
-        }
-        
-        .uploaded-files-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            font-size: 0.8rem;
-            color: var(--primary);
-        }
-        
-        /* File attachment in chat */
-        .file-attachment {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            font-size: 0.85rem;
-        }
-        
-        .file-attachment-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary);
-            color: white;
-            border-radius: 3px;
-            font-size: 0.7rem;
-        }
-        
-        .file-attachment-name {
-            font-weight: 600;
-        }
-        
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            background: var(--light);
-            border-radius: 0;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            height: 100vh;
-        }
-        
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            height: var(--header-height);
-            flex-shrink: 0;
-        }
-        
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            margin-right: 10px;
-            display: none;
-        }
-        
-        .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-        
-        .api-status {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--gray);
-            margin-right: 6px;
-        }
-        
-        .status-dot.connected {
-            background: var(--success);
-        }
-        
-        .status-dot.error {
-            background: var(--error);
-        }
-        
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height) - 60px);
-        }
-        
-        .message {
-            max-width: 85%;
-            padding: 15px 20px;
-            border-radius: 18px;
-            line-height: 1.5;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .message-content {
-            overflow-wrap: break-word;
-        }
-        
-        .message-content pre {
-            background: rgba(0, 0, 0, 0.05);
-            padding: 12px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 10px 0;
-            position: relative;
-        }
-        
-        .copy-button {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .run-button {
-            position: absolute;
-            bottom: 8px;
-            right: 70px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .message-content pre:hover .copy-button,
-        .message-content pre:hover .run-button {
-            opacity: 1;
-        }
-        
-        .copy-button:hover {
-            background: var(--primary-dark);
-        }
-        
-        .run-button:hover {
-            background: #0da271;
-        }
-        
-        .copy-button.copied {
-            background: var(--success);
-        }
-        
-        .message-content code {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9em;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        
-        .message-content pre code {
-            background: none;
-            padding: 0;
-        }
-        
-        .message-content h1, 
-        .message-content h2, 
-        .message-content h3 {
-            margin-top: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .message-content p {
-            margin-bottom: 10px;
-        }
-        
-        .message-content ul, 
-        .message-content ol {
-            margin-left: 20px;
-            margin-bottom: 10px;
-        }
-        
-        .message-content blockquote {
-            border-left: 4px solid #ddd;
-            padding-left: 15px;
-            margin: 15px 0;
-            color: #666;
-        }
-        
-        .message-content table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 15px 0;
-        }
-        
-        .message-content th, 
-        .message-content td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-        
-        .message-content th {
-            background-color: #f5f5f5;
-        }
-        
-        .thinking-header {
-            font-weight: bold;
-            color: #6366f1;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .thinking-message {
-            background-color: #f8f9fa;
-            border-left: 4px solid #6366f1;
-            padding: 12px 15px;
-            margin: 10px 0;
-            border-radius: 0 8px 8px 0;
-            font-style: italic;
-            color: #495057;
-        }
-
-        .thinking-message pre {
-            font-style: normal;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 12px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 10px 0;
-        }
-
-        .thinking-message code {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9em;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .thinking-message pre code {
-            background: none;
-            padding: 0;
-        }
-
-        .final-answer-header {
-            font-weight: bold;
-            color: #10b981;
-            margin: 15px 0 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .final-answer {
-            background-color: #f0fdf4;
-            border-left: 4px solid #10b981;
-            padding: 12px 15px;
-            margin: 10px 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-message {
-            align-self: flex-end;
-            background: var(--primary);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        
-        .ai-message {
-            align-self: flex-start;
-            background: var(--secondary);
-            color: var(--dark);
-            border-bottom-left-radius: 4px;
-        }
-        
-        .message-info {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            margin-top: 5px;
-            display: block;
-        }
-        
-        .input-container {
-            padding: 16px;
-            background: var(--light);
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            display: flex;
-            gap: 10px;
-            flex-shrink: 0;
-            height: var(--input-height);
-        }
-        
-        #user-input {
-            flex: 1;
-            padding: 14px 20px;
-            border: 1px solid var(--gray);
-            border-radius: 24px;
-            outline: none;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        #user-input:focus {
-            border-color: var(--primary);
-        }
-        
-        #send-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 24px;
-            padding: 0 24px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        #send-button:hover {
-            background: var(--primary-dark);
-        }
-        
-        #send-button:disabled {
-            background: var(--gray);
-            cursor: not-allowed;
-        }
-        
-        .typing-indicator {
-            display: none;
-            align-self: flex-start;
-            background: var(--secondary);
-            color: var(--dark);
-            padding: 12px 16px;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            margin-bottom: 10px;
-        }
-        
-        .typing-indicator.active {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .dot {
-            width: 6px;
-            height: 6px;
-            background: var(--dark);
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: pulse 1.5s infinite;
-        }
-        
-        .dot:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-        
-        .dot:nth-child(3) {
-            animation-delay: 1s;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.5); }
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 0 20px 15px 20px;
-            height: var(--controls-height);
-            align-items: center;
-        }
-        
-        .control-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        #clear-chat, #save-pdf, #view-sessions {
-            background: var(--gray);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 15px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        #clear-chat:hover {
-            background: var(--error);
-        }
-        
-        #save-pdf {
-            background: var(--success);
-        }
-        
-        #save-pdf:hover {
-            background: #0da271;
-        }
-        
-        #view-sessions {
-            background: var(--primary);
-        }
-        
-        #view-sessions:hover {
-            background: var(--primary-dark);
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .pdf-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            color: white;
-            display: none;
-        }
-        
-        .pdf-loading .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+        .form-group {
             margin-bottom: 20px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
         }
         
-        /* Mobile Responsiveness */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: #4338ca;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        #test-connection {
+            background: #10b981;
+        }
+        
+        #test-connection:hover {
+            background: #0da271;
+        }
+        
+        #test-curl {
+            background: #f59e0b;
+        }
+        
+        #test-curl:hover {
+            background: #d97706;
+        }
+        
+        #test-cors {
+            background: #6366f1;
+        }
+        
+        #test-cors:hover {
+            background: #4f46e5;
+        }
+        
+        .result-area {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .result-area h4 {
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .success {
+            color: #10b981;
+            border-left: 4px solid #10b981;
+        }
+        
+        .error {
+            color: #ef4444;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .warning {
+            color: #f59e0b;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .response-content {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #9ca3af;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+        }
+        
+        .status-dot.error {
+            background: #ef4444;
+        }
+        
+        .status-dot.warning {
+            background: #f59e0b;
+        }
+        
+        .solution-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #10b981;
+        }
+        
+        .solution-card h4 {
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer {
+            background: #f1f5f9;
+            padding: 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #4f46e5;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         @media (max-width: 768px) {
-            .app-container {
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-                max-height: 60px;
-                overflow: hidden;
-                transition: max-height var(--transition-speed) ease;
-            }
-            
-            .sidebar.expanded {
-                max-height: 70vh;
-                overflow-y: auto;
-            }
-            
-            .sidebar.collapsed {
-                width: 100%;
-                max-height: 60px;
-            }
-            
-            .sidebar.collapsed .sidebar-section {
-                display: none;
-            }
-            
-            .main-content {
-                height: auto;
-                min-height: calc(100vh - 60px);
-            }
-            
-            .chat-container {
-                height: auto;
-                min-height: calc(100vh - var(--header-height) - var(--input-height) - var(--controls-height) - 60px);
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-            
             h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
                 font-size: 1.5rem;
             }
             
-            .api-status {
-                position: relative;
-                top: 0;
-                right: 0;
-                justify-content: center;
-                margin-top: 10px;
+            .content {
+                padding: 20px;
             }
             
-            header {
-                padding: 15px;
-            }
-            
-            .controls {
+            .button-group {
                 flex-direction: column;
-                height: auto;
-                padding: 15px 20px;
             }
             
-            .control-group {
-                width: 100%;
-                justify-content: space-between;
+            .tab-container {
+                overflow-x: auto;
+                white-space: nowrap;
             }
-            
-            .document-upload {
-                padding: 8px 12px;
-            }
-            
-            .drop-area {
-                padding: 10px;
-            }
-            
-            .chat-sessions-panel {
-                width: 85%;
-                right: -85%;
-            }
-        }
-        
-        /* Fallback styles for code highlighting if hljs fails */
-        .hljs-fallback {
-            color: #24292e;
-            background: #f6f8fa;
-        }
-        
-        .hljs-fallback .hljs-keyword {
-            color: #d73a49;
-        }
-        
-        .hljs-fallback .hljs-string {
-            color: #032f62;
-        }
-        
-        .hljs-fallback .hljs-function {
-            color: #6f42c1;
-        }
-        
-        .hljs-fallback .hljs-comment {
-            color: #6a737d;
-        }
-        
-        .hljs-fallback .hljs-number {
-            color: #005cc5;
-        }
-        
-        .hljs-fallback .hljs-tag {
-            color: #22863a;
-        }
-        
-        .error-message {
-            background-color: #fee;
-            color: #c33;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border-left: 4px solid #c33;
-        }
-        
-        /* Version info */
-        .version-info {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            font-size: 0.7rem;
-            color: var(--gray);
-            opacity: 0.7;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title">Configuration Panel</div>
-                <button class="toggle-sidebar" id="toggle-sidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-server"></i> Ollama Connection Troubleshooter</h1>
+            <div class="subtitle">Diagnose and fix connection issues with your Ollama server</div>
+        </header>
+        
+        <div class="content">
+            <div class="diagnosis-section">
+                <h2><i class="fas fa-diagnosis"></i> Diagnosis Results</h2>
+                <p>Based on your test results, we've identified the following issues:</p>
+                
+                <ul>
+                    <li><strong>CORS Issue:</strong> Your browser is blocking direct requests to the Ollama server (NetworkError)</li>
+                    <li><strong>403 Forbidden Error:</strong> The proxy server is being blocked by your Ollama server</li>
+                    <li><strong>Possible IP Restrictions:</strong> Your server may be restricting access to certain IPs</li>
+                </ul>
             </div>
             
-            <div class="sidebar-content">
-                <div class="sidebar-section">
-                    <div class="section-header">
-                        <i class="fas fa-cog"></i> Configuration
+            <div class="tab-container">
+                <div class="tab active" data-tab="testing">Testing</div>
+                <div class="tab" data-tab="solutions">Solutions</div>
+                <div class="tab" data-tab="advanced">Advanced</div>
+            </div>
+            
+            <div class="tab-content active" id="testing-tab">
+                <div class="test-area">
+                    <h3>Test Connection to Ollama</h3>
+                    
+                    <div class="form-group">
+                        <label for="endpoint">Ollama API Endpoint</label>
+                        <input type="text" id="endpoint" value="http://139.99.69.205:11434/api/chat" placeholder="Enter your Ollama endpoint">
                     </div>
-                    <div class="section-content">
-                        <p class="info-text" id="config-status">Configure your Ollama settings to get started.</p>
-                        <div class="api-config-form">
-                            <div class="form-group">
-                                <label for="endpoint-input">Ollama API Endpoint</label>
-                                <input type="text" id="endpoint-input" value="http://139.99.69.205:11434/api/chat" placeholder="Enter Ollama API endpoint">
-                            </div>
-                            <div class="form-group">
-                                <label for="model-input">Model Name</label>
-                                <input type="text" id="model-input" value="tinydolphin:latest" placeholder="Enter model name">
-                            </div>
-                            <button id="save-config">Save Configuration</button>
+                    
+                    <div class="form-group">
+                        <label for="model">Model Name</label>
+                        <input type="text" id="model" value="tinydolphin:latest" placeholder="Enter model name">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="test-connection">
+                            <i class="fas fa-plug"></i> Test Direct Connection
+                        </button>
+                        
+                        <button id="test-curl">
+                            <i class="fas fa-terminal"></i> Test CURL Command
+                        </button>
+                        
+                        <button id="test-cors">
+                            <i class="fas fa-network-wired"></i> Test CORS Settings
+                        </button>
+                    </div>
+                    
+                    <div class="result-area">
+                        <h4><i class="fas fa-info-circle"></i> Test Results</h4>
+                        <div class="status-indicator">
+                            <div class="status-dot" id="status-dot"></div>
+                            <span id="status-text">Not tested yet</span>
                         </div>
+                        <div class="response-content" id="response-content">
+                            Test results will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="solutions-tab">
+                <h3>Recommended Solutions</h3>
+                
+                <div class="solution-card">
+                    <h4><i class="fas fa-check-circle"></i> Solution 1: Enable CORS on Your Ollama Server</h4>
+                    <p>This is the most reliable solution. Add CORS headers to your Ollama server configuration:</p>
+                    
+                    <div class="response-content">
+# On your server, set these environment variables
+export OLLAMA_ORIGINS="*"
+export OLLAMA_HOST="0.0.0.0:11434"
+
+# Then restart Ollama
+sudo systemctl restart ollama
                     </div>
                 </div>
                 
-                <div class="sidebar-section">
-                    <div class="section-header">
-                        <i class="fas fa-info-circle"></i> Information
+                <div class="solution-card">
+                    <h4><i class="fas fa-check-circle"></i> Solution 2: Use a Reverse Proxy</h4>
+                    <p>Set up a reverse proxy (like Nginx) to handle CORS for you:</p>
+                    
+                    <div class="response-content">
+# Sample Nginx configuration
+server {
+    listen 80;
+    server_name your-domain.com;
+    
+    location /ollama/ {
+        proxy_pass http://139.99.69.205:11434/;
+        
+        # Add CORS headers
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
+        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
+        
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain; charset=utf-8';
+            add_header 'Content-Length' 0;
+            return 204;
+        }
+    }
+}
                     </div>
-                    <div class="section-content">
-                        <div class="info-text">
-                            <p>This chat interface is designed to work with Ollama, a platform for running large language models.</p>
-                            <p>To use this interface:</p>
-                            <ol>
-                                <li>Make sure your Ollama server is running</li>
-                                <li>Configure the endpoint and model name in the settings</li>
-                                <li>Start chatting with your model</li>
-                            </ol>
-                            <p>Popular Ollama models:</p>
-                            <ul>
-                                <li><code>llama3.2</code> - Meta's latest Llama 3.2 model</li>
-                                <li><code>llama3</code> - Meta's Llama 3 model</li>
-                                <li><code>mistral</code> - Mistral AI's model</li>
-                                <li><code>codellama</code> - Code-specific Llama model</li>
-                                <li><code>phi3</code> - Microsoft's lightweight model</li>
-                                <li><code>gemma</code> - Google's Gemma model</li>
-                                <li><code>tinydolphin</code> - Your current model</li>
-                            </ul>
-                        </div>
+                </div>
+                
+                <div class="solution-card">
+                    <h4><i class="fas fa-check-circle"></i> Solution 3: Browser Extension (Temporary Fix)</h4>
+                    <p>Install a CORS-unblocking browser extension for development:</p>
+                    
+                    <ul>
+                        <li><a href="https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino" target="_blank">CORS Unblock for Chrome</a></li>
+                        <li><a href="https://addons.mozilla.org/en-US/firefox/addon/cors-everywhere/" target="_blank">CORS Everywhere for Firefox</a></li>
+                    </ul>
+                    
+                    <p class="warning"><i class="fas fa-exclamation-triangle"></i> Note: This is only for development, not production use.</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="advanced-tab">
+                <h3>Advanced Configuration</h3>
+                
+                <div class="solution-card">
+                    <h4><i class="fas fa-cog"></i> Custom Proxy Solution</h4>
+                    <p>If you can't modify the server, you can set up a custom CORS proxy:</p>
+                    
+                    <div class="response-content">
+// Simple Node.js CORS proxy
+const express = require('express');
+const cors = require('cors');
+const fetch = require('node-fetch');
+
+const app = express();
+const PORT = 3001;
+
+app.use(cors());
+app.use(express.json());
+
+app.post('/proxy/ollama', async (req, res) => {
+    try {
+        const response = await fetch('http://139.99.69.205:11434/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(req.body)
+        });
+        
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`CORS proxy running on port ${PORT}`);
+});
                     </div>
+                    
+                    <p>Install required packages: <code>npm install express cors node-fetch</code></p>
+                </div>
+                
+                <div class="solution-card">
+                    <h4><i class="fas fa-shield-alt"></i> Security Considerations</h4>
+                    <p>If you're dealing with a 403 error, your server might have IP restrictions:</p>
+                    
+                    <ol>
+                        <li>Check your server's firewall settings</li>
+                        <li>Verify that your IP isn't blocked</li>
+                        <li>Check if your Ollama server requires authentication</li>
+                        <li>Ensure your server isn't restricting certain user agents</li>
+                    </ol>
                 </div>
             </div>
         </div>
         
-        <!-- Main Content -->
-        <div class="main-content">
-            <header>
-                <h1><i class="fas fa-robot logo"></i> Adam's AI UI</h1>
-                <div class="subtitle">Powered by Ollama | v1.0</div>
-                <div class="api-status">
-                    <span class="status-dot" id="status-dot"></span>
-                    <span id="status-text">Checking API</span>
-                </div>
-            </header>
-            
-            <div class="chat-container" id="chat-container">
-                <div class="message ai-message">
-                    <div class="message-content">
-                        <i class="fas fa-robot"></i> Hello! I'm an AI assistant powered by Ollama. How can I help you today?
-                    </div>
-                    <span class="message-info">Model: <span id="current-model">tinydolphin:latest</span></span>
-                </div>
-            </div>
-            
-            <div class="typing-indicator" id="typing-indicator">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            
-            <div class="input-container">
-                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
-                <button id="send-button">
-                    <i class="fas fa-paper-plane"></i> Send
-                </button>
-            </div>
-            
-            <div class="controls">
-                <div class="control-group">
-                    <button id="clear-chat">
-                        <i class="fas fa-trash"></i> Clear Chat
-                    </button>
-                    <button id="save-pdf">
-                        <i class="fas fa-file-pdf"></i> Save as PDF
-                    </button>
-                </div>
-                <button id="view-sessions">
-                    <i class="fas fa-history"></i> Chat Sessions
-                </button>
-            </div>
-        </div>
-        
-        <!-- Chat Sessions Panel -->
-        <div class="chat-sessions-panel" id="chat-sessions-panel">
-            <div class="sessions-header">
-                <div class="sessions-title">Chat Sessions</div>
-                <button class="close-sessions" id="close-sessions">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="sessions-content" id="sessions-content">
-                <div class="no-sessions">No saved sessions yet</div>
-            </div>
-            
-            <button class="new-session-btn" id="new-session-btn">
-                <i class="fas fa-plus"></i> New Session
-            </button>
-        </div>
-        
-        <!-- PDF Loading Overlay -->
-        <div class="pdf-loading" id="pdf-loading">
-            <div class="spinner"></div>
-            <p>Generating PDF...</p>
+        <div class="footer">
+            <p>Need more help? Check the <a href="https://github.com/ollama/ollama" target="_blank">Ollama documentation</a> for specific guidance.</p>
         </div>
     </div>
-    
-    <div class="version-info">v1.0 - Ollama Edition</div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const sidebar = document.getElementById('sidebar');
-            const toggleSidebar = document.getElementById('toggle-sidebar');
-            const chatContainer = document.getElementById('chat-container');
-            const userInput = document.getElementById('user-input');
-            const sendButton = document.getElementById('send-button');
-            const typingIndicator = document.getElementById('typing-indicator');
-            const clearChatButton = document.getElementById('clear-chat');
-            const savePdfButton = document.getElementById('save-pdf');
-            const viewSessionsButton = document.getElementById('view-sessions');
-            const chatSessionsPanel = document.getElementById('chat-sessions-panel');
-            const closeSessionsButton = document.getElementById('close-sessions');
-            const sessionsContent = document.getElementById('sessions-content');
-            const newSessionButton = document.getElementById('new-session-btn');
-            const pdfLoading = document.getElementById('pdf-loading');
+            const endpointInput = document.getElementById('endpoint');
+            const modelInput = document.getElementById('model');
+            const testConnectionBtn = document.getElementById('test-connection');
+            const testCurlBtn = document.getElementById('test-curl');
+            const testCorsBtn = document.getElementById('test-cors');
             const statusDot = document.getElementById('status-dot');
             const statusText = document.getElementById('status-text');
-            const saveConfigButton = document.getElementById('save-config');
-            const endpointInput = document.getElementById('endpoint-input');
-            const modelInput = document.getElementById('model-input');
-            const currentModel = document.getElementById('current-model');
-            const configStatus = document.getElementById('config-status');
+            const responseContent = document.getElementById('response-content');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
             
-            // State variables
-            let isGeneratingResponse = false;
-            let chatHistory = [];
-            let currentSessionId = Date.now().toString();
-            let apiEndpoint = "http://139.99.69.205:11434/api/chat";
-            let modelName = "tinydolphin:latest";
-            
-            // Initialize from localStorage if available
-            function loadSettings() {
-                const savedEndpoint = localStorage.getItem('ollamaEndpoint');
-                const savedModel = localStorage.getItem('ollamaModel');
-                
-                if (savedEndpoint) {
-                    apiEndpoint = savedEndpoint;
-                    endpointInput.value = savedEndpoint;
-                }
-                
-                if (savedModel) {
-                    modelName = savedModel;
-                    modelInput.value = savedModel;
-                    currentModel.textContent = savedModel;
-                }
-                
-                // Test the connection
-                testConnection();
-            }
-            
-            // Test connection to Ollama
-            async function testConnection() {
-                statusDot.className = 'status-dot';
-                statusText.textContent = 'Testing connection...';
-                
-                try {
-                    // Test connection by listing available models
-                    const tagsEndpoint = apiEndpoint.replace('/api/chat', '/api/tags');
-                    const response = await fetch(tagsEndpoint, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show active content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
                         }
                     });
-                    
-                    if (response.ok) {
-                        statusDot.className = 'status-dot connected';
-                        statusText.textContent = 'Connected to Ollama';
-                        configStatus.textContent = 'Configuration saved and connected successfully.';
-                        configStatus.style.color = '';
-                    } else {
-                        throw new Error('Ollama returned an error');
-                    }
-                } catch (error) {
-                    console.error('Connection test failed:', error);
-                    statusDot.className = 'status-dot error';
-                    statusText.textContent = 'Cannot connect to Ollama';
-                    configStatus.textContent = 'Error: Could not connect to Ollama. Make sure it\'s running and the endpoint is correct.';
-                    configStatus.style.color = 'var(--error)';
-                }
-            }
-            
-            // Save configuration
-            saveConfigButton.addEventListener('click', function() {
-                apiEndpoint = endpointInput.value;
-                modelName = modelInput.value;
-                
-                localStorage.setItem('ollamaEndpoint', apiEndpoint);
-                localStorage.setItem('ollamaModel', modelName);
-                
-                currentModel.textContent = modelName;
-                configStatus.textContent = 'Configuration saved successfully.';
-                configStatus.style.color = '';
-                
-                // Test the new connection
-                testConnection();
-            });
-            
-            // Toggle sidebar
-            toggleSidebar.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                
-                if (sidebar.classList.contains('collapsed')) {
-                    toggleSidebar.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                } else {
-                    toggleSidebar.innerHTML = '<i class="fas fa-bars"></i>';
-                }
-            });
-            
-            // Mobile sidebar toggle
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('collapsed');
-                sidebar.addEventListener('click', function(e) {
-                    if (e.target === sidebar || e.target.closest('.sidebar-header')) {
-                        sidebar.classList.toggle('expanded');
-                    }
                 });
-            }
+            });
             
-            // Send message function
-            async function sendMessage() {
-                const message = userInput.value.trim();
-                if (!message || isGeneratingResponse) return;
+            // Test direct connection
+            testConnectionBtn.addEventListener('click', async function() {
+                const endpoint = endpointInput.value;
+                const model = modelInput.value;
                 
-                // Add user message to chat
-                addMessageToChat(message, 'user');
-                userInput.value = '';
-                
-                // Show typing indicator
-                isGeneratingResponse = true;
-                sendButton.disabled = true;
-                typingIndicator.classList.add('active');
+                updateStatus('Testing direct connection...', 'warning');
                 
                 try {
-                    // Prepare the request to Ollama API
-                    const requestBody = {
-                        model: modelName,
-                        messages: [
-                            ...chatHistory,
-                            { role: "user", content: message }
-                        ],
-                        stream: false
-                    };
-                    
-                    const response = await fetch(apiEndpoint, {
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(requestBody)
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [
+                                { role: "user", content: "Hello, are you working?" }
+                            ],
+                            stream: false
+                        })
                     });
                     
-                    if (!response.ok) {
+                    if (response.ok) {
+                        const data = await response.json();
+                        updateStatus('Direct connection successful!', 'success');
+                        responseContent.textContent = JSON.stringify(data, null, 2);
+                    } else {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    
-                    const data = await response.json();
-                    
-                    // Add AI response to chat
-                    addMessageToChat(data.message.content, 'ai');
-                    
-                    // Update chat history
-                    chatHistory.push(
-                        { role: "user", content: message },
-                        { role: "assistant", content: data.message.content }
-                    );
-                    
-                    // Save session
-                    saveChatSession();
-                    
                 } catch (error) {
-                    console.error('Error:', error);
-                    addMessageToChat("Sorry, I encountered an error processing your request. Please check if Ollama is running and the configuration is correct.", 'ai');
-                } finally {
-                    // Hide typing indicator
-                    isGeneratingResponse = false;
-                    sendButton.disabled = false;
-                    typingIndicator.classList.remove('active');
+                    updateStatus(`Error: ${error.message}`, 'error');
+                    responseContent.textContent = error.message + '\n\nThis is a CORS issue. Your browser is blocking the request.';
                 }
-            }
+            });
             
-            // Add message to chat
-            function addMessageToChat(message, sender) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', `${sender}-message`);
+            // Test curl command via proxy
+            testCurlBtn.addEventListener('click', async function() {
+                const endpoint = endpointInput.value;
+                const model = modelInput.value;
                 
-                // Format message with Markdown
-                const formattedMessage = marked.parse(message);
-                
-                messageElement.innerHTML = `
-                    <div class="message-content">${formattedMessage}</div>
-                    <span class="message-info">${new Date().toLocaleTimeString()}</span>
-                `;
-                
-                chatContainer.appendChild(messageElement);
-                
-                // Apply syntax highlighting to code blocks
-                messageElement.querySelectorAll('pre code').forEach((block) => {
-                    // Try to apply highlight.js
-                    if (window.hljs) {
-                        hljs.highlightElement(block);
-                    } else {
-                        // Fallback styling if hljs fails
-                        block.classList.add('hljs-fallback');
-                    }
-                    
-                    // Add copy button
-                    const copyButton = document.createElement('button');
-                    copyButton.classList.add('copy-button');
-                    copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
-                    copyButton.addEventListener('click', () => {
-                        navigator.clipboard.writeText(block.textContent).then(() => {
-                            copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                            copyButton.classList.add('copied');
-                            setTimeout(() => {
-                                copyButton.innerHTML = '<i class="fas fa-copy"></i> Copy';
-                                copyButton.classList.remove('copied');
-                            }, 2000);
-                        });
-                    });
-                    
-                    // Add run button for JavaScript code
-                    if (block.classList.contains('language-javascript') || 
-                        block.classList.contains('language-js')) {
-                        const runButton = document.createElement('button');
-                        runButton.classList.add('run-button');
-                        runButton.innerHTML = '<i class="fas fa-play"></i> Run';
-                        runButton.addEventListener('click', () => {
-                            try {
-                                // eslint-disable-next-line no-eval
-                                eval(block.textContent);
-                            } catch (error) {
-                                console.error('Error running code:', error);
-                                alert('Error running code: ' + error.message);
-                            }
-                        });
-                        block.parentElement.appendChild(runButton);
-                    }
-                    
-                    block.parentElement.appendChild(copyButton);
-                });
-                
-                // Scroll to bottom
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-            
-            // Save chat session to localStorage
-            function saveChatSession() {
-                const sessionData = {
-                    id: currentSessionId,
-                    title: chatHistory.length > 0 ? 
-                        chatHistory[0].content.substring(0, 30) + (chatHistory[0].content.length > 30 ? '...' : '') : 
-                        'New Chat',
-                    timestamp: Date.now(),
-                    history: chatHistory
-                };
-                
-                // Get existing sessions or initialize empty array
-                const sessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
-                
-                // Check if current session already exists
-                const existingSessionIndex = sessions.findIndex(session => session.id === currentSessionId);
-                
-                if (existingSessionIndex !== -1) {
-                    // Update existing session
-                    sessions[existingSessionIndex] = sessionData;
-                } else {
-                    // Add new session
-                    sessions.push(sessionData);
-                }
-                
-                // Save to localStorage
-                localStorage.setItem('chatSessions', JSON.stringify(sessions));
-                
-                // Update sessions panel
-                updateSessionsPanel();
-            }
-            
-            // Update sessions panel with saved sessions
-            function updateSessionsPanel() {
-                const sessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
-                
-                // Clear current content
-                sessionsContent.innerHTML = '';
-                
-                if (sessions.length === 0) {
-                    sessionsContent.innerHTML = '<div class="no-sessions">No saved sessions yet</div>';
-                    return;
-                }
-                
-                // Sort sessions by timestamp (newest first)
-                sessions.sort((a, b) => b.timestamp - a.timestamp);
-                
-                // Add each session to the panel
-                sessions.forEach(session => {
-                    const sessionElement = document.createElement('div');
-                    sessionElement.classList.add('session-item');
-                    if (session.id === currentSessionId) {
-                        sessionElement.classList.add('active');
-                    }
-                    
-                    sessionElement.innerHTML = `
-                        <div class="session-title">
-                            <span>${session.title}</span>
-                            <div class="session-actions">
-                                <button class="session-action delete-session" data-id="${session.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="session-preview">${session.history.length > 0 ? 
-                            session.history[0].content.substring(0, 50) + (session.history[0].content.length > 50 ? '...' : '') : 
-                            'Empty chat'}</div>
-                        <div class="session-date">${new Date(session.timestamp).toLocaleString()}</div>
-                    `;
-                    
-                    sessionElement.addEventListener('click', (e) => {
-                        if (!e.target.closest('.session-action')) {
-                            loadSession(session.id);
-                            chatSessionsPanel.classList.remove('open');
-                        }
-                    });
-                    
-                    const deleteButton = sessionElement.querySelector('.delete-session');
-                    deleteButton.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteSession(session.id);
-                    });
-                    
-                    sessionsContent.appendChild(sessionElement);
-                });
-            }
-            
-            // Load a chat session
-            function loadSession(sessionId) {
-                const sessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
-                const session = sessions.find(s => s.id === sessionId);
-                
-                if (session) {
-                    // Clear current chat
-                    chatContainer.innerHTML = '';
-                    
-                    // Set current session ID
-                    currentSessionId = sessionId;
-                    
-                    // Load chat history
-                    chatHistory = session.history || [];
-                    
-                    // Add welcome message if no history
-                    if (chatHistory.length === 0) {
-                        chatContainer.innerHTML = `
-                            <div class="message ai-message">
-                                <div class="message-content">
-                                    <i class="fas fa-robot"></i> Hello! I'm an AI assistant powered by Ollama. How can I help you today?
-                                </div>
-                                <span class="message-info">Model: ${modelName}</span>
-                            </div>
-                        `;
-                    } else {
-                        // Replay the conversation
-                        chatHistory.forEach((msg, index) => {
-                            addMessageToChat(msg.content, msg.role === 'user' ? 'user' : 'ai');
-                        });
-                    }
-                    
-                    // Update sessions panel
-                    updateSessionsPanel();
-                }
-            }
-            
-            // Delete a chat session
-            function deleteSession(sessionId) {
-                let sessions = JSON.parse(localStorage.getItem('chatSessions') || '[]');
-                sessions = sessions.filter(session => session.id !== sessionId);
-                
-                localStorage.setItem('chatSessions', JSON.stringify(sessions));
-                
-                // If we deleted the current session, create a new one
-                if (sessionId === currentSessionId) {
-                    newChatSession();
-                }
-                
-                // Update sessions panel
-                updateSessionsPanel();
-            }
-            
-            // Create a new chat session
-            function newChatSession() {
-                currentSessionId = Date.now().toString();
-                chatHistory = [];
-                
-                // Clear chat container
-                chatContainer.innerHTML = `
-                    <div class="message ai-message">
-                        <div class="message-content">
-                            <i class="fas fa-robot"></i> Hello! I'm an AI assistant powered by Ollama. How can I help you today?
-                        </div>
-                        <span class="message-info">Model: ${modelName}</span>
-                    </div>
-                `;
-                
-                // Save the new session
-                saveChatSession();
-            }
-            
-            // Generate PDF from chat
-            async function generatePDF() {
-                pdfLoading.style.display = 'flex';
-                
-                // Use html2canvas and jsPDF
-                const { jsPDF } = window.jspdf;
+                updateStatus('Testing via proxy...', 'warning');
                 
                 try {
-                    // Create a temporary container for the PDF content
-                    const pdfContainer = document.createElement('div');
-                    pdfContainer.style.width = '800px';
-                    pdfContainer.style.padding = '20px';
-                    pdfContainer.style.backgroundColor = 'white';
-                    pdfContainer.style.fontFamily = 'Arial, sans-serif';
+                    // Use a CORS proxy to simulate the curl command
+                    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(endpoint)}`;
                     
-                    // Add title
-                    const title = document.createElement('h1');
-                    title.textContent = 'Chat Conversation';
-                    title.style.textAlign = 'center';
-                    title.style.marginBottom = '20px';
-                    title.style.color = '#6366f1';
-                    pdfContainer.appendChild(title);
-                    
-                    // Add model info
-                    const modelInfo = document.createElement('div');
-                    modelInfo.textContent = `Model: ${modelName} | Date: ${new Date().toLocaleString()}`;
-                    modelInfo.style.textAlign = 'center';
-                    modelInfo.style.marginBottom = '30px';
-                    modelInfo.style.color = '#666';
-                    pdfContainer.appendChild(modelInfo);
-                    
-                    // Clone each message and style for PDF
-                    const messages = chatContainer.querySelectorAll('.message');
-                    
-                    messages.forEach(message => {
-                        const msgClone = message.cloneNode(true);
-                        
-                        // Apply PDF styles
-                        msgClone.style.marginBottom = '15px';
-                        msgClone.style.padding = '10px 15px';
-                        msgClone.style.borderRadius = '8px';
-                        msgClone.style.maxWidth = '100%';
-                        
-                        if (msgClone.classList.contains('user-message')) {
-                            msgClone.style.backgroundColor = '#6366f1';
-                            msgClone.style.color = 'white';
-                            msgClone.style.marginLeft = 'auto';
-                        } else {
-                            msgClone.style.backgroundColor = '#f3f4f6';
-                            msgClone.style.color = '#1f2937';
-                            msgClone.style.marginRight = 'auto';
-                        }
-                        
-                        // Remove interactive elements
-                        const copyButtons = msgClone.querySelectorAll('.copy-button, .run-button');
-                        copyButtons.forEach(btn => btn.remove());
-                        
-                        pdfContainer.appendChild(msgClone);
+                    const response = await fetch(proxyUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [
+                                { role: "user", content: "Hello, are you working?" }
+                            ],
+                            stream: false
+                        })
                     });
                     
-                    // Wait for images to load
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    // Convert to canvas then to image
-                    const canvas = await html2canvas(pdfContainer, {
-                        scale: 2,
-                        useCORS: true,
-                        logging: false
-                    });
-                    
-                    const imgData = canvas.toDataURL('image/png');
-                    
-                    // Create PDF
-                    const pdf = new jsPDF({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
-                    });
-                    
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    
-                    // Calculate image dimensions to fit PDF
-                    const imgWidth = canvas.width;
-                    const imgHeight = canvas.height;
-                    const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
-                    const imgX = (pdfWidth - imgWidth * ratio) / 2;
-                    const imgY = 10;
-                    
-                    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-                    pdf.save(`chat-conversation-${new Date().toISOString().slice(0, 10)}.pdf`);
-                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        updateStatus('CURL-style request successful!', 'success');
+                        responseContent.textContent = JSON.stringify(data, null, 2);
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                 } catch (error) {
-                    console.error('Error generating PDF:', error);
-                    alert('Failed to generate PDF. Please try again.');
-                } finally {
-                    pdfLoading.style.display = 'none';
-                }
-            }
-            
-            // Event listeners
-            sendButton.addEventListener('click', sendMessage);
-            
-            userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
+                    updateStatus(`Error: ${error.message}`, 'error');
+                    responseContent.textContent = error.message + '\n\nThe proxy is being blocked (403 error). Your server may have IP restrictions.';
                 }
             });
             
-            clearChatButton.addEventListener('click', function() {
-                if (confirm('Are you sure you want to clear the chat?')) {
-                    // Keep only the first welcome message
-                    const welcomeMessage = chatContainer.querySelector('.ai-message');
-                    chatContainer.innerHTML = '';
-                    if (welcomeMessage) {
-                        chatContainer.appendChild(welcomeMessage);
+            // Test CORS settings
+            testCorsBtn.addEventListener('click', async function() {
+                const endpoint = endpointInput.value;
+                
+                updateStatus('Testing CORS settings...', 'warning');
+                
+                try {
+                    // Test OPTIONS request to check CORS
+                    const response = await fetch(endpoint, {
+                        method: 'OPTIONS',
+                        headers: {
+                            'Origin': window.location.origin,
+                            'Access-Control-Request-Method': 'POST',
+                            'Access-Control-Request-Headers': 'Content-Type'
+                        }
+                    });
+                    
+                    const corsHeaders = {};
+                    if (response.headers.has('Access-Control-Allow-Origin')) {
+                        corsHeaders['Access-Control-Allow-Origin'] = response.headers.get('Access-Control-Allow-Origin');
+                    }
+                    if (response.headers.has('Access-Control-Allow-Methods')) {
+                        corsHeaders['Access-Control-Allow-Methods'] = response.headers.get('Access-Control-Allow-Methods');
                     }
                     
-                    // Clear history
-                    chatHistory = [];
-                    
-                    // Save the cleared session
-                    saveChatSession();
+                    if (Object.keys(corsHeaders).length > 0) {
+                        updateStatus('CORS headers detected', 'success');
+                        responseContent.textContent = JSON.stringify(corsHeaders, null, 2);
+                    } else {
+                        updateStatus('No CORS headers found', 'error');
+                        responseContent.textContent = 'Your server is not sending CORS headers. This is why browsers block the requests.';
+                    }
+                } catch (error) {
+                    updateStatus(`Error: ${error.message}`, 'error');
+                    responseContent.textContent = error.message + '\n\nCannot test CORS settings. This usually means the server is not configured for CORS.';
                 }
             });
             
-            savePdfButton.addEventListener('click', generatePDF);
-            
-            viewSessionsButton.addEventListener('click', function() {
-                updateSessionsPanel();
-                chatSessionsPanel.classList.add('open');
-            });
-            
-            closeSessionsButton.addEventListener('click', function() {
-                chatSessionsPanel.classList.remove('open');
-            });
-            
-            newSessionButton.addEventListener('click', function() {
-                newChatSession();
-                chatSessionsPanel.classList.remove('open');
-            });
-            
-            // Initialize
-            loadSettings();
-            updateSessionsPanel();
-            
-            // Set focus to input
-            userInput.focus();
+            function updateStatus(message, status) {
+                statusText.textContent = message;
+                
+                // Reset classes
+                statusDot.classList.remove('connected', 'error', 'warning');
+                responseContent.classList.remove('success', 'error', 'warning');
+                
+                if (status === 'success') {
+                    statusDot.classList.add('connected');
+                    responseContent.classList.add('success');
+                } else if (status === 'error') {
+                    statusDot.classList.add('error');
+                    responseContent.classList.add('error');
+                } else if (status === 'warning') {
+                    statusDot.classList.add('warning');
+                    responseContent.classList.add('warning');
+                }
+            }
         });
     </script>
 </body>
