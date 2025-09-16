@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ollama Model Browser v1.0 – Local AI Models</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --secondary: #10b981;
+        --ollama: #7C3AED;
+        --dark: #1f2937;
+        --light: #f9fafb;
+        --gray: #9ca3af;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        color: var(--dark);
+    }
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .card {
+        background: var(--light);
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        position: relative;
+    }
+
+    .version-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--ollama);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 10;
+    }
+
+    .card-header {
+        background: var(--ollama);
+        color: white;
+        padding: 1.5rem 2rem;
+        position: relative;
+    }
+
+    .card-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header p {
+        opacity: 0.9;
+        font-size: 0.95rem;
+        max-width: 90%;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: var(--transition);
+        background: white;
+    }
+
+    .input-prefix {
+        background: #f3f4f6;
+        padding: 0.875rem 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+
+    .input-main {
+        flex: 1;
+        border-radius: 0 8px 8px 0;
+        border-left: none;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--ollama);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.75rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-primary {
+        background: var(--ollama);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    .btn-secondary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .result-container {
+        margin-top: 2rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        display: none;
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .result-header h3 {
+        font-size: 1.1rem;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .result-content {
+        padding: 1.5rem;
+        max-height: 400px;
+        overflow: auto;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .stats {
+        display: flex;
+        gap: 1.5rem;
+        padding: 0.75rem 1.5rem;
+        background: #f1f5f9;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+    }
+
+    .stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(99, 102, 241, 0.2);
+        border-radius: 50%;
+        border-top-color: var(--ollama);
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        background: var(--dark);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: var(--transition);
+        z-index: 1000;
+    }
+
+    .notification.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .provider-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .tag-ollama {
+        background: rgba(124, 58, 237, 0.15);
+        color: #7C3AED;
+    }
+
+    .info-box {
+        background: #eef2ff;
+        border-left: 4px solid var(--ollama);
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .cors-warning {
+        background: #fef3c7;
+        border-left: 4px solid var(--warning);
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            margin: 1rem;
+        }
+        
+        .card-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+        
+        .stats {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .input-wrapper {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .input-prefix {
+            border-radius: 8px 8px 0 0;
+            border-right: 1px solid #e5e7eb;
+            border-bottom: none;
+            text-align: center;
+        }
+        
+        .input-main {
+            border-radius: 0 0 8px 8px;
+            border-left: 1px solid #e5e7eb;
+            border-top: none;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="version-badge">v1.0</div>
+        <div class="card-header">
+            <h1><i class="fas fa-brain"></i> Ollama Model Browser</h1>
+            <p>Browse models available on your Ollama installation. Enter the server IP address to get started.</p>
+        </div>
+        
+        <div class="card-body">
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i> Enter the IP address of your Ollama server. The default port is 11434.
+            </div>
+            
+            <div class="cors-warning">
+                <i class="fas fa-exclamation-triangle"></i> <strong>CORS Issue Detected:</strong> Using proxy workaround to fetch models from your Ollama server.
+            </div>
+            
+            <div class="form-group" style="animation-delay: 0.1s">
+                <label for="serverIp"><i class="fas fa-server"></i> Server IP Address</label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">http://</span>
+                    <input type="text" id="serverIp" class="input-main" placeholder="139.99.69.205:11434" value="139.99.69.205:11434">
+                </div>
+                <small style="display: block; margin-top: 0.5rem; color: var(--gray);">Format: IP:Port (e.g., 139.99.69.205:11434)</small>
+            </div>
+            
+            <div class="actions">
+                <button id="loadBtn" class="btn btn-primary"><i class="fas fa-rocket"></i> Load Models</button>
+                <button id="clearBtn" class="btn"><i class="fas fa-broom"></i> Clear</button>
+            </div>
+            
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Fetching models from Ollama...</p>
+            </div>
+            
+            <div class="result-container">
+                <div class="result-header">
+                    <h3><i class="fas fa-list"></i> Available Models</h3>
+                    <button id="copyAllBtn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy All</button>
+                </div>
+                <div class="result-content"></div>
+                <div class="stats">
+                    <div class="stat"><i class="fas fa-clock"></i> <span id="responseTime">--</span> ms</div>
+                    <div class="stat"><i class="fas fa-database"></i> <span id="modelCount">0</span> models</div>
+                    <div class="stat"><i class="fas fa-hashtag"></i> <span id="totalChars">0</span> characters</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-text"></span>
+</div>
+
+<script>
+/* ---------- DOM Elements ---------- */
+const serverIpInput   = document.getElementById('serverIp');
+const loadBtn         = document.getElementById('loadBtn');
+const clearBtn        = document.getElementById('clearBtn');
+const copyBtn         = document.getElementById('copyAllBtn');
+const resultContainer = document.querySelector('.result-container');
+const resultContent   = document.querySelector('.result-content');
+const loadingElement  = document.querySelector('.loading');
+const notification    = document.getElementById('notification');
+const notificationText = document.getElementById('notification-text');
+const responseTimeEl  = document.getElementById('responseTime');
+const modelCountEl    = document.getElementById('modelCount');
+const totalCharsEl    = document.getElementById('totalChars');
+
+/* ---------- Clear Form ---------- */
+clearBtn.addEventListener('click', () => {
+    serverIpInput.value = '139.99.69.205:11434';
+    resultContainer.style.display = 'none';
+    showNotification('Form cleared');
+});
+
+/* ---------- Show Notification ---------- */
+function showNotification(message, isError = false) {
+    notificationText.textContent = message;
+    notification.style.background = isError ? 'var(--error)' : 'var(--dark)';
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+/* ---------- CORS Proxy Workaround ---------- */
+// Using a CORS proxy to bypass the CORS error
+function getProxyUrl(targetUrl) {
+    // You can replace this with your own proxy if needed
+    return `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+}
+
+/* ---------- Main fetching logic ---------- */
+loadBtn.addEventListener('click', async () => {
+    const serverIp = serverIpInput.value.trim();
+
+    // Reset UI
+    resultContainer.style.display = 'none';
+    resultContent.textContent = '';
+    
+    // Validation
+    if (!serverIp) {
+        showNotification('Server IP is required', true);
+        return;
+    }
+
+    // Construct the endpoint URL
+    const endpoint = `http://${serverIp}/v1/models`;
+    const proxyUrl = getProxyUrl(endpoint);
+    
+    // Show loading state
+    loadingElement.style.display = 'block';
+    loadBtn.disabled = true;
+    
+    const startTime = Date.now();
+    
+    try {
+        // Add timeout to the fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
+        console.log("Fetching from proxy:", proxyUrl);
+        const resp = await fetch(proxyUrl, { 
+            signal: controller.signal 
+        });
+        
+        clearTimeout(timeoutId);
+        
+        // Calculate response time
+        const responseTime = Date.now() - startTime;
+        responseTimeEl.textContent = responseTime;
+        
+        if (!resp.ok) {
+            if (resp.status === 0) {
+                throw new Error('Cannot connect to proxy server. Please check your internet connection.');
+            }
+            throw new Error(`HTTP ${resp.status} – ${resp.statusText}`);
+        }
+        
+        const data = await resp.json();
+        
+        // The proxy returns the content in the contents property
+        let ollamaData;
+        try {
+            ollamaData = JSON.parse(data.contents);
+        } catch (e) {
+            throw new Error('Invalid response from Ollama server');
+        }
+        
+        // Extract model names from Ollama response
+        let modelNames = [];
+        
+        if (ollamaData.data && Array.isArray(ollamaData.data)) {
+            ollamaData.data.forEach(model => {
+                modelNames.push(model.id);
+            });
+        } else {
+            throw new Error('Unexpected response format from Ollama');
+        }
+        
+        // Update stats
+        modelCountEl.textContent = modelNames.length;
+        totalCharsEl.textContent = modelNames.join('\n').length;
+        
+        if (modelNames.length === 0) {
+            resultContent.textContent = 'No models found. Install models using: ollama pull <model-name>';
+        } else {
+            resultContent.textContent = modelNames.join('\n');
+        }
+        
+        resultContainer.style.display = 'block';
+        showNotification(`Successfully loaded ${modelNames.length} models from Ollama`);
+        
+    } catch (err) {
+        let errorMsg = err.message;
+        if (err.name === 'AbortError') {
+            errorMsg = 'Request timed out. Please check if Ollama is running on the specified server.';
+        } else if (err.message.includes('Failed to fetch')) {
+            errorMsg = 'Cannot connect to proxy server. Please check your internet connection.';
+        }
+        
+        resultContent.innerHTML = `<span style="color: var(--error);">Error: ${errorMsg}</span>`;
+        resultContainer.style.display = 'block';
+        showNotification(`Error: ${errorMsg}`, true);
+    } finally {
+        loadingElement.style.display = 'none';
+        loadBtn.disabled = false;
+    }
+});
+
+/* ---------- Copy button ---------- */
+copyBtn.addEventListener('click', async () => {
+    const txt = resultContent.textContent;
+    try {
+        await navigator.clipboard.writeText(txt);
+        showNotification('All models copied to clipboard!');
+    } catch (e) {
+        showNotification('Copy failed: ' + e, true);
+    }
+});
+</script>
+
+</body>
+</html>
