@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Model Browser v2.6 – Free OpenRouter + Groq + SambaNova + DeepInfra + Cerebras + Polination</title>
+<title>Model Browser v2.4 – Free OpenRouter + Groq + SambaNova + DeepInfra</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     :root {
@@ -11,8 +11,6 @@
         --primary-dark: #4f46e5;
         --secondary: #10b981;
         --deepinfra: #8B5CF6;
-        --cerebras: #EC4899;
-        --polination: #3B82F6;
         --dark: #1f2937;
         --light: #f9fafb;
         --gray: #9ca3af;
@@ -311,16 +309,6 @@
         color: #8b5cf6;
     }
 
-    .tag-cerebras {
-        background: rgba(236, 72, 153, 0.15);
-        color: #EC4899;
-    }
-
-    .tag-polination {
-        background: rgba(59, 130, 246, 0.15);
-        color: #3B82F6;
-    }
-
     @media (max-width: 768px) {
         .container {
             margin: 1rem;
@@ -349,7 +337,7 @@
 
 <div class="container">
     <div class="card">
-        <div class="version-badge">v2.6</div>
+        <div class="version-badge">v2.4</div>
         <div class="card-header">
             <h1><i class="fas fa-brain"></i> Model Browser</h1>
             <p>Choose a provider, add an API key when required, and press <strong>Load Models</strong>. For <strong>OpenRouter</strong> the list is filtered to show only free-tier models.</p>
@@ -363,8 +351,6 @@
                     <option value="groq">Groq <span class="provider-tag tag-groq">API key required</span></option>
                     <option value="sambanova">SambaNova <span class="provider-tag tag-sambanova">API key required</span></option>
                     <option value="deepinfra">DeepInfra <span class="provider-tag tag-deepinfra">API key optional</span></option>
-                    <option value="cerebras">Cerebras <span class="provider-tag tag-cerebras">API key required</span></option>
-                    <option value="polination">Polination <span class="provider-tag tag-polination">No API key needed</span></option>
                 </select>
             </div>
             
@@ -373,7 +359,7 @@
                 <div class="input-wrapper">
                     <input type="text" id="apikey" placeholder="sk-…">
                 </div>
-                <small style="display: block; margin-top: 0.5rem; color: var(--gray);">Optional for OpenRouter & DeepInfra, required for Groq, SambaNova & Cerebras, not needed for Polination</small>
+                <small style="display: block; margin-top: 0.5rem; color: var(--gray);">Optional for OpenRouter & DeepInfra, required for Groq & SambaNova</small>
             </div>
             
             <div class="form-group" style="animation-delay: 0.3s">
@@ -432,14 +418,6 @@ const defaults = {
     deepinfra: {
         endpoint: 'https://api.deepinfra.com/v1/openai/models',
         keyOptional: true
-    },
-    cerebras: {
-        endpoint: 'https://api.cerebras.ai/v1/models',
-        keyOptional: false
-    },
-    polination: {
-        endpoint: 'https://text.pollinations.ai/openai/models',
-        keyOptional: true
     }
 };
 
@@ -463,14 +441,7 @@ const totalCharsEl    = document.getElementById('totalChars');
 function applyDefaults(){
     const p = providerSelect.value;
     endpointInput.value = defaults[p].endpoint;
-    
-    if (p === 'polination') {
-        apiKeyInput.placeholder = 'No API key needed';
-        apiKeyInput.disabled = true;
-    } else {
-        apiKeyInput.disabled = false;
-        apiKeyInput.placeholder = defaults[p].keyOptional ? 'sk-… (optional)' : 'sk-… (required)';
-    }
+    apiKeyInput.placeholder = defaults[p].keyOptional ? 'sk-… (optional)' : 'sk-… (required)';
 }
 providerSelect.addEventListener('change', applyDefaults);
 
@@ -514,7 +485,7 @@ loadBtn.addEventListener('click', async () => {
         return;
     }
 
-    if (!defaults[provider].keyOptional && !apiKey && provider !== 'polination') {
+    if (!defaults[provider].keyOptional && !apiKey) {
         showNotification(`${provider.charAt(0).toUpperCase()+provider.slice(1)} requires an API key`, true);
         return;
     }
@@ -527,7 +498,7 @@ loadBtn.addEventListener('click', async () => {
     
     try {
         const headers = new Headers();
-        if (apiKey && provider !== 'polination') headers.set('Authorization', `Bearer ${apiKey}`);
+        if (apiKey) headers.set('Authorization', `Bearer ${apiKey}`);
         
         // Add timeout to the fetch request
         const controller = new AbortController();
@@ -570,7 +541,7 @@ loadBtn.addEventListener('click', async () => {
                       modelNames.push(m.id);
                   });
         } else {
-            // Other providers: just list all model IDs
+            // Groq, SambaNova & DeepInfra: just list all model IDs
             models.forEach(m => {
                 modelNames.push(m.id);
             });
